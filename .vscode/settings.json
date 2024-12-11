@@ -5,5 +5,10 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "vscode.typescript-language-features",
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
 }
