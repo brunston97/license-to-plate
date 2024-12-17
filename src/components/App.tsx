@@ -1,27 +1,34 @@
 import React from 'react'
 import {Card, CardHeader, CardBody, Image} from '@nextui-org/react'
 
-const randoms = [
-  [1, 2],
-  [3, 4, 5],
-  [6, 7]
-]
-
 function App() {
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-      <Card className="py-4">
-        <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-          <p className="text-tiny uppercase font-bold">Plate 1</p>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", gap: "80px" }}>
+      <Card className="py-1 mr-7">
+        <CardHeader className="pb-1 pt-2 px-4 flex-col items-center">
+          <p className="text-large uppercase font-bold">FSU FSU</p>
           <small className="text-default-500">By garlicgirl</small>
-          <h4 className="font-bold text-large">FSU FSU</h4>
         </CardHeader>
         <CardBody className="overflow-visible py-2">
           <Image
             alt="Card background"
             className="object-cover rounded-xl"
             src="src/assets/this.jpg"
-            width={270}
+            width={400}
+          />
+        </CardBody>
+      </Card>
+      <Card className="py-1 ml-7">
+        <CardHeader className="pb-1 pt-2 px-4 flex-col items-center">
+          <p className="text-large uppercase font-bold">HOT BOY</p>
+          <small className="text-default-500">By frogspotting</small>
+        </CardHeader>
+        <CardBody className="overflow-visible py-2">
+          <Image
+            alt="Card background"
+            className="object-cover rounded-xl"
+            src="src/assets/that.jpg"
+            width={400}
           />
         </CardBody>
       </Card>
