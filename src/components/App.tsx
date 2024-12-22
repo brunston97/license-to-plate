@@ -7,8 +7,8 @@ function App() {
       <div style={{textAlign: "center" }}>
         <Header/>
       </div>
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh", gap: "80px", backgroundColor: "#9aa9dd" }}>
-        <Card className="py-1 mr-7" isHoverable isPressable>
+      <div className="flex lg:gap-20 md:gap-5 sm:gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "75vh", backgroundColor: "#9aa9dd" }}>
+        <Card className="py-1 ml-3 mr-2" isHoverable isPressable>
           <CardHeader className="pb-1 pt-2 px-4 flex-col items-center">
             <p className="text-large uppercase font-bold">FSU FSU</p>
             <small className="text-default-500">By garlicgirl</small>
@@ -22,7 +22,7 @@ function App() {
             />
           </CardBody>
         </Card>
-        <Card className="py-1 ml-7" isHoverable isPressable>
+        <Card className="py-1 mr-3 ml-2" isHoverable isPressable>
           <CardHeader className="pb-1 pt-2 px-4 flex-col items-center">
             <p className="text-large uppercase font-bold">HOT BOY</p>
             <small className="text-default-500">By frogspotting</small>
