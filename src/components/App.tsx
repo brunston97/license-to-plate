@@ -3,11 +3,11 @@ import {Card, CardHeader, CardBody, Image} from '@nextui-org/react'
 
 function App() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#9aa9dd" }}>
+    <div className="min-h-screen bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-8">
       <div style={{textAlign: "center" }}>
         <Header/>
       </div>
-      <div className="flex lg:gap-20 md:gap-5 sm:gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "75vh", backgroundColor: "#9aa9dd" }}>
+      <div className="flex lg:gap-20 md:gap-5 sm:gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "75vh"}}>
         <Card className="py-1 ml-3 mr-2" isHoverable isPressable>
           <CardHeader className="pb-1 pt-2 px-4 flex-col items-center">
             <p className="text-large uppercase font-bold">FSU FSU</p>
