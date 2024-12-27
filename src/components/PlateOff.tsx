@@ -1,33 +1,106 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PlateCard from "./PlateCard";
 
 const images = [
-  "plate1.jpg","plate2.jpg","plate3.jpg","plate4.jpg","plate5.jpg",
-  "plate6.jpg","plate7.jpg","plate8.jpg","plate9.jpg","plate10.jpg"
+  "plate1.jpg", "plate2.jpg", "plate3.jpg", "plate4.jpg", "plate5.jpg",
+  "plate6.jpg", "plate7.jpg", "plate8.jpg", "plate9.jpg", "plate10.jpg"
 ];
+const PLATEDB = 'testDb';
+
+// TODO, put in own export types tsx file
+export interface IPlateCard {
+  id: number,
+  url: string,
+  voteCount: number
+  uploader: string
+  title: string
+}
+
+interface ITestDb {
+  cards: IPlateCard[]
+  voteMap: {
+    [id: number]: number // id x voteCount
+  }
+  user?: string
+  userVotesById_DEFINITELY_NOT_FOR_DATA_TRACKING?: IPlateCard['id'][]
+}
 
 const PlateOff = () => {
 
-  const [card1Image, setCard1Image] = useState(`src/assets/${images[0]}`);
-  const [card2Image, setCard2Image] = useState(`src/assets/${images[1]}`);
+  //const [card1Image, setCard1Image] = useState(`src/assets/${images[0]}`);
+  //const [card2Image, setCard2Image] = useState(`src/assets/${images[1]}`);
+  const [card1, setCard1] = useState<IPlateCard>();
+  const [card2, setCard2] = useState<IPlateCard>();
   const [usedIndexes, setUsedIndexes] = useState(new Set().add(0).add(1));
   const [lastIndexPair, setLastIndexPair] = useState<number[]>([0, 1]);
+  const [testDb, setTestDb] = useState<ITestDb>(getDb())
 
-  const handleCard1Click = () => {
-    handleCardClick();
+  // onMount Call 
+  useEffect(() => {
+    // let existingDb = getDb()
+    // if(existingDb){
+    //   setTestDb(existingDb)  
+    // } else {
+
+    // }
+
+    if (testDb.cards.length == 0) {
+      let newCards: IPlateCard[] = []
+      for (let i = 1; i < 11; i++) {
+        newCards.push({ id: i, url: `src/assets/plate${i}.jpg`, voteCount: 0, uploader: 'garlic girl', title: 'FSU FSU' })
+      }
+      console.log(newCards)
+      setTestDb(db => {
+        db.cards = [...newCards]
+        return db
+      })
+    }
+    handleCardClick()
+  }, [])
+
+  function getDb() {
+    const existingDb = localStorage.getItem(PLATEDB)
+    if (existingDb) {
+      let initDb = JSON.parse(existingDb) as ITestDb
+      return initDb
+    }
+    return { cards: [], voteMap: {} }
   }
 
-  const handleCard2Click = () => {
-    handleCardClick();
+  function setDb(toSave: ITestDb) {
+    localStorage.setItem(PLATEDB, JSON.stringify(toSave))
   }
+
+
+  function onCardClick(card: IPlateCard) {
+    let db = getDb()
+    if (db) {
+      db.voteMap[card.id] = (db.voteMap[card.id] || 0) + 1;
+      setDb(db)
+
+      // the test db should not affect the ui but it is nice to keep the changes up to date for testing.
+      // useState should only be used to keep track of anything that changes the UI
+      // when the values change, the page ...reacts
+      setTestDb(db)
+    }
+    handleCardClick()
+  }
+
+  // const handleCard1Click = () => {
+  //   handleCardClick();
+  // }
+
+  // const handleCard2Click = () => {
+  //   handleCardClick();
+  // }
 
   const handleCardClick = () => {
-    const [image1, image2] = getRandomImages();
-    setCard1Image(image1);
-    setCard2Image(image2);
+    const [index1, index2] = getRandomImages();
+    setCard1(testDb.cards[index1]);
+    setCard2(testDb.cards[index2]);
   }
 
-  const getRandomImages = () => {
+  const getRandomImages = (): number[] => {
     let randomIndex1, randomIndex2;
     if (images.length - usedIndexes.size < 2) {
       randomIndex1 = 0;
@@ -39,7 +112,7 @@ const PlateOff = () => {
     }
 
     setLastIndexPair([randomIndex1, randomIndex2]);
-    return [`src/assets/${images[randomIndex1]}`,`src/assets/${images[randomIndex2]}`];
+    return [randomIndex1, randomIndex2]//[`src/assets/${images[randomIndex1]}`, `src/assets/${images[randomIndex2]}`];
   }
 
   const getRandomUnusedIndexes = () => {
@@ -55,10 +128,11 @@ const PlateOff = () => {
 
     return [index1, index2];
   }
+
   return (
-    <div className="flex lg:gap-20 md:gap-5 sm:gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "75vh"}}>
-        <PlateCard image={card1Image} onPlateCardVote={handleCard1Click} />
-        <PlateCard image={card2Image} onPlateCardVote={handleCard2Click}/>
+    <div className=" plate-container relative h-[50vh] flex content-center items-center justify-around lg:gap-20 md:gap-5 sm:gap-5">
+      {card1 && <PlateCard card={card1} onPlateCardVote={onCardClick} />}
+      {card2 && <PlateCard card={card2} onPlateCardVote={onCardClick} />}
     </div>
   );
 }
