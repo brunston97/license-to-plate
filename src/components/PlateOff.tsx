@@ -49,11 +49,11 @@ const PlateOff = () => {
       for (let i = 1; i < 11; i++) {
         newCards.push({ id: i, url: `src/assets/plate${i}.jpg`, voteCount: 0, uploader: 'garlic girl', title: 'FSU FSU' })
       }
-      console.log(newCards)
-      setTestDb(db => {
-        db.cards = [...newCards]
-        return db
-      })
+      let db = getDb()
+      db.cards = [...newCards]
+
+      setTestDb(db)
+      setDb(db)
     }
     handleCardClick()
   }, [])
