@@ -130,7 +130,7 @@ const PlateOff = () => {
   }
 
   return (
-    <div className=" plate-container relative h-[50vh] flex content-center items-center justify-around lg:gap-20 md:gap-5 sm:gap-5">
+    <div className=" plate-container relative flex-gro overflow-hidden flex content-center items-center justify-around lg:gap-20 md:gap-5 sm:gap-5">
       {card1 && <PlateCard card={card1} onPlateCardVote={onCardClick} />}
       {card2 && <PlateCard card={card2} onPlateCardVote={onCardClick} />}
     </div>
