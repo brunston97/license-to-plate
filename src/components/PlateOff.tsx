@@ -1,16 +1,24 @@
-import React, { useEffect, useState } from "react";
-import PlateCard from "./PlateCard";
+import React, { useEffect, useState } from 'react'
+import PlateCard from './PlateCard'
 
 const images = [
-  "plate1.jpg", "plate2.jpg", "plate3.jpg", "plate4.jpg", "plate5.jpg",
-  "plate6.jpg", "plate7.jpg", "plate8.jpg", "plate9.jpg", "plate10.jpg"
-];
-const PLATEDB = 'testDb';
+  'plate1.jpg',
+  'plate2.jpg',
+  'plate3.jpg',
+  'plate4.jpg',
+  'plate5.jpg',
+  'plate6.jpg',
+  'plate7.jpg',
+  'plate8.jpg',
+  'plate9.jpg',
+  'plate10.jpg'
+]
+const PLATEDB = 'testDb'
 
 // TODO, put in own export types tsx file
 export interface IPlateCard {
-  id: number,
-  url: string,
+  id: number
+  url: string
   voteCount: number
   uploader: string
   title: string
@@ -26,30 +34,35 @@ interface ITestDb {
 }
 
 const PlateOff = () => {
-
   //const [card1Image, setCard1Image] = useState(`src/assets/${images[0]}`);
   //const [card2Image, setCard2Image] = useState(`src/assets/${images[1]}`);
-  const [card1, setCard1] = useState<IPlateCard>();
-  const [card2, setCard2] = useState<IPlateCard>();
-  const [usedIndexes, setUsedIndexes] = useState(new Set().add(0).add(1));
-  const [lastIndexPair, setLastIndexPair] = useState<number[]>([0, 1]);
+  const [card1, setCard1] = useState<IPlateCard>()
+  const [card2, setCard2] = useState<IPlateCard>()
+  const [usedIndexes, setUsedIndexes] = useState(new Set().add(0).add(1))
+  //const [lastIndexPair, setLastIndexPair] = useState<number[]>([0, 1])
   const [testDb, setTestDb] = useState<ITestDb>(getDb())
 
-  // onMount Call 
+  // onMount Call
   useEffect(() => {
     // let existingDb = getDb()
     // if(existingDb){
-    //   setTestDb(existingDb)  
+    //   setTestDb(existingDb)
     // } else {
 
     // }
 
     if (testDb.cards.length == 0) {
-      let newCards: IPlateCard[] = []
+      const newCards: IPlateCard[] = []
       for (let i = 1; i < 11; i++) {
-        newCards.push({ id: i, url: `src/assets/plate${i}.jpg`, voteCount: 0, uploader: 'garlic girl', title: 'FSU FSU' })
+        newCards.push({
+          id: i,
+          url: `src/assets/plate${i}.jpg`,
+          voteCount: 0,
+          uploader: 'garlic girl',
+          title: 'FSU FSU'
+        })
       }
-      let db = getDb()
+      const db = getDb()
       db.cards = [...newCards]
 
       setTestDb(db)
@@ -61,7 +74,7 @@ const PlateOff = () => {
   function getDb() {
     const existingDb = localStorage.getItem(PLATEDB)
     if (existingDb) {
-      let initDb = JSON.parse(existingDb) as ITestDb
+      const initDb = JSON.parse(existingDb) as ITestDb
       return initDb
     }
     return { cards: [], voteMap: {} }
@@ -71,11 +84,10 @@ const PlateOff = () => {
     localStorage.setItem(PLATEDB, JSON.stringify(toSave))
   }
 
-
   function onCardClick(card: IPlateCard) {
-    let db = getDb()
+    const db = getDb()
     if (db) {
-      db.voteMap[card.id] = (db.voteMap[card.id] || 0) + 1;
+      db.voteMap[card.id] = (db.voteMap[card.id] || 0) + 1
       setDb(db)
 
       // the test db should not affect the ui but it is nice to keep the changes up to date for testing.
@@ -95,46 +107,46 @@ const PlateOff = () => {
   // }
 
   const handleCardClick = () => {
-    const [index1, index2] = getRandomImages();
-    setCard1(testDb.cards[index1]);
-    setCard2(testDb.cards[index2]);
+    const [index1, index2] = getRandomImages()
+    setCard1(testDb.cards[index1])
+    setCard2(testDb.cards[index2])
   }
 
   const getRandomImages = (): number[] => {
-    let randomIndex1, randomIndex2;
+    let randomIndex1, randomIndex2
     if (images.length - usedIndexes.size < 2) {
-      randomIndex1 = 0;
-      randomIndex2 = 1;
-      setUsedIndexes(new Set().add(randomIndex1).add(randomIndex2));
+      randomIndex1 = 0
+      randomIndex2 = 1
+      setUsedIndexes(new Set().add(randomIndex1).add(randomIndex2))
     } else {
-      [randomIndex1, randomIndex2] = getRandomUnusedIndexes();
-      setUsedIndexes(new Set([...usedIndexes, randomIndex1, randomIndex2]));
+      ;[randomIndex1, randomIndex2] = getRandomUnusedIndexes()
+      setUsedIndexes(new Set([...usedIndexes, randomIndex1, randomIndex2]))
     }
 
-    setLastIndexPair([randomIndex1, randomIndex2]);
-    return [randomIndex1, randomIndex2]//[`src/assets/${images[randomIndex1]}`, `src/assets/${images[randomIndex2]}`];
+    //setLastIndexPair([randomIndex1, randomIndex2])
+    return [randomIndex1, randomIndex2] //[`src/assets/${images[randomIndex1]}`, `src/assets/${images[randomIndex2]}`];
   }
 
   const getRandomUnusedIndexes = () => {
-    let index1, index2;
+    let index1, index2
 
     do {
-      index1 = Math.floor(Math.random() * images.length);
-    } while (usedIndexes.has(index1));
+      index1 = Math.floor(Math.random() * images.length)
+    } while (usedIndexes.has(index1))
 
     do {
-      index2 = Math.floor(Math.random() * images.length);
-    } while (usedIndexes.has(index2) || index1 === index2);
+      index2 = Math.floor(Math.random() * images.length)
+    } while (usedIndexes.has(index2) || index1 === index2)
 
-    return [index1, index2];
+    return [index1, index2]
   }
 
   return (
-    <div className=" plate-container relative flex-gro overflow-hidden flex content-center items-center justify-around lg:gap-20 md:gap-5 sm:gap-5">
+    <div className="relative flex content-center items-center justify-around overflow-hidden py-2 sm:gap-5 md:gap-5 lg:gap-20">
       {card1 && <PlateCard card={card1} onPlateCardVote={onCardClick} />}
       {card2 && <PlateCard card={card2} onPlateCardVote={onCardClick} />}
     </div>
-  );
+  )
 }
 
-export default PlateOff;
+export default PlateOff
