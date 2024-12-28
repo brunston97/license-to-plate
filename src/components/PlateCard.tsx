@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Image } from '@nextui-org/react'
+import { Card, CardBody, Image } from '@nextui-org/react'
 import { IPlateCard } from './PlateOff'
 
 interface PlateCardProps {
@@ -11,23 +11,31 @@ const PlateCard = (props: PlateCardProps) => {
   console.log(card)
   return (
     <Card
-      className="relative h-full w-2/5  py-1"
+      className="relative h-full w-2/5  py-0"
       isHoverable
       isPressable
       onPress={() => onPlateCardVote(card)}
     >
-      <CardHeader className="flex-col items-center px-4 pb-1 pt-2">
-        <p className="text-large font-bold uppercase">{card.title}</p>
-        <small className="text-default-500">{card.uploader}</small>
-      </CardHeader>
-      <CardBody className="size-full overflow-hidden py-2">
-        <Image
-          alt="Card background"
-          className="max-h-full rounded-xl object-contain"
-          src={card.url}
-          removeWrapper
-          //width={400}
-        />
+      <CardBody className="relative mx-auto flex size-full w-fit overflow-hidden">
+        <div id="imgContainer" className="relative size-full">
+          <Image
+            alt="Card background"
+            className="z-0 max-h-full rounded-xl object-contain"
+            src={card.url}
+            classNames={{
+              wrapper: 'h-full'
+            }}
+          />
+          <div
+            id="nameContainer"
+            className="absolute left-2 top-2 leading-none text-white"
+          >
+            <h3 className="text-large font-bold uppercase leading-none">
+              {card.title}
+            </h3>
+            <p className="text-sm leading-none">{card.uploader}</p>
+          </div>
+        </div>
       </CardBody>
     </Card>
   )

@@ -142,7 +142,7 @@ const PlateOff = () => {
   }
 
   return (
-    <div className="relative flex content-center items-center justify-around overflow-hidden py-2 sm:gap-5 md:gap-5 lg:gap-20">
+    <div className="relative flex w-full items-center justify-evenly overflow-hidden py-2">
       {card1 && <PlateCard card={card1} onPlateCardVote={onCardClick} />}
       {card2 && <PlateCard card={card2} onPlateCardVote={onCardClick} />}
     </div>
