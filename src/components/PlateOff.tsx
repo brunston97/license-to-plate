@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 import PlateCard from './PlateCard'
 
 const images = [
@@ -84,11 +85,16 @@ const PlateOff = () => {
     localStorage.setItem(PLATEDB, JSON.stringify(toSave))
   }
 
-  function onCardClick(card: IPlateCard) {
+  async function onCardClick(card: IPlateCard) {
     const db = getDb()
     if (db) {
       db.voteMap[card.id] = (db.voteMap[card.id] || 0) + 1
       setDb(db)
+      try {
+        axios.post(`/api/vote/${card.id}`)
+      } catch (error) {
+        console.log(error)
+      }
 
       // the test db should not affect the ui but it is nice to keep the changes up to date for testing.
       // useState should only be used to keep track of anything that changes the UI

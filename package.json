@@ -10,7 +10,9 @@
     "url": "https://github.com/brunston97/license-to-plate"
   },
   "scripts": {
-    "dev": "vite --open",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "vite --open",
+    "dev:server": "cd server && npm run dev",
     "build": "tsc && vite build",
     "serve": "vite preview",
     "test": "vitest",
@@ -20,6 +22,8 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.6.8",
+    "@types/axios": "^0.14.4",
+    "axios": "^1.7.9",
     "framer-motion": "^11.15.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -35,6 +39,7 @@
     "@vitejs/plugin-react-swc": "^3.7.2",
     "@vitest/ui": "^1.6.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.1",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",

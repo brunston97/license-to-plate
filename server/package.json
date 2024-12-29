@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "description": "L2P serverless function",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "tsc": "tsc",
+    "dev": "tsx watch ./index.ts",
+    "prod": "tsc && node ./index.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "author": "J@J.com",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.17.1",
+    "tsx": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/express": "^5.0.0",
+    "typescript": "^5.7.2"
+  }
+}
