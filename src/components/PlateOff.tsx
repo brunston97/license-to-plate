@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import PlateCard from './PlateCard'
+import { IPlateCard } from 'assets/types'
 
 const images = [
   'plate1.jpg',
@@ -14,25 +15,16 @@ const images = [
   'plate9.jpg',
   'plate10.jpg'
 ]
-const PLATEDB = 'testDb'
+//const PLATE_DB = 'testDb'
 
-// TODO, put in own export types tsx file
-export interface IPlateCard {
-  id: number
-  url: string
-  voteCount: number
-  uploader: string
-  title: string
-}
-
-interface ITestDb {
-  cards: IPlateCard[]
-  voteMap: {
-    [id: number]: number // id x voteCount
-  }
-  user?: string
-  userVotesById_DEFINITELY_NOT_FOR_DATA_TRACKING?: IPlateCard['id'][]
-}
+// interface ITestDb {
+//   cards: IPlateCard[]
+//   voteMap: {
+//     [id: number]: number // id x voteCount
+//   }
+//   user?: string
+//   userVotesById_DEFINITELY_NOT_FOR_DATA_TRACKING?: IPlateCard['id'][]
+// }
 
 const PlateOff = () => {
   //const [card1Image, setCard1Image] = useState(`src/assets/${images[0]}`);
@@ -41,81 +33,37 @@ const PlateOff = () => {
   const [card2, setCard2] = useState<IPlateCard>()
   const [usedIndexes, setUsedIndexes] = useState(new Set().add(0).add(1))
   //const [lastIndexPair, setLastIndexPair] = useState<number[]>([0, 1])
-  const [testDb, setTestDb] = useState<ITestDb>(getDb())
+  //const [testDb, setTestDb] = useState<ITestDb>(getDb())
+  const [plates, setPlates] = useState<IPlateCard[]>([])
 
   // onMount Call
   useEffect(() => {
-    // let existingDb = getDb()
-    // if(existingDb){
-    //   setTestDb(existingDb)
-    // } else {
-
-    // }
-
-    if (testDb.cards.length == 0) {
-      const newCards: IPlateCard[] = []
-      for (let i = 1; i < 11; i++) {
-        newCards.push({
-          id: i,
-          url: `src/assets/plate${i}.jpg`,
-          voteCount: 0,
-          uploader: 'garlic girl',
-          title: 'FSU FSU'
-        })
-      }
-      const db = getDb()
-      db.cards = [...newCards]
-
-      setTestDb(db)
-      setDb(db)
-    }
-    handleCardClick()
+    getCards()
   }, [])
 
-  function getDb() {
-    const existingDb = localStorage.getItem(PLATEDB)
-    if (existingDb) {
-      const initDb = JSON.parse(existingDb) as ITestDb
-      return initDb
+  async function getCards() {
+    try {
+      const { data } = await axios.get('/plates')
+      setPlates(data)
+      handleCardClick()
+    } catch (error) {
+      console.log(error)
     }
-    return { cards: [], voteMap: {} }
-  }
-
-  function setDb(toSave: ITestDb) {
-    localStorage.setItem(PLATEDB, JSON.stringify(toSave))
   }
 
   async function onCardClick(card: IPlateCard) {
-    const db = getDb()
-    if (db) {
-      db.voteMap[card.id] = (db.voteMap[card.id] || 0) + 1
-      setDb(db)
-      try {
-        axios.post(`/api/vote/${card.id}`)
-      } catch (error) {
-        console.log(error)
-      }
-
-      // the test db should not affect the ui but it is nice to keep the changes up to date for testing.
-      // useState should only be used to keep track of anything that changes the UI
-      // when the values change, the page ...reacts
-      setTestDb(db)
+    try {
+      axios.post(`/api/vote/${card.id}`)
+    } catch (error) {
+      console.log(error)
     }
     handleCardClick()
   }
 
-  // const handleCard1Click = () => {
-  //   handleCardClick();
-  // }
-
-  // const handleCard2Click = () => {
-  //   handleCardClick();
-  // }
-
   const handleCardClick = () => {
     const [index1, index2] = getRandomImages()
-    setCard1(testDb.cards[index1])
-    setCard2(testDb.cards[index2])
+    setCard1(plates[index1])
+    setCard2(plates[index2])
   }
 
   const getRandomImages = (): number[] => {

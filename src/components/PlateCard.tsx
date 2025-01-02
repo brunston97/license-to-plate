@@ -1,10 +1,12 @@
 import { Card, CardBody, Image } from '@nextui-org/react'
-import { IPlateCard } from './PlateOff'
+import { IPlateCard } from 'assets/types'
 
 interface PlateCardProps {
   card: IPlateCard
   onPlateCardVote: (plate: IPlateCard) => void
 }
+
+const BUCKET_URL = import.meta.env.VITE_BUCKET_URL
 
 const PlateCard = (props: PlateCardProps) => {
   const { card, onPlateCardVote } = props
@@ -21,7 +23,7 @@ const PlateCard = (props: PlateCardProps) => {
           <Image
             alt="Card background"
             className="z-0 max-h-full rounded-xl object-contain"
-            src={card.url}
+            src={`${BUCKET_URL}/plate${card.id}.jpg`}
             classNames={{
               wrapper: 'h-full'
             }}

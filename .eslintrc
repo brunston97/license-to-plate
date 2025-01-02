@@ -10,6 +10,7 @@
       "version": "detect"
     }
   },
+  "ignorePatterns":["server/index.js"],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",

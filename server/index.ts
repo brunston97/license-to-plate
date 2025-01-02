@@ -1,5 +1,6 @@
 import express from 'express'
 import { FieldValue, Firestore } from '@google-cloud/firestore'
+import { IPlateCard } from './types'
 
 const app = express()
 const PORT = parseInt(process.env.PORT ?? '8080')
@@ -13,6 +14,14 @@ const db = new Firestore({
 openRouter.get('/', (req, res) => {
   //const name = process.env.NAME || 'World'
   res.send(`Hello ${req.ip}!`)
+})
+
+openRouter.get('/plates', async (req, res): Promise<IPlateCard[]> => {
+  const snapshot = await db.collection('plates').get()
+  if (snapshot.empty) {
+    return []
+  }
+  return []
 })
 
 interface voteBody {
