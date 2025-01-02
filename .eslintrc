@@ -10,7 +10,7 @@
       "version": "detect"
     }
   },
-  "ignorePatterns":["server/index.js"],
+  "ignorePatterns": ["server/index.js"],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
@@ -28,6 +28,12 @@
     "sourceType": "module"
   },
   "plugins": ["react", "react-hooks", "@typescript-eslint", "tailwindcss"],
+  "prettier/prettier": [
+    "error",
+    {
+      "endOfLine": "auto"
+    }
+  ],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",

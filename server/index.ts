@@ -1,10 +1,13 @@
 import express from 'express'
 import { FieldValue, Firestore } from '@google-cloud/firestore'
 import { IPlateCard } from './types'
+import cors from 'cors'
 
 const app = express()
-const PORT = parseInt(process.env.PORT ?? '8080')
+const PORT = parseInt(process.env.VITE_PORT ?? '8080')
 const openRouter = express.Router()
+
+app.use(cors())
 
 const db = new Firestore({
   projectId: 'license2plate-b4c6e',
@@ -16,12 +19,31 @@ openRouter.get('/', (req, res) => {
   res.send(`Hello ${req.ip}!`)
 })
 
-openRouter.get('/plates', async (req, res): Promise<IPlateCard[]> => {
+openRouter.get('/plates', async (req, res)=> {
   const snapshot = await db.collection('plates').get()
   if (snapshot.empty) {
-    return []
+    res.json([])
   }
-  return []
+  let plates: IPlateCard[] = []
+  snapshot.forEach((plate) => {
+    
+    const p = plate.data()
+    if(p.id == undefined){
+      const temp = {
+        id: plate.id,
+        voteCount: 0,
+        uploader: 'garlicgirl'
+      }
+      plate.ref.set(temp)
+      plates.push(temp)
+    } else {
+      plates.push(p as IPlateCard)
+    }
+
+  })
+
+  //snapshot.forEach((p) => plates.push(p.data() as IPlateCard))
+  res.json(plates)
 })
 
 interface voteBody {
@@ -34,11 +56,13 @@ openRouter.post('/vote/:id', async (req, res) => {
   const docRef = db.collection('plates').doc(id)
   const { exists } = await docRef.get()
   try {
-    if (!exists) {
-      await docRef.set({
-        voteCount: 0
-      })
-    }
+    // if (!exists) {
+    //   await docRef.set({
+    //     id,
+    //     voteCount: 0,
+    //     uploader: 'garlicgirl'
+    //   })
+    // }
     await docRef.collection('votes').add({ time: Date.now() })
     await docRef.update({
       voteCount: FieldValue.increment(1)

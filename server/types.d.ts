@@ -1,6 +1,6 @@
 // TODO, put in own export types tsx file
 export interface IPlateCard {
-  id: number
+  id: string
   voteCount: number
   uploader: string
   title?: string
