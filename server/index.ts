@@ -26,7 +26,6 @@ openRouter.get('/plates', async (req, res)=> {
   }
   let plates: IPlateCard[] = []
   snapshot.forEach((plate) => {
-    
     const p = plate.data()
     if(p.id == undefined){
       const temp = {
@@ -39,7 +38,6 @@ openRouter.get('/plates', async (req, res)=> {
     } else {
       plates.push(p as IPlateCard)
     }
-
   })
 
   //snapshot.forEach((p) => plates.push(p.data() as IPlateCard))
