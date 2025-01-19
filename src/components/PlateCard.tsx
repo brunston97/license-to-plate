@@ -1,4 +1,4 @@
-import { Card, CardBody, Image } from '@nextui-org/react'
+import { Card, CardBody, CardHeader, Image } from '@nextui-org/react'
 import { IPlateCard } from 'assets/types'
 
 interface PlateCardProps {
@@ -13,30 +13,28 @@ const PlateCard = (props: PlateCardProps) => {
   console.log(card)
   return (
     <Card
-      className="relative h-full w-2/5  py-0"
+      className="relative h-full w-2/5 max-w-3xl py-0 mx-3 sm:mx-6 2xl:mx-10"
       isHoverable
       isPressable
       onPress={() => onPlateCardVote(card)}
     >
-      <CardBody className="relative mx-auto flex size-full w-fit overflow-hidden">
-        <div id="imgContainer" className="relative size-full">
+      <CardHeader className="pb-0 mb-0 flex-col items-center">
+        <div id="nameContainer" className="relative leading-none mb-2 text-black">
+            <h3 className="text-large font-bold uppercase leading-none">
+              {card.title}
+            </h3>
+        </div>
+      </CardHeader>
+      <CardBody className="relative mx-auto flex size-full w-fit justify-items-center overflow-hidden">
+        <div id="imgContainer" className="relative size-full aspect-[3/4]">
           <Image
             alt="Card background"
-            className="z-0 max-h-full rounded-xl object-contain"
+            className="z-0 h-full rounded-xl"
             src={`${BUCKET_URL}/plate${card.id}.jpg`}
             classNames={{
               wrapper: 'h-full'
             }}
           />
-          <div
-            id="nameContainer"
-            className="absolute left-2 top-2 leading-none text-white"
-          >
-            <h3 className="text-large font-bold uppercase leading-none">
-              {card.title}
-            </h3>
-            <p className="text-sm leading-none">{card.uploader}</p>
-          </div>
         </div>
       </CardBody>
     </Card>

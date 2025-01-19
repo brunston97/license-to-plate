@@ -7,6 +7,12 @@ function App() {
       <div style={{ textAlign: 'center' }}>
         <Header />
       </div>
+      <div className="flex justify-center items-center">
+        <h3 className="text-2xl font-bold text-center mb-8 text-white w-3/5">
+          Welcome to the 2024 Jackbox Plate Zone Plate-Off! All you need to do is vote on your favorite plate, and we'll see who wins!
+        </h3>
+      </div>
+
       <PlateOff />
     </div>
   )
@@ -14,7 +20,7 @@ function App() {
 
 function Header() {
   return (
-    <header className="text-6xl font-bold uppercase text-white">
+    <header className="text-6xl mt-4 mb-8 font-bold uppercase text-white">
       <h1 style={{ WebkitTextStroke: '1px black' }}>
         Muncher&apos;s Plate Zone Plate-Off!
       </h1>
