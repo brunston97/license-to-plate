@@ -29,7 +29,7 @@ const PlateCard = (props: PlateCardProps) => {
         <div id="imgContainer" className="relative size-full aspect-[3/4]">
           <Image
             alt="Card background"
-            className="z-0 h-full rounded-xl"
+            className="z-0 h-full rounded-xl object-contain"
             src={`${BUCKET_URL}/plate${card.id}.jpg`}
             classNames={{
               wrapper: 'h-full'
