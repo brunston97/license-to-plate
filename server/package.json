@@ -9,7 +9,7 @@
     "start": "node index.js",
     "tsc": "tsc",
     "dev": "tsx watch ./index.ts",
-    "prod": "tsc && node ./index.js"
+    "prod": "tsc && gcloud run deploy --source ."
   },
   "engines": {
     "node": ">=16.0.0"
