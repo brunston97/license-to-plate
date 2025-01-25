@@ -1,0 +1,8 @@
+[
+    {
+      "origin": ["http://localhost:5173", "https://license2plate-b4c6e.web.app"],
+      "method": ["GET"],
+      "responseHeader": ["Content-Type", "Access-Control-Allow-Origin"],
+      "maxAgeSeconds": 3600
+    }
+]
