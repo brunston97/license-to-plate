@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import axios from '../utils/axiosInstance'
 import PlateCard from './PlateCard'
+import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
 
 const PlateOff = () => {
   const [indexPairs, setIndexPairs] = useState<number[][]>([[]])
   const [index, setIndex] = useState(0)
   const [plates, setPlates] = useState<IPlateCard[]>([])
+  const [isLoading, setLoading] = useState(true);
 
   // onMount Call
   useEffect(() => {
@@ -30,6 +32,8 @@ const PlateOff = () => {
       setIndexPairs(tempArray)
     } catch (error) {
       console.log(error)
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -60,12 +64,12 @@ const PlateOff = () => {
 
   return (
     <div className="relative flex w-full items-center justify-center overflow-hidden py-2">
-      {indexPairs.length > index + 1 && (
+      {indexPairs.length > index + 1 && !isLoading ? (
         <>
           <PlateCard card={plates[indexPairs[index][0]]} onPlateCardVote={onCardClick} />
           <PlateCard card={plates[indexPairs[index][1]]} onPlateCardVote={onCardClick} />
         </>
-      )}
+      ) : (<Spinner/>)}
     </div>
   )
 }
