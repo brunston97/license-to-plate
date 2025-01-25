@@ -21,7 +21,7 @@ function App() {
 function Header() {
   return (
     <header className="text-6xl mt-4 mb-8 font-bold uppercase text-white">
-      <h1 style={{ WebkitTextStroke: '1px black' }}>
+      <h1>
         Muncher&apos;s Plate Zone Plate-Off!
       </h1>
     </header>
