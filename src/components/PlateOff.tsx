@@ -1,18 +1,30 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import axios from '../utils/axiosInstance'
 import PlateCard from './PlateCard'
 import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
 
-const PlateOff = () => {
+interface PlateOffProps {
+  isMuted: boolean
+}
+
+const PlateOff = (props: PlateOffProps) => {
   const [indexPairs, setIndexPairs] = useState<number[][]>([[]])
   const [index, setIndex] = useState(0)
   const [plates, setPlates] = useState<IPlateCard[]>([])
   const [isLoading, setLoading] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // onMount Call
   useEffect(() => {
-    getCards()
+    getCards();
+
+    audioRef.current = new Audio('pop.mp3');
+
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
   }, [])
 
   async function getCards() {
@@ -38,11 +50,23 @@ const PlateOff = () => {
   }
 
   async function onCardClick(card: IPlateCard) {
+    handleCardClickAudio();
+
     try {
       axios.post(`/vote/${card.id}`)
       setIndex(i => i + 1)
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  function handleCardClickAudio() {
+    if (!props.isMuted && audioRef.current) {
+      if (!audioRef.current.paused) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      audioRef.current.play().catch((err) => console.error('Error playing sound:', err));
     }
   }
 

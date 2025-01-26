@@ -13,7 +13,7 @@ const PlateCard = (props: PlateCardProps) => {
   console.log(card)
   return (
     <Card
-      className="relative h-full w-2/5 max-w-3xl py-0 mx-3 sm:mx-6 2xl:mx-10"
+      className="relative h-full w-2/5 max-w-3xl py-0 mx-3 sm:mx-6 2xl:mx-10 aspect-[3/4]"
       isHoverable
       isPressable
       onPress={() => onPlateCardVote(card)}
