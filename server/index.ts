@@ -15,19 +15,18 @@ const db = new Firestore({
 })
 
 openRouter.get('/', (req, res) => {
-  //const name = process.env.NAME || 'World'
   res.send(`Hello ${req.ip}!`)
 })
 
-openRouter.get('/plates', async (req, res)=> {
+openRouter.get('/plates', async (req, res) => {
   const snapshot = await db.collection('plates').get()
   if (snapshot.empty) {
     res.json([])
   }
-  let plates: IPlateCard[] = []
+  const plates: IPlateCard[] = []
   snapshot.forEach((plate) => {
     const p = plate.data()
-    if(p.id == undefined){
+    if (p.id == undefined) {
       const temp = {
         id: plate.id,
         voteCount: 0,
@@ -40,7 +39,6 @@ openRouter.get('/plates', async (req, res)=> {
     }
   })
 
-  //snapshot.forEach((p) => plates.push(p.data() as IPlateCard))
   res.json(plates)
 })
 
@@ -52,15 +50,7 @@ openRouter.post('/vote/:id', async (req, res) => {
   const { id } = req.params as voteBody
   console.log(`${id} has been voted`)
   const docRef = db.collection('plates').doc(id)
-  const { exists } = await docRef.get()
   try {
-    // if (!exists) {
-    //   await docRef.set({
-    //     id,
-    //     voteCount: 0,
-    //     uploader: 'garlicgirl'
-    //   })
-    // }
     await docRef.collection('votes').add({ time: Date.now() })
     await docRef.update({
       voteCount: FieldValue.increment(1)
@@ -68,11 +58,6 @@ openRouter.post('/vote/:id', async (req, res) => {
   } catch (error) {
     console.log(error)
   }
-
-  //const snapshot = await docRef.get()
-  // if (docRef.) {
-  //   await docRef.set(snapshot.data().id + 1)
-  // }
 
   res.send(id)
 })

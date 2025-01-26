@@ -9,7 +9,7 @@
     "start": "node index.js",
     "tsc": "tsc",
     "dev": "tsx watch ./index.ts",
-    "prod": "tsc && gcloud run deploy --source ."
+    "prod": "gcloud config set run/region us-central1 && tsc && gcloud run deploy --source ."
   },
   "engines": {
     "node": ">=16.0.0"
@@ -18,14 +18,14 @@
   "license": "Apache-2.0",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "tsx": "^4.19.2"
-  },
+    "express": "^4.17.1"
+    },
   "devDependencies": {
     "@google-cloud/firestore": "^7.11.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "tsx": "^4.19.2"
   }
 }
