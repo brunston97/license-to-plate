@@ -1,40 +1,125 @@
-import React, { useState } from "react";
-import PlateCard from "./PlateCard";
+import React, { useEffect, useRef, useState } from 'react'
+import axios from '../utils/axiosInstance'
+import PlateCard from './PlateCard'
+import Spinner from './Spinner'
+import { IPlateCard } from 'assets/types'
 
-const images = [
-  "plate1.jpg","plate2.jpg","plate3.jpg","plate4.jpg","plate5.jpg",
-  "plate6.jpg","plate7.jpg","plate8.jpg","plate9.jpg","plate10.jpg"
-];
+interface PlateOffProps {
+  isMuted: boolean
+}
 
-const PlateOff = () => {
+const PlateOff = (props: PlateOffProps) => {
+  const [indexPairs, setIndexPairs] = useState<number[][]>([[]])
+  const [index, setIndex] = useState(0)
+  const [plates, setPlates] = useState<IPlateCard[]>([])
+  const [isLoading, setLoading] = useState(true)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  const [card1Image, setCard1Image] = useState(`src/assets/${images[0]}`);
-  const [card2Image, setCard2Image] = useState(`src/assets/${images[1]}`);
+  // onMount Call
+  useEffect(() => {
+    getCards()
 
-  const getRandomImage = () => {
-    const randomIndex = Math.floor(Math.random() * images.length);
-    return `src/assets/${images[randomIndex]}`;
+    audioRef.current = new Audio('pop.mp3')
+
+    return () => {
+      audioRef.current?.pause()
+      audioRef.current = null
+    }
+  }, [])
+
+  async function getCards() {
+    try {
+      const { data } = await axios.get('/plates')
+      setPlates(data)
+      const len = (data as IPlateCard[]).length
+      const tempArray = []
+      for (let i = 0; i < len; i++) {
+        for (let j = 0; j < len; j++) {
+          if (i != j) {
+            tempArray.push([i, j])
+          }
+        }
+      }
+      shuffle(tempArray)
+      setIndexPairs(tempArray)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleCard1Click = () => {
-    handleCardClick(true);
+  async function onCardClick(card: IPlateCard) {
+    handleCardClickAudio()
+
+    try {
+      axios.post(`/vote/${card.id}`)
+      setIndex((i) => i + 1)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  const handleCard2Click = () => {
-    handleCardClick(false);
+  function handleCardClickAudio() {
+    if (!props.isMuted && audioRef.current) {
+      if (!audioRef.current.paused) {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
+      }
+      audioRef.current
+        .play()
+        .catch((err) => console.error('Error playing sound:', err))
+    }
   }
 
-  const handleCardClick = (card1Won: boolean) => {
-    setCard1Image(getRandomImage());
-    setCard2Image(getRandomImage());
+  function shuffle(array: Array<unknown>) {
+    let currentIndex = array.length
+
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+      // Pick a remaining element...
+      const randomIndex = Math.floor(Math.random() * currentIndex)
+      currentIndex--
+
+      // And swap it with the current element.
+      ;[array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex]
+      ]
+    }
   }
 
   return (
-    <div className="flex lg:gap-20 md:gap-5 sm:gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "75vh"}}>
-        <PlateCard image={card1Image} onPlateCardVote={handleCard1Click} />
-        <PlateCard image={card2Image} onPlateCardVote={handleCard2Click}/>
+    <div className="relative flex w-full items-center justify-center overflow-hidden py-2">
+      {indexPairs.length > index + 1 && !isLoading ? (
+        <>
+          <PlateCard
+            card={plates[indexPairs[index][0]]}
+            onPlateCardVote={onCardClick}
+          />
+          <PlateCard
+            card={plates[indexPairs[index][1]]}
+            onPlateCardVote={onCardClick}
+          />
+          {indexPairs.length > index + 2 && (
+            // Thank you browser caching
+            <div className="hidden">
+              <PlateCard
+                card={plates[indexPairs[index + 1][0]]}
+                onPlateCardVote={onCardClick}
+              />
+              <PlateCard
+                card={plates[indexPairs[index + 1][1]]}
+                onPlateCardVote={onCardClick}
+              />
+            </div>
+          )}
+        </>
+      ) : (
+        <Spinner />
+      )}
     </div>
-  );
+  )
 }
 
-export default PlateOff;
+export default PlateOff
