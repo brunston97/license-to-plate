@@ -26,13 +26,13 @@ const PlateCard = (props: PlateCardProps) => {
         </div>
       </CardHeader>
       <CardBody className="relative mx-auto flex size-full w-fit justify-items-center overflow-hidden">
-        <div id="imgContainer" className="relative size-full aspect-[3/4]">
+        <div id="imgContainer" className="relative size-full aspect-[3/4] flex justify-center items-center">
           <Image
             alt="Card background"
             className="z-0 h-full rounded-xl object-contain"
             src={`${BUCKET_URL}/plate${card.id}.jpg`}
             classNames={{
-              wrapper: 'h-full'
+              wrapper: 'h-full flex justify-center items-center'
             }}
           />
         </div>
