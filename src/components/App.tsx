@@ -6,6 +6,23 @@ function App() {
   const [isMuted, setIsMuted] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  // for only starting audio once user interacts with page
+  // to avoid browser autoplay restriction issues
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      if (audioRef.current) {
+        audioRef.current.play();
+      }
+      document.removeEventListener('click', handleUserInteraction);
+    };
+
+    document.addEventListener('click', handleUserInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+    };
+  }, []);
+
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.muted = isMuted;
@@ -29,16 +46,16 @@ function App() {
       <PlateOff isMuted={isMuted}/>
 
       <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop/>
-      
+
       <button
         onClick={toggleMute}
         className="absolute bottom-4 left-4 bg-transparent p-2 rounded-full hover:bg-gray-200"
         title={isMuted ? 'Unmute' : 'Mute'}
       >
         {isMuted ? (
-          <FaVolumeMute size={32} color="gray" /> 
+          <FaVolumeMute size={32} color="gray" />
         ) : (
-          <FaVolumeUp size={32} color="black" /> 
+          <FaVolumeUp size={32} color="black" />
         )}
       </button>
     </div>
