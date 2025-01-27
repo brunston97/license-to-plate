@@ -39,7 +39,7 @@ function App() {
         <Header />
       </div>
       <div className="flex justify-center items-center">
-        <h3 className="text-base md:text-2xl font-bold text-center mb-8 text-white w-3/5">
+        <h3 className="text-sm md:text-2xl font-bold text-center mb-4 sm:mb-8 text-white w-3/5">
           Welcome to the 2024 Jackbox Plate Zone Plate-Off! All you need to do is vote on your favorite plate, and we'll see who wins!
         </h3>
       </div>
@@ -49,7 +49,7 @@ function App() {
 
       <button
         onClick={toggleMute}
-        className="absolute bottom-4 left-4 bg-transparent p-2 rounded-full hover:bg-gray-200"
+        className="absolute bottom-1 left-1 bg-transparent p-2 rounded-full hover:bg-gray-200"
         title={isMuted ? 'Unmute' : 'Mute'}
       >
         {isMuted ? (
@@ -64,7 +64,7 @@ function App() {
 
 function Header() {
   return (
-    <header className="text-3xl md:text-6xl mt-4 mb-8 font-bold uppercase text-white">
+    <header className="text-2xl md:text-5xl mt-4 mb-4 sm:mb-8 font-bold uppercase text-white">
       <h1>
         Muncher&apos;s Plate Zone Plate-Off!
       </h1>

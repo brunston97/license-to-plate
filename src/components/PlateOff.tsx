@@ -90,12 +90,11 @@ const PlateOff = (props: PlateOffProps) => {
     <div className="relative flex w-full items-center justify-center overflow-hidden py-2">
       {indexPairs.length > index + 1 && !isLoading ? (
         <>
-          <PlateCard card={plates[indexPairs[index][0]]} onPlateCardVote={onCardClick} />
-          <PlateCard card={plates[indexPairs[index][1]]} onPlateCardVote={onCardClick} />
+          <PlateCard card={plates[indexPairs[index][0]]} onPlateCardVote={onCardClick}/>
+          <PlateCard card={plates[indexPairs[index][1]]} onPlateCardVote={onCardClick}/>
         </>
       ) : (<Spinner/>)}
     </div>
   )
 }
-
 export default PlateOff
