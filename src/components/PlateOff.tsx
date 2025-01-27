@@ -14,16 +14,22 @@ const PlateOff = (props: PlateOffProps) => {
   const [plates, setPlates] = useState<IPlateCard[]>([])
   const [isLoading, setLoading] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
 
   // onMount Call
   useEffect(() => {
     getCards()
 
     audioRef.current = new Audio('pop.mp3')
+    function onResizeListener() {
+      setWindowWidth(window.innerWidth)
+    }
+    window.addEventListener('resize', onResizeListener)
 
     return () => {
       audioRef.current?.pause()
       audioRef.current = null
+      window.removeEventListener('resize', onResizeListener)
     }
   }, [])
 
@@ -90,17 +96,30 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   return (
-    <div className="relative flex w-full items-center justify-center overflow-hidden py-2">
+    <div className="min-h-0 shrink sm:grow">
       {indexPairs.length > index + 1 && !isLoading ? (
         <>
-          <PlateCard
-            card={plates[indexPairs[index][0]]}
-            onPlateCardVote={onCardClick}
-          />
-          <PlateCard
-            card={plates[indexPairs[index][1]]}
-            onPlateCardVote={onCardClick}
-          />
+          <div
+            className={
+              windowWidth > 768
+                ? 'relative flex h-full max-h-full items-center justify-center py-4 *:sm:w-2/5'
+                : 'carousel size-full space-x-4 bg-transparent py-4 *:max-h-full *:max-w-full'
+            }
+          >
+            <div className="carousel-item max-h-full max-w-full">
+              <PlateCard
+                card={plates[indexPairs[index][0]]}
+                onPlateCardVote={onCardClick}
+              />
+            </div>
+
+            <div className="carousel-item max-h-full max-w-full">
+              <PlateCard
+                card={plates[indexPairs[index][1]]}
+                onPlateCardVote={onCardClick}
+              />
+            </div>
+          </div>
           {indexPairs.length > index + 2 && (
             // Thank you browser caching
             <div className="hidden">
