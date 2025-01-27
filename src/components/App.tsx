@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa'
 import PlateOff from './PlateOff'
+import { Button } from '@nextui-org/react'
 
 function App() {
   const [isMuted, setIsMuted] = useState(true)
   const audioRef = useRef<HTMLAudioElement>(null)
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
   // for only starting audio once user interacts with page
   // to avoid browser autoplay restriction issues
@@ -34,16 +36,45 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-0">
-      <div style={{ textAlign: 'center' }}>
-        <Header />
+    <div className="flex h-screen w-screen flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-0 sm:justify-between">
+      <div className="flex flex-col items-center justify-start">
+        <div className="text-center">
+          <Header />
+        </div>
+        <Button
+          color="primary"
+          variant="shadow"
+          onPress={() => dialogRef.current?.showModal()}
+          className=" left-0 mt-4 sm:relative"
+        >
+          Click Me!
+        </Button>
+        <dialog
+          ref={dialogRef}
+          id="my_modal_5"
+          className="modal modal-bottom sm:modal-middle"
+        >
+          <div className="modal-box">
+            <div className="flex items-center justify-center">
+              <h3 className="w-full text-center text-base font-bold text-white md:w-4/5 md:text-2xl">
+                Welcome to the 2024 Jackbox Plate Zone Plate-Off! <br /> All you
+                need to do is vote on your favorite plate, and we&apos;ll see
+                who wins!
+              </h3>
+            </div>
+            <div className="modal-action flex justify-center">
+              <form method="dialog" className="w-fit">
+                {/* if there is a button in form, it will close the modal */}
+                <button className="btn">Close</button>
+              </form>
+            </div>
+          </div>
+          <form method="dialog" className="modal-backdrop">
+            <button>close</button>
+          </form>
+        </dialog>
       </div>
-      <div className="flex items-center justify-center">
-        <h3 className="mb-8 w-3/5 text-center text-base font-bold text-white md:text-2xl">
-          Welcome to the 2024 Jackbox Plate Zone Plate-Off! All you need to do
-          is vote on your favorite plate, and we&apos;ll see who wins!
-        </h3>
-      </div>
+
       <PlateOff isMuted={isMuted} />
 
       <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop />
@@ -65,7 +96,7 @@ function App() {
 
 function Header() {
   return (
-    <header className="mb-8 mt-4 text-3xl font-bold uppercase text-white md:text-6xl">
+    <header className="py-0 text-3xl font-bold uppercase text-white md:text-6xl">
       <h1>Muncher&apos;s Plate Zone Plate-Off!</h1>
     </header>
   )

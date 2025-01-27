@@ -1,7 +1,7 @@
-import { Card, CardBody, CardHeader, Image } from '@nextui-org/react'
+import { Card, CardBody, CardHeader, CardProps, Image } from '@nextui-org/react'
 import { IPlateCard } from 'assets/types'
 
-interface PlateCardProps {
+interface PlateCardProps extends CardProps {
   card: IPlateCard
   onPlateCardVote: (plate: IPlateCard) => void
 }
@@ -13,10 +13,11 @@ const PlateCard = (props: PlateCardProps) => {
   console.log(card)
   return (
     <Card
-      className="relative mx-3 aspect-[3/4] h-full w-2/5 max-w-3xl py-0 sm:mx-6 2xl:mx-10"
+      className="relative mx-3 size-fit max-w-3xl shrink py-0 sm:mx-6 2xl:mx-10"
       isHoverable
       isPressable
       onPress={() => onPlateCardVote(card)}
+      {...props}
     >
       <CardHeader className="mb-0 flex-col items-center pb-0">
         <div
@@ -28,14 +29,14 @@ const PlateCard = (props: PlateCardProps) => {
           </h3>
         </div>
       </CardHeader>
-      <CardBody className="relative mx-auto flex size-full w-fit justify-items-center overflow-hidden">
+      <CardBody className="">
         <div
           id="imgContainer"
-          className="relative flex aspect-[3/4] size-full items-center justify-center"
+          className="flex aspect-[3/4] h-fit max-h-full w-full max-w-full justify-center"
         >
           <Image
             alt="Card background"
-            className="z-0 h-full rounded-xl object-contain"
+            className="z-0 max-h-full max-w-full rounded-xl object-contain"
             src={`${BUCKET_URL}/plate${card.id}.jpg`}
             classNames={{
               wrapper: 'h-full flex justify-center items-center'

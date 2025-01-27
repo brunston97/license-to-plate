@@ -1,4 +1,5 @@
 import { nextui } from '@nextui-org/react'
+import daisyui from 'daisyui'
 
 /** @type {import('tailwindcss').Config} */
 export const content = [
@@ -14,4 +15,4 @@ export const theme = {
   }
 }
 export const darkMode = 'class'
-export const plugins = [nextui()]
+export const plugins = [nextui(), daisyui]
