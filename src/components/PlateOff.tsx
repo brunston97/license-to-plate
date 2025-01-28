@@ -103,7 +103,7 @@ const PlateOff = (props: PlateOffProps) => {
             className={
               windowWidth > 768
                 ? 'relative flex h-full max-h-full items-center justify-center py-4 *:sm:w-2/5'
-                : 'carousel size-full space-x-4 bg-transparent py-4 *:max-h-full *:max-w-full'
+                : 'carousel size-full space-x-4 bg-transparent py-4 *:max-h-full *:w-full *:max-w-full *:justify-center'
             }
           >
             <div className="carousel-item max-h-full max-w-full">
