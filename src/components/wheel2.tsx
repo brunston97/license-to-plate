@@ -1,46 +1,87 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
+
+interface WheelConfig {
+  minRotations: number
+  maxRotations: number
+  baseAnimationTime: number
+  maxAnimationTime: number
+  slots: number
+  radius: number
+}
 
 function RotatingWheel() {
-  const [rotation, setRotation] = useState(0)
-  const [isSpinning, setIsSpinning] = useState(false)
-  const [animationTime, setAnimationTime] = useState(5)
-  const handleSpin = () => {
-    if (!isSpinning) {
-      setIsSpinning(true)
-      const rotations = Math.floor(Math.random() * 12) + 7
+  // Configuration object for wheel settings
+  const wheelConfig = useMemo<WheelConfig>(
+    () => ({
+      minRotations: 7,
+      maxRotations: 12,
+      baseAnimationTime: 3,
+      maxAnimationTime: 6,
+      slots: 3,
+      radius: 50
+    }),
+    []
+  )
+
+  // State management
+  const [wheelState, setWheelState] = useState({
+    rotation: 0,
+    isSpinning: false,
+    animationTime: 5
+  })
+
+  // Memoized calculation of new rotation
+  const calculateNewRotation = useCallback(
+    (currentRotation: number) => {
+      const rotations =
+        Math.floor(Math.random() * wheelConfig.maxRotations) +
+        wheelConfig.minRotations
       const rotationOffset = Math.floor(Math.random() * 360) + 1
-      setRotation((r) => r + rotations * 360 + rotationOffset)
-      return
-    }
-  }
+      return currentRotation + rotations * 360 + rotationOffset
+    },
+    [wheelConfig.maxRotations, wheelConfig.minRotations]
+  )
 
+  // Handle spin action
+  const handleSpin = useCallback(() => {
+    if (!wheelState.isSpinning) {
+      setWheelState((prevState) => ({
+        ...prevState,
+        isSpinning: true,
+        rotation: calculateNewRotation(prevState.rotation)
+      }))
+    }
+  }, [wheelState.isSpinning, calculateNewRotation])
+
+  // Handle spin completion
   useEffect(() => {
-    // Prevent spinning on component unmount
-    if (isSpinning) {
-      setTimeout(() => {
-        //setRotation((r) => r % 360)
-        setIsSpinning(false)
-        const tempAnimationTime = Math.floor(Math.random() * 6) + 3
-        setAnimationTime(tempAnimationTime)
-      }, animationTime * 950)
-    }
+    if (wheelState.isSpinning) {
+      const timer = setTimeout(() => {
+        const newAnimationTime =
+          Math.floor(Math.random() * wheelConfig.maxAnimationTime) +
+          wheelConfig.baseAnimationTime
+        setWheelState((prevState) => ({
+          ...prevState,
+          isSpinning: false,
+          animationTime: newAnimationTime
+        }))
+      }, wheelState.animationTime * 950)
 
-    return () => {
-      //setIsSpinning(false)
+      return () => clearTimeout(timer)
     }
-  }, [isSpinning, animationTime])
+  }, [wheelState.isSpinning, wheelState.animationTime, wheelConfig])
 
-  const slots = 3
-  const radius = 50
-  const triangles = useMemo(() => {
-    return (
+  // Memoized triangle pieces
+  const triangles = useMemo(
+    () => (
       <TrianglePiece
-        radius={radius}
-        numPieces={slots}
+        radius={wheelConfig.radius}
+        numPieces={wheelConfig.slots}
         textRadiusMultiplier={0.65}
       />
-    )
-  }, [])
+    ),
+    [wheelConfig.radius, wheelConfig.slots]
+  )
 
   return (
     <div className="wheel-container" style={{ perspective: '1000px' }}>
@@ -49,17 +90,16 @@ function RotatingWheel() {
         width="300"
         height="300"
         style={{
-          transition: `transform ${animationTime}s ease-out`,
-          transform: `rotateZ(${rotation}deg)`
+          transition: `transform ${wheelState.animationTime}s ease-out`,
+          transform: `rotateZ(${wheelState.rotation}deg)`
         }}
       >
-        {/* Wheel outline */}
         <defs>
           <clipPath id="cut-off-bottom">
             <circle
-              cx={radius}
-              cy={radius}
-              r={Math.ceil(radius)}
+              cx={wheelConfig.radius}
+              cy={wheelConfig.radius}
+              r={Math.ceil(wheelConfig.radius)}
               stroke="#333"
               strokeWidth="1"
             />
@@ -68,8 +108,8 @@ function RotatingWheel() {
         {triangles}
       </svg>
 
-      <button onClick={handleSpin} disabled={isSpinning}>
-        {isSpinning ? 'Spinning...' : 'SPIN'}
+      <button onClick={handleSpin} disabled={wheelState.isSpinning}>
+        {wheelState.isSpinning ? 'Spinning...' : 'SPIN'}
       </button>
     </div>
   )
