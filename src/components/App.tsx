@@ -55,7 +55,7 @@ function App() {
         >
           <div className="modal-box">
             <div className="flex items-center justify-center">
-              <h3 className="w-full text-center text-base font-bold text-white md:w-4/5 md:text-2xl">
+              <h3 className="w-full text-center text-base font-bold text-black dark:text-white md:w-4/5 md:text-2xl">
                 Welcome to the 2024 Jackbox Plate Zone Plate-Off! <br /> All you
                 need to do is vote on your favorite plate, and we&apos;ll see
                 who wins!
@@ -95,7 +95,7 @@ function App() {
 
 function Header() {
   return (
-    <header className="font-barlow py-0 text-3xl font-bold uppercase text-white md:text-6xl">
+    <header className="py-0 font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
       <h1>Muncher&apos;s Plate Zone Plate-Off!</h1>
     </header>
   )
