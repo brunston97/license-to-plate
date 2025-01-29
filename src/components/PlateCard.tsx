@@ -13,7 +13,7 @@ const PlateCard = (props: PlateCardProps) => {
   console.log(card)
   return (
     <Card
-      className="relative mx-3 size-fit max-w-3xl shrink py-0 sm:mx-6 2xl:mx-10"
+      className="relative mx-3 h-fit w-full max-w-sm shrink py-0 sm:mx-6 2xl:mx-10"
       isHoverable
       isPressable
       onPress={() => onPlateCardVote(card)}
@@ -39,7 +39,7 @@ const PlateCard = (props: PlateCardProps) => {
             className="z-0 max-h-full max-w-full rounded-xl object-contain"
             src={`${BUCKET_URL}/plate${card.id}.jpg`}
             classNames={{
-              wrapper: 'h-full flex justify-center items-center'
+              wrapper: 'size-full flex justify-center items-center'
             }}
           />
         </div>
