@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa'
 import PlateOff from './PlateOff'
 import { Button } from '@nextui-org/react'
+import RotatingWheel, { TrianglePiece } from './wheel2'
 
 function App() {
   const [isMuted, setIsMuted] = useState(true)
@@ -75,7 +76,9 @@ function App() {
         </dialog>
       </div>
 
-      <PlateOff isMuted={isMuted} />
+      {/* <PlateOff isMuted={isMuted} /> */}
+      <RotatingWheel></RotatingWheel>
+      {/* <TrianglePiece numPieces={3} radius={200} /> */}
 
       <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop />
 
