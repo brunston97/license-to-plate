@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FaVolumeUp, FaVolumeMute, FaInfoCircle } from 'react-icons/fa'
 import PlateOff from './PlateOff'
-import { Button } from '@nextui-org/react'
 
 function App() {
   const [isMuted, setIsMuted] = useState(true)
@@ -80,7 +79,7 @@ function App() {
 
       <button
         onClick={toggleMute}
-        className="absolute bottom-4 left-4 rounded-full bg-transparent p-2 hover:bg-gray-200"
+        className="fixed bottom-4 left-4 rounded-full bg-transparent p-2 hover:bg-gray-200"
         title={isMuted ? 'Unmute' : 'Mute'}
       >
         {isMuted ? (

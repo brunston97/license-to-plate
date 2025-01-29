@@ -41,7 +41,7 @@ const PlateOff = (props: PlateOffProps) => {
       const len = (data as IPlateCard[]).length
       const tempArray = []
       for (let i = 0; i < len; i++) {
-        for (let j = 0; j < len; j++) {
+        for (let j = i; j < len; j++) {
           if (i != j) {
             tempArray.push([i, j])
           }
@@ -104,7 +104,7 @@ const PlateOff = (props: PlateOffProps) => {
             className={
               windowWidth > 768
                 ? 'relative flex h-full max-h-full items-center justify-center py-4 *:sm:w-2/5'
-                : 'carousel size-full space-x-4 bg-transparent py-4 *:max-h-full *:w-full *:max-w-full *:justify-center'
+                : 'carousel size-full space-x-4 bg-transparent py-2 *:max-h-full *:w-full *:max-w-full *:justify-center'
             }
           >
             <div id="item1" className="carousel-item flex max-h-full max-w-full items-center justify-center">
@@ -120,10 +120,12 @@ const PlateOff = (props: PlateOffProps) => {
               />
             </div>
           </div>
-          <div className="flex w-full justify-center gap-2 py-2">
-            <a href="#item1" className="btn btn-xs">1</a>
-            <a href="#item2" className="btn btn-xs">2</a>
+          {windowWidth <= 768 && (
+            <div className="flex w-full justify-center gap-2 py-2">
+            <a href="#item1" className="btn btn-xs">&larr;</a>
+            <a href="#item2" className="btn btn-xs">&rarr;</a>
           </div>
+          )}
           {indexPairs.length > index + 2 && (
             // Thank you browser caching
             <div className="hidden">
