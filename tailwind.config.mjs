@@ -11,6 +11,9 @@ export const theme = {
     colors: {
       'bg-primary-1': '#ac9add',
       'bg-primary-2': '#9aa9dd'
+    },
+    fontFamily: {
+      barlow: ['Barlow', 'sans-serif']
     }
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { useEffect, useRef, useState } from 'react'
 import axios from '../utils/axiosInstance'
 import PlateCard from './PlateCard'
@@ -106,19 +107,22 @@ const PlateOff = (props: PlateOffProps) => {
                 : 'carousel size-full space-x-4 bg-transparent py-4 *:max-h-full *:max-w-full'
             }
           >
-            <div className="carousel-item max-h-full max-w-full">
+            <div id="item1" className="carousel-item flex max-h-full max-w-full items-center justify-center">
               <PlateCard
                 card={plates[indexPairs[index][0]]}
                 onPlateCardVote={onCardClick}
               />
             </div>
-
-            <div className="carousel-item max-h-full max-w-full">
+            <div id="item2" className="carousel-item max-h-full max-w-full items-center justify-center">
               <PlateCard
                 card={plates[indexPairs[index][1]]}
                 onPlateCardVote={onCardClick}
               />
             </div>
+          </div>
+          <div className="flex w-full justify-center gap-2 py-2">
+            <a href="#item1" className="btn btn-xs">1</a>
+            <a href="#item2" className="btn btn-xs">2</a>
           </div>
           {indexPairs.length > index + 2 && (
             // Thank you browser caching

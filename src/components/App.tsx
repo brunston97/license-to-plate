@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa'
+import { FaVolumeUp, FaVolumeMute, FaInfoCircle } from 'react-icons/fa'
 import PlateOff from './PlateOff'
 import { Button } from '@nextui-org/react'
 
@@ -41,14 +41,13 @@ function App() {
         <div className="text-center">
           <Header />
         </div>
-        <Button
-          color="primary"
-          variant="shadow"
-          onPress={() => dialogRef.current?.showModal()}
-          className=" left-0 mt-4 sm:relative"
+        <FaInfoCircle
+          color="white"
+          onClick={() => dialogRef.current?.showModal()}
+          className="absolute right-3 top-3 size-3 rounded-full bg-transparent hover:bg-gray-200 sm:size-5"
         >
-          Click Me!
-        </Button>
+          <span className="text-xl font-bold">i</span>
+        </FaInfoCircle>
         <dialog
           ref={dialogRef}
           id="my_modal_5"
@@ -96,7 +95,7 @@ function App() {
 
 function Header() {
   return (
-    <header className="py-0 text-3xl font-bold uppercase text-white md:text-6xl">
+    <header className="font-barlow py-0 text-3xl font-bold uppercase text-white md:text-6xl">
       <h1>Muncher&apos;s Plate Zone Plate-Off!</h1>
     </header>
   )
