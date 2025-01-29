@@ -41,7 +41,7 @@ const PlateOff = (props: PlateOffProps) => {
       const len = (data as IPlateCard[]).length
       const tempArray = []
       for (let i = 0; i < len; i++) {
-        for (let j = i; j < len; j++) {
+        for (let j = 0; j < len; j++) {
           if (i != j) {
             tempArray.push([i, j])
           }
