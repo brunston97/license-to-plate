@@ -44,7 +44,7 @@ function RotatingWheel() {
   }, [isSpinning])
 
   const slots = 3
-  const radius = 100
+  const radius = 50
   const triangles = useMemo(() => {
     return <TrianglePiece radius={radius} numPieces={slots} />
   }, [])
@@ -52,7 +52,7 @@ function RotatingWheel() {
   return (
     <div className="wheel-container" style={{ perspective: '1000px' }}>
       <svg
-        viewBox="0 0 200 200"
+        viewBox="0 0 100 100"
         width="400"
         height="400"
         style={{
@@ -66,21 +66,21 @@ function RotatingWheel() {
             <circle
               cx={radius}
               cy={radius}
-              r={Math.ceil(radius / 2) - 1}
+              r={Math.ceil(radius / 2 - 1)}
               stroke="#333"
-              strokeWidth="4"
+              strokeWidth="1"
             />
           </clipPath>
         </defs>
 
         {/* <circle
-          cx={100}
-          cy={100}
-          r={90}
+          cx={radius}
+          cy={radius}
+          r={radius}
           fill="blue"
           stroke="#333"
-          strokeWidth="4"
-          clipPath="url(#cut-off-bottom)"
+          strokeWidth="1"
+          //clipPath="url(#cut-off-bottom)"
         ></circle> */}
         {triangles}
         {/* Spokes */}
@@ -146,7 +146,7 @@ export const TrianglePiece: React.FC<TrianglePieceProps> = ({
             points={`${x1},${y1} ${center.join(',')} ${thirdEdge}`}
             fill={generateRandomHexColor()}
             stroke="#000"
-            strokeWidth="2"
+            strokeWidth="1"
             clipPath="url(#cut-off-bottom)"
             //mask="url(#myMask)"
           />
