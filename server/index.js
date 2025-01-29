@@ -4,7 +4,9 @@ import cors from 'cors';
 const app = express();
 const PORT = parseInt(process.env.VITE_PORT || '8080');
 const openRouter = express.Router();
-app.use(cors());
+app.use(cors({
+  origin: '*.platezoneplateoff.com localhost:5173'
+}));
 const db = new Firestore({
     projectId: 'license2plate-b4c6e',
     keyFilename: process.env.KEY_FILE_PATH
@@ -37,7 +39,7 @@ openRouter.get('/plates', async (req, res) => {
 });
 openRouter.post('/vote/:id', async (req, res) => {
     const { id } = req.params;
-    console.log(`${id} has been voted`);
+    console.log(`${JSON.stringify(id)} has been voted`);
     const docRef = db.collection('plates').doc(id);
     try {
         await docRef.collection('votes').add({ time: Date.now() });
@@ -46,10 +48,11 @@ openRouter.post('/vote/:id', async (req, res) => {
         });
     }
     catch (error) {
-        console.log(error);
+        console.log(JSON.stringify(error));
     }
     res.send(id);
 });
+
 app.use('/api', openRouter);
 app.listen(PORT, () => {
     console.log(`helloworld: listening on port ${PORT}`);
