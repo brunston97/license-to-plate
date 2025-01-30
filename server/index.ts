@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 import express from 'express'
 import { FieldValue, Firestore } from '@google-cloud/firestore'
 import { IPlateCard } from './types'

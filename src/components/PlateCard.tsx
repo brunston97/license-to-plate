@@ -13,10 +13,13 @@ const PlateCard = (props: PlateCardProps) => {
   console.log(card)
   return (
     <Card
-      className="relative mx-3 h-fit w-full max-w-3xl shrink py-0 sm:mx-6 2xl:mx-10"
+      className="relative mx-3 h-fit max-h-full shrink grow-0 py-0 md:mx-6 2xl:mx-10"
       isHoverable
       isPressable
       onPress={() => onPlateCardVote(card)}
+      classNames={{
+        body: 'max-h-full max-w-full'
+      }}
       {...props}
     >
       <CardHeader className="mb-0 flex-col items-center pb-0">
@@ -29,17 +32,17 @@ const PlateCard = (props: PlateCardProps) => {
           </h3>
         </div>
       </CardHeader>
-      <CardBody className="">
+      <CardBody className="h-fit shrink grow-0 overflow-hidden">
         <div
-          id="imgContainer"
-          className="flex aspect-[3/4] h-fit max-h-full w-full max-w-full justify-center"
+          id={`imgContainer-${card.id}`}
+          className="flex h-fit max-h-full max-w-[400px] shrink justify-center"
         >
           <Image
             alt="Card background"
-            className="z-0 max-h-full max-w-full rounded-xl object-contain"
+            className="z-0 size-full rounded-xl object-contain"
             src={`${BUCKET_URL}/plate${card.id}.jpg`}
             classNames={{
-              wrapper: 'size-full flex justify-center items-center'
+              wrapper: 'flex h-fit justify-center items-center'
             }}
           />
         </div>

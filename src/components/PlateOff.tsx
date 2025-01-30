@@ -103,29 +103,44 @@ const PlateOff = (props: PlateOffProps) => {
           <div
             className={
               windowWidth > 768
-                ? 'relative flex h-full max-h-full items-center justify-center py-4 *:sm:w-2/5'
-                : 'carousel size-full space-x-4 bg-transparent py-2 *:max-h-full *:w-full *:max-w-full *:justify-center'
+                ? 'relative flex size-full max-h-full items-center justify-around py-4 *:w-2/5'
+                : 'carousel mt-8 w-full grow space-x-4 bg-transparent py-2 *:w-full *:max-w-full'
             }
           >
-            <div id="item1" className="carousel-item flex max-h-full max-w-full items-center justify-center">
+            <div
+              id="item1"
+              className="carousel-item flex h-fit max-h-full w-full max-w-full items-center justify-center lg:w-2/5"
+            >
               <PlateCard
                 card={plates[indexPairs[index][0]]}
                 onPlateCardVote={onCardClick}
               />
             </div>
-            <div id="item2" className="carousel-item max-h-full max-w-full items-center justify-center">
+            <div
+              id="item2"
+              className="carousel-item flex h-fit max-h-full w-full max-w-full items-center justify-center lg:w-2/5"
+            >
               <PlateCard
                 card={plates[indexPairs[index][1]]}
                 onPlateCardVote={onCardClick}
               />
             </div>
           </div>
-          {windowWidth <= 768 && (
-            <div className="flex w-full justify-center gap-2 py-2">
-            <a href="#item1" className="btn btn-xs">&larr;</a>
-            <a href="#item2" className="btn btn-xs">&rarr;</a>
+          <div
+            className="flex w-full justify-center gap-2 py-2"
+            style={{
+              visibility: windowWidth > 768 ? 'hidden' : 'visible',
+              display: windowWidth > 768 ? 'none' : 'flex'
+            }}
+          >
+            <a href="#item1" className="btn btn-xs">
+              &larr;
+            </a>
+            <a href="#item2" className="btn btn-xs">
+              &rarr;
+            </a>
           </div>
-          )}
+
           {indexPairs.length > index + 2 && (
             // Thank you browser caching
             <div className="hidden">
