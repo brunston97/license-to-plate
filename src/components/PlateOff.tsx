@@ -4,6 +4,7 @@ import axios from '../utils/axiosInstance'
 import PlateCard from './PlateCard'
 import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
+import { i } from 'framer-motion/client'
 
 interface PlateOffProps {
   isMuted: boolean
@@ -39,15 +40,7 @@ const PlateOff = (props: PlateOffProps) => {
       const { data } = await axios.get('/plates')
       setPlates(data)
       const len = (data as IPlateCard[]).length
-      const tempArray = []
-      for (let i = 0; i < len; i++) {
-        for (let j = 0; j < len; j++) {
-          if (i != j) {
-            tempArray.push([i, j])
-          }
-        }
-      }
-      shuffle(tempArray)
+      const tempArray = formPlatePairsArray(len)
       setIndexPairs(tempArray)
     } catch (error) {
       console.log(error)
@@ -79,17 +72,26 @@ const PlateOff = (props: PlateOffProps) => {
     }
   }
 
+  function formPlatePairsArray(len: number): number[][] {
+    const plateIds = Array.from({ length: len }, (_, i) => i + 1);
+    shuffle(plateIds);
+
+    const pairedPlates: number[][]= [];
+    for (let i = 0; i < plateIds.length; i += 2) {
+      pairedPlates.push([plateIds[i], plateIds[i+1]]);
+    }
+
+    return pairedPlates
+  }
+
   function shuffle(array: Array<unknown>) {
     let currentIndex = array.length
 
-    // While there remain elements to shuffle...
     while (currentIndex != 0) {
-      // Pick a remaining element...
       const randomIndex = Math.floor(Math.random() * currentIndex)
       currentIndex--
 
-      // And swap it with the current element.
-      ;[array[currentIndex], array[randomIndex]] = [
+      [array[currentIndex], array[randomIndex]] = [
         array[randomIndex],
         array[currentIndex]
       ]
@@ -103,7 +105,7 @@ const PlateOff = (props: PlateOffProps) => {
           <div
             className={
               windowWidth > 768
-                ? 'relative flex size-full max-h-full items-center justify-around py-4 *:w-2/5'
+                ? 'relative flex size-full max-h-full items-center justify-center py-4 *:w-2/5'
                 : 'carousel mt-8 w-full grow space-x-4 bg-transparent py-2 *:w-full *:max-w-full'
             }
           >
