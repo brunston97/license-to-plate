@@ -4,7 +4,6 @@ import axios from '../utils/axiosInstance'
 import PlateCard from './PlateCard'
 import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
-import { i } from 'framer-motion/client'
 
 interface PlateOffProps {
   isMuted: boolean
