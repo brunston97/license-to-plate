@@ -35,7 +35,7 @@ const PlateCard = (props: PlateCardProps) => {
       <CardBody className="h-fit shrink grow-0 overflow-hidden">
         <div
           id={`imgContainer-${card.id}`}
-          className="flex aspect-[3/4] h-fit max-h-full max-w-[700px] shrink items-center justify-center"
+          className="flex aspect-[3/4] h-fit max-h-full max-w-[650px] shrink items-center justify-center"
         >
           <Image
             alt="Card background"

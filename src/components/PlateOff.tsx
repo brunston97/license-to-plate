@@ -53,6 +53,7 @@ const PlateOff = (props: PlateOffProps) => {
 
     try {
       axios.post(`/vote/${card.id}`)
+      console.log(`current index before click: ${index}`);
       setIndex((i) => i + 1)
     } catch (error) {
       console.log(error)
@@ -72,7 +73,7 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   function formPlatePairsArray(len: number): number[][] {
-    const plateIds = Array.from({ length: len }, (_, i) => i + 1);
+    const plateIds = Array.from({ length: len }, (_, i) => i);
     shuffle(plateIds);
 
     const pairedPlates: number[][]= [];
@@ -99,65 +100,77 @@ const PlateOff = (props: PlateOffProps) => {
 
   return (
     <div className="min-h-0 shrink sm:grow">
-      {indexPairs.length > index + 1 && !isLoading ? (
+      { !isLoading ? (
         <>
-          <div
-            className={
-              windowWidth > 768
-                ? 'relative flex size-full max-h-full items-center justify-center py-4 *:w-2/5'
-                : 'carousel mt-8 w-full grow space-x-4 bg-transparent py-2 *:w-full *:max-w-full'
-            }
-          >
-            <div
-              id="item1"
-              className="carousel-item flex h-fit max-h-full w-full max-w-full items-center justify-center lg:w-2/5"
-            >
-              <PlateCard
-                card={plates[indexPairs[index][0]]}
-                onPlateCardVote={onCardClick}
-              />
-            </div>
-            <div
-              id="item2"
-              className="carousel-item flex h-fit max-h-full w-full max-w-full items-center justify-center lg:w-2/5"
-            >
-              <PlateCard
-                card={plates[indexPairs[index][1]]}
-                onPlateCardVote={onCardClick}
-              />
-            </div>
-          </div>
-          <div
-            className="flex w-full justify-center gap-2 py-2"
-            style={{
-              visibility: windowWidth > 768 ? 'hidden' : 'visible',
-              display: windowWidth > 768 ? 'none' : 'flex'
-            }}
-          >
-            <a href="#item1" className="btn btn-xs">
-              &larr;
-            </a>
-            <a href="#item2" className="btn btn-xs">
-              &rarr;
-            </a>
-          </div>
+          {indexPairs.length > index + 1 ? (
+            <>
+              <div
+                className={
+                  windowWidth > 768
+                    ? 'relative flex size-full max-h-full items-center justify-center py-4 *:w-2/5'
+                    : 'carousel mt-8 max-h-full w-full grow space-x-4 bg-transparent py-2 *:w-full *:max-w-full'
+                }
+              >
+                <div
+                  id="item1"
+                  className="carousel-item flex h-fit max-h-full w-full max-w-full items-center justify-center lg:w-2/5"
+                >
+                  <PlateCard
+                    card={plates[indexPairs[index][0]]}
+                    onPlateCardVote={onCardClick}
+                  />
+                </div>
+                <div
+                  id="item2"
+                  className="carousel-item flex h-fit max-h-full w-full max-w-full items-center justify-center lg:w-2/5"
+                >
+                  <PlateCard
+                    card={plates[indexPairs[index][1]]}
+                    onPlateCardVote={onCardClick}
+                  />
+                </div>
+              </div>
+              <div
+                className="flex w-full justify-center gap-2 py-2"
+                style={{
+                  visibility: windowWidth > 768 ? 'hidden' : 'visible',
+                  display: windowWidth > 768 ? 'none' : 'flex'
+                }}
+              >
+                <a href="#item1" className="btn btn-xs">
+                  &larr;
+                </a>
+                <a href="#item2" className="btn btn-xs">
+                  &rarr;
+                </a>
+              </div>
 
-          {indexPairs.length > index + 2 && (
-            // Thank you browser caching
-            <div className="hidden">
-              <PlateCard
-                card={plates[indexPairs[index + 1][0]]}
-                onPlateCardVote={onCardClick}
-              />
-              <PlateCard
-                card={plates[indexPairs[index + 1][1]]}
-                onPlateCardVote={onCardClick}
-              />
+              {indexPairs.length > index + 2 && (
+                // Thank you browser caching
+                <div className="hidden">
+                  <PlateCard
+                    card={plates[indexPairs[index + 1][0]]}
+                    onPlateCardVote={onCardClick}
+                  />
+                  <PlateCard
+                    card={plates[indexPairs[index + 1][1]]}
+                    onPlateCardVote={onCardClick}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="mx-5 mt-10 flex items-center justify-center text-center font-barlow text-2xl font-semibold text-white">
+              <h2>
+                You&apos;ve voted on all {plates.length} plates, but your plate journey doesn&apos;t end here!
+                <br/>
+                Refresh the page to vote on all new plate pairings!
+              </h2>
             </div>
           )}
         </>
       ) : (
-        <Spinner />
+        <Spinner/>
       )}
     </div>
   )
