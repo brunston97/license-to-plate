@@ -53,7 +53,6 @@ const PlateOff = (props: PlateOffProps) => {
 
     try {
       axios.post(`/vote/${card.id}`)
-      console.log(`current index before click: ${index}`);
       setIndex((i) => i + 1)
     } catch (error) {
       console.log(error)
@@ -118,6 +117,7 @@ const PlateOff = (props: PlateOffProps) => {
                   <PlateCard
                     card={plates[indexPairs[index][0]]}
                     onPlateCardVote={onCardClick}
+                    isSmallScreen={windowWidth <= 768}
                   />
                 </div>
                 <div
@@ -127,6 +127,7 @@ const PlateOff = (props: PlateOffProps) => {
                   <PlateCard
                     card={plates[indexPairs[index][1]]}
                     onPlateCardVote={onCardClick}
+                    isSmallScreen={windowWidth <= 768}
                   />
                 </div>
               </div>
@@ -151,10 +152,12 @@ const PlateOff = (props: PlateOffProps) => {
                   <PlateCard
                     card={plates[indexPairs[index + 1][0]]}
                     onPlateCardVote={onCardClick}
+                    isSmallScreen={windowWidth <= 768}
                   />
                   <PlateCard
                     card={plates[indexPairs[index + 1][1]]}
                     onPlateCardVote={onCardClick}
+                    isSmallScreen={windowWidth <= 768}
                   />
                 </div>
               )}

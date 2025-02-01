@@ -35,7 +35,7 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-0 sm:justify-between">
+    <div className="flex min-h-screen w-screen flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-0 sm:justify-between">
       <div className="flex flex-col items-center justify-start">
         <div className="text-center">
           <Header />
