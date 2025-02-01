@@ -47,7 +47,9 @@ const PlateCard = (props: PlateCardProps) => {
         <div
           id={`imgContainer-${card.id}`}
           className={`flex h-fit max-h-full ${
-            props.isSmallScreen ? 'max-w-[400px]' : 'max-w-[600px]'
+            props.isSmallScreen
+              ? 'max-w-[400px]'
+              : 'max-w-[600px] 2xl:max-w-[750px]'
           } shrink justify-center`}
         >
           <Image
