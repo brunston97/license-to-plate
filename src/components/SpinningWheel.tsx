@@ -50,43 +50,9 @@ export const IsoscelesTriangle: React.FC<IsoscelesTriangleProps> = ({
         background: color
       }}
     >
-      <div className="absolute left-0 top-0  size-0 border-x-0 border-b-0 border-transparent" />
+      <div className="absolute left-0 top-0  size-0 border-x-0 border-b-0" />
     </div>
   )
-}
-
-function generateHexColorFromNumber(num: number): string {
-  const absNum = Math.abs(num)
-  const hue = (absNum * 137.508) % 360
-  const h = hue / 360
-  const s = 0.8 //saturation
-  const l = 0.6 //lightness
-
-  const hue2rgb = (p: number, q: number, t: number) => {
-    if (t < 0) t += 1
-    if (t > 1) t -= 1
-    if (t < 1 / 6) return p + (q - p) * 6 * t
-    if (t < 1 / 2) return q
-    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
-    return p
-  }
-  const q = l < 0.5 ? l * (1 + s) : l + s - l * s
-  const p = 2 * l - q
-
-  const r = hue2rgb(p, q, h + 1 / 3)
-  const g = hue2rgb(p, q, h)
-  const b = hue2rgb(p, q, h - 1 / 3)
-
-  const rgbToHex = (red: number, green: number, blue: number): string => {
-    const componentToHex = (c: number) => {
-      const hex = Math.round(c * 255).toString(16)
-      return hex.length == 1 ? '0' + hex : hex
-    }
-    return (
-      '#' + componentToHex(red) + componentToHex(green) + componentToHex(blue)
-    )
-  }
-  return rgbToHex(r, g, b)
 }
 
 const SpinningWheel: React.FC<SpinningWheelProps> = ({
@@ -145,14 +111,14 @@ const SpinningWheel: React.FC<SpinningWheelProps> = ({
     // This calculates the final resting position
     setTimeout(() => {
       setIsSpinning(false)
-    }, 5000)
+    }, 7500)
   }
 
   // style for the wheel
   const wheelStyle: CSSProperties = useMemo(() => {
     return {
       transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
-      transition: isSpinning ? 'transform 5s ease-out' : 'none'
+      transition: isSpinning ? 'transform 8s ease-out' : 'none'
     }
   }, [rotation, isSpinning])
 
@@ -163,7 +129,7 @@ const SpinningWheel: React.FC<SpinningWheelProps> = ({
       <div className="relative mx-auto flex size-80 items-center justify-center overflow-hidden rounded-full border-2 border-gray-300 p-4">
         <div
           ref={wheelRef}
-          className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 text-clip "
+          className="absolute left-1/2 top-1/2 z-50 size-0 -translate-x-1/2 -translate-y-1/2 text-clip "
           style={{ ...wheelStyle }}
         >
           {slots.map((index) => {
@@ -246,6 +212,40 @@ function getIsoscelesTriangleHeight(
   // Calculate the height using trigonometry: height = (width / 2) / tan(vertexAngle / 2)
   const height = width / 2 / Math.tan(halfVertexAngleRad)
   return height
+}
+
+function generateHexColorFromNumber(num: number): string {
+  const absNum = Math.abs(num)
+  const hue = (absNum * 137.508) % 360
+  const h = hue / 360
+  const s = 0.8 //saturation
+  const l = 0.6 //lightness
+
+  const hue2rgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1
+    if (t > 1) t -= 1
+    if (t < 1 / 6) return p + (q - p) * 6 * t
+    if (t < 1 / 2) return q
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
+    return p
+  }
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+  const p = 2 * l - q
+
+  const r = hue2rgb(p, q, h + 1 / 3)
+  const g = hue2rgb(p, q, h)
+  const b = hue2rgb(p, q, h - 1 / 3)
+
+  const rgbToHex = (red: number, green: number, blue: number): string => {
+    const componentToHex = (c: number) => {
+      const hex = Math.round(c * 255).toString(16)
+      return hex.length == 1 ? '0' + hex : hex
+    }
+    return (
+      '#' + componentToHex(red) + componentToHex(green) + componentToHex(blue)
+    )
+  }
+  return rgbToHex(r, g, b)
 }
 
 export default SpinningWheel
