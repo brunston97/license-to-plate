@@ -12,29 +12,6 @@ const db = new Firestore({
 openRouter.get('/', (req, res) => {
     res.send(`Hello ${req.ip}!`);
 });
-openRouter.get('/plates', async (req, res) => {
-    const snapshot = await db.collection('plates').get();
-    if (snapshot.empty) {
-        res.json([]);
-    }
-    const plates = [];
-    snapshot.forEach((plate) => {
-        const p = plate.data();
-        if (p.id == undefined) {
-            const temp = {
-                id: plate.id,
-                voteCount: 0,
-                uploader: 'garlicgirl'
-            };
-            plate.ref.set(temp);
-            plates.push(temp);
-        }
-        else {
-            plates.push(p);
-        }
-    });
-    res.json(plates);
-});
 openRouter.post('/vote/:id', async (req, res) => {
     const { id } = req.params;
     console.log(`${id} has been voted`);
