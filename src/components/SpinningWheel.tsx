@@ -33,17 +33,13 @@ export const IsoscelesTriangle: React.FC<IsoscelesTriangleProps> = ({
   color = 'bg-blue-500',
   className = ''
 }) => {
-  const vectors = isoscelesTriangleToCoordinates(angle)
-  const tHeight = 100 - vectors.slice(-1)[0].y
-  vectors.slice(-1)[0].y = 0
-  const shiftDistance = tHeight - size / 2
-  const triangleHeight = (tHeight / 100) * size
+  const triangleHeight = getIsoscelesTriangleHeight(angle, size)
 
   const triangleStyle = {
     width: `${size}rem`,
     height: `${triangleHeight}rem`,
-    transform: `translateX(-50%) translateY(-50%) rotate(${rotation}deg) translateY(50%)`, // translateY(-${shiftDistance}%)`, // Removed translateY here
-    clipPath: `polygon(${vectors.map((v) => `${v.x}% ${v.y}%`).join(', ')})`
+    transform: `translateX(-50%) translateY(-50%) rotate(${rotation}deg) translateY(50%)`,
+    clipPath: `polygon(0% 100%, 50% 0%, 100% 100%)`
   }
 
   return (
@@ -51,51 +47,12 @@ export const IsoscelesTriangle: React.FC<IsoscelesTriangleProps> = ({
       className={`absolute -left-1/2 overflow-visible ${color} ${className}`}
       style={{
         ...triangleStyle,
-        background: generateHexColorFromNumber(rotation)
+        background: color
       }}
     >
-      <div
-        style={
-          {
-            //transform: `translateY(${-size / 2}rem)`
-          }
-        }
-        className="absolute left-0 top-0  size-0 border-x-0 border-b-0 border-transparent"
-      />
+      <div className="absolute left-0 top-0  size-0 border-x-0 border-b-0 border-transparent" />
     </div>
   )
-}
-
-function isoscelesTriangleToCoordinates(
-  angleDegrees: number
-): { x: number; y: number }[] {
-  if (angleDegrees <= 0 || angleDegrees >= 180 || angleDegrees > 120) {
-    angleDegrees = 60
-  }
-  if (angleDegrees <= 0 || angleDegrees >= 180 || angleDegrees > 120) {
-    angleDegrees = 60
-  }
-  const angleRadians = (angleDegrees * Math.PI) / 180
-  const equalAngleRadians = (Math.PI - angleRadians) / 2
-  const base = 100
-  const height = (base / 2) * Math.tan(equalAngleRadians)
-  const maxHeight = 100
-  const scaleFactor = Math.min(1, maxHeight / height)
-  const scaledHeight = height * scaleFactor
-  const scaledBase = base * scaleFactor
-
-  const x1 = 0
-  const y1 = 100 // Shifted y1 to 100 to move the base to the bottom
-  const x2 = scaledBase
-  const y2 = 100 // Shifted y2 to 100 to move the base to the bottom
-  const x3 = scaledBase / 2
-  const y3 = 100 - scaledHeight // Adjusted y3 to position the peak correctly
-
-  return [
-    { x: x1, y: y1 },
-    { x: x2, y: y2 },
-    { x: x3, y: y3 }
-  ]
 }
 
 function generateHexColorFromNumber(num: number): string {
@@ -200,35 +157,23 @@ const SpinningWheel: React.FC<SpinningWheelProps> = ({
   }, [rotation, isSpinning])
 
   const triangleSize = 15 // size of the wheel container
-  const triangleBaseSize = triangleSize /// 2 // Adjust as needed to fit triangles into circle
 
   return (
     <div className={className || ''}>
-      {/* {[0, 120, 240].map((val) => {
-        return (
-          <IsoscelesTriangle
-            key={val}
-            size={triangleSize} // size prop is in rem, adjust as needed
-            rotation={val}
-            angle={120}
-            //className="left-1/4 top-0" // Adjust position to center, roughly
-          />
-        )
-      })} */}
-      <div className="relative mx-auto flex size-40 items-center justify-center rounded-full border-2 border-gray-300 p-4">
+      <div className="relative mx-auto flex size-80 items-center justify-center overflow-hidden rounded-full border-2 border-gray-300 p-4">
         <div
           ref={wheelRef}
-          className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
-          style={wheelStyle}
+          className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 text-clip "
+          style={{ ...wheelStyle }}
         >
-          {slots.map((val) => {
+          {slots.map((index) => {
             return (
               <IsoscelesTriangle
-                key={val}
+                key={index}
                 size={triangleSize} // size prop is in rem, adjust as needed
-                rotation={(360 / slotCount) * val}
+                rotation={(360 / slotCount) * index}
                 angle={360 / slotCount}
-                //className="left-1/4 top-0" // Adjust position to center, roughly
+                color={generateHexColorFromNumber(index)}
               />
             )
           })}
@@ -237,7 +182,7 @@ const SpinningWheel: React.FC<SpinningWheelProps> = ({
 
         {/* center pointer that indicates the selected option */}
       </div>
-      <div className="mt-4 flex items-center space-x-2">
+      <div className="mt-4 flex hidden items-center space-x-2">
         <Input
           type="text"
           placeholder="Enter new option"
@@ -255,7 +200,7 @@ const SpinningWheel: React.FC<SpinningWheelProps> = ({
         </Button>
       </div>
       {options.length > 0 && (
-        <div className="mt-2 space-y-1">
+        <div className="mt-2 hidden space-y-1">
           {options.map((option, index) => (
             <div key={index} className="flex items-center space-x-2">
               <span className="flex-1 truncate">{option}</span>
@@ -282,6 +227,25 @@ const SpinningWheel: React.FC<SpinningWheelProps> = ({
       </div>
     </div>
   )
+}
+
+function getIsoscelesTriangleHeight(
+  vertexAngle: number,
+  width: number
+): number | null {
+  // Convert vertex angle to radians
+  const vertexAngleRad = (vertexAngle * Math.PI) / 180
+
+  if (vertexAngleRad <= 0 || vertexAngleRad >= Math.PI || width <= 0) {
+    return null // Invalid vertex angle or width
+  }
+
+  // Calculate half of the vertex angle
+  const halfVertexAngleRad = vertexAngleRad / 2
+
+  // Calculate the height using trigonometry: height = (width / 2) / tan(vertexAngle / 2)
+  const height = width / 2 / Math.tan(halfVertexAngleRad)
+  return height
 }
 
 export default SpinningWheel
