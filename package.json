@@ -16,6 +16,7 @@
     "prod:server": "cd server && npm run prod",
     "prod:client": "npm run build && firebase deploy --only hosting",
     "build": "tsc && vite build",
+    "buildAndDeploy": "npm run build && firebase deploy --only hosting",
     "serve": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",

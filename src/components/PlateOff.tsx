@@ -4,6 +4,7 @@ import axios from '../utils/axiosInstance'
 import PlateCard from './PlateCard'
 import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
+import allPlateData from '../const/Plate_Zone_Plates.json'
 
 interface PlateOffProps {
   isMuted: boolean
@@ -36,7 +37,7 @@ const PlateOff = (props: PlateOffProps) => {
 
   async function getCards() {
     try {
-      const { data } = await axios.get('/plates')
+      const data: IPlateCard[] = allPlateData;
       setPlates(data)
       const len = (data as IPlateCard[]).length
       const tempArray = formPlatePairsArray(len)
