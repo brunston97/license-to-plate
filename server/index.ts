@@ -2,9 +2,11 @@ import express from 'express'
 import { FieldValue, Firestore } from '@google-cloud/firestore'
 import { IPlateCard } from './types'
 import cors from 'cors'
+import process from 'process'
 
 const app = express()
-const PORT = parseInt(process.env.VITE_PORT || '8080')
+const PORT = parseInt(process.env.VITE_PORT || '8000')
+console.log(process.env)
 const openRouter = express.Router()
 
 app.use(cors())
@@ -19,6 +21,7 @@ openRouter.get('/', (req, res) => {
 })
 
 openRouter.get('/plates', async (req, res) => {
+  return res.json([])
   const snapshot = await db.collection('plates').get()
   if (snapshot.empty) {
     res.json([])

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import axios from '../utils/axiosInstance'
 import PlateCard from './PlateCard'
-import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
 
 interface PlateOffProps {
@@ -135,7 +134,6 @@ const PlateOff = (props: PlateOffProps) => {
           )}
         </>
       ) : (
-        <Spinner />
       )}
     </div>
   )

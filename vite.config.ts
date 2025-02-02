@@ -25,6 +25,9 @@ export default defineConfig(async ({ mode }) => {
           //rewrite: (path) => path.replace(/^\/api/, '')
         }
       }
+    },
+    define: {
+      'process.env': process.env
     }
   }
 })
