@@ -5,9 +5,12 @@ import PlateCard from './PlateCard'
 import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
 import allPlateData from '../const/Plate_Zone_Plates.json'
+import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 
 interface PlateOffProps {
   isMuted: boolean
+  windowWidth: number
+  isManualSideBySideView: boolean
 }
 
 const PlateOff = (props: PlateOffProps) => {
@@ -16,22 +19,16 @@ const PlateOff = (props: PlateOffProps) => {
   const [plates, setPlates] = useState<IPlateCard[]>([])
   const [isLoading, setLoading] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
 
   // onMount Call
   useEffect(() => {
     getCards()
 
     audioRef.current = new Audio('pop.mp3')
-    function onResizeListener() {
-      setWindowWidth(window.innerWidth)
-    }
-    window.addEventListener('resize', onResizeListener)
 
     return () => {
       audioRef.current?.pause()
       audioRef.current = null
-      window.removeEventListener('resize', onResizeListener)
     }
   }, [])
 
@@ -106,7 +103,7 @@ const PlateOff = (props: PlateOffProps) => {
             <>
               <div
                 className={
-                  windowWidth > 768
+                  props.windowWidth > MOBILE_WIDTH_CUTOFF || props.isManualSideBySideView
                     ? 'relative flex size-full max-h-full items-center justify-center py-4 *:w-2/5'
                     : 'carousel mt-8 max-h-full w-full grow space-x-4 bg-transparent py-2 *:w-full *:max-w-full'
                 }
@@ -118,7 +115,7 @@ const PlateOff = (props: PlateOffProps) => {
                   <PlateCard
                     card={plates[indexPairs[index][0]]}
                     onPlateCardVote={onCardClick}
-                    isSmallScreen={windowWidth <= 768}
+                    windowWidth= {props.windowWidth}
                   />
                 </div>
                 <div
@@ -128,15 +125,15 @@ const PlateOff = (props: PlateOffProps) => {
                   <PlateCard
                     card={plates[indexPairs[index][1]]}
                     onPlateCardVote={onCardClick}
-                    isSmallScreen={windowWidth <= 768}
+                    windowWidth= {props.windowWidth}
                   />
                 </div>
               </div>
               <div
                 className="flex w-full justify-center gap-2 py-2"
                 style={{
-                  visibility: windowWidth > 768 ? 'hidden' : 'visible',
-                  display: windowWidth > 768 ? 'none' : 'flex'
+                  visibility: props.windowWidth > MOBILE_WIDTH_CUTOFF || props.isManualSideBySideView ? 'hidden' : 'visible',
+                  display: props.windowWidth > MOBILE_WIDTH_CUTOFF || props.isManualSideBySideView ? 'none' : 'flex'
                 }}
               >
                 <a href="#item1" className="btn btn-xs">
@@ -153,12 +150,12 @@ const PlateOff = (props: PlateOffProps) => {
                   <PlateCard
                     card={plates[indexPairs[index + 1][0]]}
                     onPlateCardVote={onCardClick}
-                    isSmallScreen={windowWidth <= 768}
+                    windowWidth= {props.windowWidth}
                   />
                   <PlateCard
                     card={plates[indexPairs[index + 1][1]]}
                     onPlateCardVote={onCardClick}
-                    isSmallScreen={windowWidth <= 768}
+                    windowWidth= {props.windowWidth}
                   />
                 </div>
               )}

@@ -1,11 +1,12 @@
 import { Card, CardBody, CardHeader, CardProps, Image } from '@nextui-org/react'
 import { IPlateCard } from 'assets/types'
+import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 import { useState } from 'react'
 
 interface PlateCardProps extends CardProps {
   card: IPlateCard
   onPlateCardVote: (plate: IPlateCard) => void
-  isSmallScreen: boolean
+  windowWidth: number
 }
 
 const BUCKET_URL = import.meta.env.VITE_BUCKET_URL
@@ -47,7 +48,7 @@ const PlateCard = (props: PlateCardProps) => {
         <div
           id={`imgContainer-${card.id}`}
           className={`flex h-fit max-h-full ${
-            props.isSmallScreen
+            props.windowWidth <= MOBILE_WIDTH_CUTOFF
               ? 'max-w-[400px]'
               : 'max-w-[600px] 2xl:max-w-[750px]'
           } shrink justify-center`}

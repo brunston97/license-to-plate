@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FaVolumeUp, FaVolumeMute, FaInfoCircle } from 'react-icons/fa'
+import { GiCardExchange } from 'react-icons/gi'
 import PlateOff from './PlateOff'
+import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 
 function App() {
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
   const [isMuted, setIsMuted] = useState(true)
+  const [isManualSideBySideView, setIsManualSideBySideView] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
@@ -19,8 +23,14 @@ function App() {
 
     document.addEventListener('click', handleUserInteraction)
 
+    function onResizeListener() {
+      setWindowWidth(window.innerWidth)
+    }
+    window.addEventListener('resize', onResizeListener)
+
     return () => {
       document.removeEventListener('click', handleUserInteraction)
+      window.removeEventListener('resize', onResizeListener)
     }
   }, [])
 
@@ -32,6 +42,10 @@ function App() {
 
   const toggleMute = () => {
     setIsMuted((prevState) => !prevState)
+  }
+
+  const toggleView = () => {
+    setIsManualSideBySideView((prevState) => !prevState)
   }
 
   return (
@@ -73,7 +87,11 @@ function App() {
         </dialog>
       </div>
 
-      <PlateOff isMuted={isMuted} />
+      <PlateOff
+        isMuted={isMuted}
+        windowWidth={windowWidth}
+        isManualSideBySideView={isManualSideBySideView}
+      />
 
       <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop />
 
@@ -85,9 +103,26 @@ function App() {
         {isMuted ? (
           <FaVolumeMute size={32} color="gray" />
         ) : (
-          <FaVolumeUp size={32} color="black" />
+          <FaVolumeUp size={32} color="white" />
         )}
       </button>
+
+      {windowWidth <= MOBILE_WIDTH_CUTOFF && (
+        <button
+          onClick={toggleView}
+          className="fixed bottom-4 right-4 rounded-full bg-transparent p-2 hover:bg-gray-200"
+          title={
+            isManualSideBySideView
+              ? 'Switch to Image View'
+              : 'Switch to Side-By-Side View'
+          }
+        >
+          <GiCardExchange
+            size={32}
+            color={isManualSideBySideView ? 'white' : 'gray'}
+          />
+        </button>
+      )}
     </div>
   )
 }
