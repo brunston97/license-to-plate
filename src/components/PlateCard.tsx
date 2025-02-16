@@ -50,7 +50,7 @@ const PlateCard = (props: PlateCardProps) => {
           className={`flex h-fit max-h-full ${
             props.windowWidth <= MOBILE_WIDTH_CUTOFF
               ? 'max-w-[400px]'
-              : 'max-w-[600px] 2xl:max-w-[750px]'
+              : 'max-w-[600px] 2xl:max-w-[700px]'
           } shrink justify-center`}
         >
           <Image

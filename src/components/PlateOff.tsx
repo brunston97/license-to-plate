@@ -96,7 +96,7 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   return (
-    <div className="min-h-0 shrink sm:grow">
+    <div className="min-h-0 shrink sm:grow md:mt-6">
       { !isLoading ? (
         <>
           {indexPairs.length > index + 1 ? (

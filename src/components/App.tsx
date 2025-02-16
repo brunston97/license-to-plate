@@ -67,11 +67,19 @@ function App() {
           className="modal modal-bottom sm:modal-middle"
         >
           <div className="modal-box">
-            <div className="flex items-center justify-center">
-              <h3 className="w-full text-center text-base font-bold text-black dark:text-white md:w-4/5 md:text-2xl">
-                Welcome to the 2024 Jackbox Plate Zone Plate-Off! <br /> All you
-                need to do is vote on your favorite plate, and we&apos;ll see
-                who wins!
+            <div className="flex w-full flex-col items-center justify-center">
+              <h3 className="mb-4 w-full text-center text-base font-bold text-black dark:text-white md:w-4/5 md:text-xl">
+                Welcome to the 2024 Jackbox Plate Zone Plate-Off!
+              </h3>
+              <h3 className="w-full text-center text-base text-black dark:text-white md:w-4/5 md:text-xl">
+                All you need to do is vote on your favorite license plate from
+                each random pair that you&apos;re shown - we&apos;ll tally the
+                votes for each plate, and announce the winners on March 2
+                <sup>nd</sup>!
+                <br />
+                <br />
+                If you see a funny combination of plates, don&apos;t forget to
+                take a screenshot and post it in the Plate Zone!
               </h3>
             </div>
             <div className="modal-action flex justify-center">
@@ -130,7 +138,7 @@ function App() {
 function Header() {
   return (
     <header className="py-0 font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
-      <h1>Muncher&apos;s Plate Zone Plate-Off!</h1>
+      <h1>Plate Zone Plate-Off!</h1>
     </header>
   )
 }
