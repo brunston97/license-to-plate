@@ -61,6 +61,7 @@ const PlateCard = (props: PlateCardProps) => {
             classNames={{
               wrapper: 'flex h-fit justify-center items-center'
             }}
+            isZoomed
           />
         </div>
       </CardBody>

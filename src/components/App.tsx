@@ -3,11 +3,13 @@ import { FaVolumeUp, FaVolumeMute, FaInfoCircle } from 'react-icons/fa'
 import { GiCardExchange } from 'react-icons/gi'
 import PlateOff from './PlateOff'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
+import PlateCardTable from './Results'
 
 function App() {
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
   const [isMuted, setIsMuted] = useState(true)
   const [isManualSideBySideView, setIsManualSideBySideView] = useState(false)
+  const [showResults, setShowResults] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
@@ -22,6 +24,10 @@ function App() {
     }
 
     document.addEventListener('click', handleUserInteraction)
+
+    if (document.location.pathname == '/results') {
+      setShowResults(true)
+    }
 
     function onResizeListener() {
       setWindowWidth(window.innerWidth)
@@ -49,7 +55,7 @@ function App() {
   }
 
   return (
-    <div className="flex min-h-screen w-screen flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-0 sm:justify-between">
+    <div className="relative flex h-screen w-screen max-w-full flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-0 sm:justify-between">
       <div className="flex flex-col items-center justify-start">
         <div className="text-center">
           <Header />
@@ -94,12 +100,15 @@ function App() {
           </form>
         </dialog>
       </div>
-
-      <PlateOff
-        isMuted={isMuted}
-        windowWidth={windowWidth}
-        isManualSideBySideView={isManualSideBySideView}
-      />
+      {showResults ? (
+        <PlateCardTable />
+      ) : (
+        <PlateOff
+          isMuted={isMuted}
+          windowWidth={windowWidth}
+          isManualSideBySideView={isManualSideBySideView}
+        />
+      )}
 
       <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop />
 
