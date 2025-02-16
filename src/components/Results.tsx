@@ -1,12 +1,4 @@
-import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Image
-} from '@nextui-org/react'
+import { Image } from '@nextui-org/react'
 
 import { IPlateCard } from 'assets/types'
 import axios from 'axios'
@@ -36,53 +28,34 @@ export default function PlateCardTable(): ReactElement {
   const modalRef = useRef<HTMLDialogElement>(null)
 
   return (
-    <div className="overflow-y-auto">
-      <div className="">
-        <dialog id="my_modal_2" className="modal" ref={modalRef}>
-          <div className="modal-box">
+    <div className="z-0 grow overflow-y-auto p-4">
+      <dialog id="my_modal_2" className="modal" ref={modalRef}>
+        <div className="modal-box">
+          <Image alt={`${modalId}`} src={`${BUCKET_URL}/plate${modalId}.jpg`} />
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {sortedPlateCards.map((item) => (
+          <div
+            key={item.id}
+            className="flex flex-col justify-center rounded-xl bg-white p-2"
+          >
             <Image
-              alt={`${modalId}`}
-              src={`${BUCKET_URL}/plate${modalId}.jpg`}
+              alt={`${item.title}`}
+              src={`${BUCKET_URL}/plate${item.id}.jpg`}
+              className="flex cursor-pointer justify-center"
+              isZoomed
+              onClick={() => {
+                setModalId(item.id)
+                modalRef.current?.showModal()
+              }}
             />
           </div>
-          <form method="dialog" className="modal-backdrop">
-            <button>close</button>
-          </form>
-        </dialog>
+        ))}
       </div>
-      <Table aria-label="Ranked Plate Cards" className="justify-self-start p-5">
-        <TableHeader>
-          <TableColumn align="center" key="rank">
-            Plate Id
-          </TableColumn>
-          <TableColumn align="center" key="name">
-            Name
-          </TableColumn>
-          <TableColumn align="center" key="voteCount">
-            Image
-          </TableColumn>
-        </TableHeader>
-        <TableBody items={sortedPlateCards}>
-          {sortedPlateCards.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell align="center">{item.id}</TableCell>
-              <TableCell align="center">{item.title}</TableCell>
-              <TableCell align="center" className="flex justify-center">
-                <Image
-                  alt={`${item.title}`}
-                  src={`${BUCKET_URL}/plate${item.id}.jpg`}
-                  className="h-48 cursor-pointer"
-                  isZoomed
-                  onClick={() => {
-                    setModalId(item.id)
-                    modalRef.current?.showModal()
-                  }}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
     </div>
   )
 }
