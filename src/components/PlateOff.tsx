@@ -96,7 +96,7 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   return (
-    <div className="min-h-0 shrink sm:grow md:mt-6">
+    <div className="flex h-full min-h-0 shrink flex-col sm:grow md:mt-6">
       { !isLoading ? (
         <>
           {indexPairs.length > index + 1 ? (
@@ -104,30 +104,20 @@ const PlateOff = (props: PlateOffProps) => {
               <div
                 className={
                   props.windowWidth > MOBILE_WIDTH_CUTOFF || props.isManualSideBySideView
-                    ? 'relative flex size-full max-h-full items-center justify-center py-4 *:w-2/5'
-                    : 'carousel mt-8 max-h-full w-full grow space-x-4 bg-transparent py-2 *:w-full *:max-w-full'
+                    ? 'relative flex h-full min-h-0 justify-center py-4 *:shrink'
+                    : 'carousel mt-8 max-h-full w-full space-x-4 bg-transparent py-2 *:w-full *:grow'
                 }
               >
-                <div
-                  id="item1"
-                  className="carousel-item flex h-fit max-h-full w-full max-w-full items-center justify-center lg:w-2/5"
-                >
                   <PlateCard
                     card={plates[indexPairs[index][0]]}
                     onPlateCardVote={onCardClick}
                     windowWidth= {props.windowWidth}
                   />
-                </div>
-                <div
-                  id="item2"
-                  className="carousel-item flex h-fit max-h-full w-full max-w-full items-center justify-center lg:w-2/5"
-                >
                   <PlateCard
                     card={plates[indexPairs[index][1]]}
                     onPlateCardVote={onCardClick}
                     windowWidth= {props.windowWidth}
                   />
-                </div>
               </div>
               <div
                 className="flex w-full justify-center gap-2 py-2"

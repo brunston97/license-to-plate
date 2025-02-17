@@ -3,6 +3,7 @@ import 'dotenv/config'
 import express from 'express'
 import { FieldValue, Firestore } from '@google-cloud/firestore'
 import cors from 'cors'
+import { IPlateCard } from './types'
 
 const app = express()
 const PORT = parseInt(process.env.VITE_PORT || '8080')
@@ -37,6 +38,23 @@ openRouter.post('/vote/:id', async (req, res) => {
   }
 
   res.send(id)
+})
+
+openRouter.get('/vote/results', async (req, res) => {
+  const docRef = db.collection('plates').orderBy('voteCount', 'desc').limit(10)
+
+  try {
+    const querySnapshot = await docRef.get()
+    const results = querySnapshot.docs.map((doc) => {
+      const toReturn = doc.data() as IPlateCard
+      console.log(toReturn)
+      return toReturn
+    })
+    res.json(results)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
 })
 app.use('/api', openRouter)
 
