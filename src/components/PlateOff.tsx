@@ -112,11 +112,13 @@ const PlateOff = (props: PlateOffProps) => {
                     card={plates[indexPairs[index][0]]}
                     onPlateCardVote={onCardClick}
                     windowWidth= {props.windowWidth}
+                    id="item1"
                   />
                   <PlateCard
                     card={plates[indexPairs[index][1]]}
                     onPlateCardVote={onCardClick}
                     windowWidth= {props.windowWidth}
+                    id="item2"
                   />
               </div>
               <div
