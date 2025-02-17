@@ -22,7 +22,7 @@ const PlateCard = (props: PlateCardProps) => {
 
   console.log(card)
   return (
-    <div className="carousel-item flex size-full max-h-full max-w-full items-center justify-center lg:w-2/5">
+    <div className="carousel-item flex max-h-full min-h-0 max-w-full justify-center">
       <Card
         className={`relative mx-3 h-full max-h-full shrink grow-0 py-0 md:mx-6 2xl:mx-10 ${
           imageLoaded ? 'opacity-100' : 'opacity-0'

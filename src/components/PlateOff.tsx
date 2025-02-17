@@ -104,8 +104,8 @@ const PlateOff = (props: PlateOffProps) => {
               <div
                 className={
                   props.windowWidth > MOBILE_WIDTH_CUTOFF || props.isManualSideBySideView
-                    ? 'relative flex min-h-0 grow items-center justify-center py-4 *:w-2/5'
-                    : 'carousel mt-8 max-h-full w-full grow space-x-4 bg-transparent py-2 *:w-full *:max-w-full'
+                    ? 'relative flex h-full min-h-0 justify-center py-4 *:shrink'
+                    : 'carousel mt-8 max-h-full w-full space-x-4 bg-transparent py-2 *:w-full *:grow'
                 }
               >
                   <PlateCard
