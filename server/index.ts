@@ -41,7 +41,7 @@ openRouter.post('/vote/:id', async (req, res) => {
 })
 
 openRouter.get('/vote/results', async (req, res) => {
-  const docRef = db.collection('plates').orderBy('voteCount', 'desc').limit(10)
+  const docRef = db.collection('plates').orderBy('voteCount', 'desc').limit(24)
 
   try {
     const querySnapshot = await docRef.get()
