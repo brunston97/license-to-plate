@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { IPlateCard } from 'assets/types'
-import PlateCard from './PlateCard'
+import PlateCollection from './PlateCollection'
 
 const MyPlatesPage = () => {
   const [likedPlates, setLikedPlates] = useState<IPlateCard[]>([])
@@ -46,54 +46,26 @@ const MyPlatesPage = () => {
   return (
     <div className="min-h-screen w-screen max-w-full bg-gradient-to-b from-bg-primary-1 to-bg-primary-2">
       <Header />
-      <div id="allRows" className="ml-4 mr-1 mt-5">
-        <div id="likedPlatesRow" className="mb-6">
+      <div className="ml-4 mr-1 mt-5">
+        <div className="mb-6">
           <h2 className="mb-3 font-barlow text-xl font-bold uppercase text-white sm:text-2xl md:text-3xl">
             Liked Plates
           </h2>
-          <div id="likedPlates" className="flex flex-wrap justify-start gap-4">
-            {likedPlates.map((lp) => {
-              const isSelected = selectedPlates.some((p) => p.id === lp.id)
-              return (
-                <div key={lp.id}>
-                  <PlateCard
-                    className={`max-w-[150px] sm:max-w-[240px] ${
-                      isSelected
-                        ? 'border-4 border-green-500'
-                        : 'border-transparent'
-                    }`}
-                    card={lp}
-                    onPlateCardVote={onCardClick}
-                    windowWidth={750}
-                  />
-                </div>
-              )
-            })}
-          </div>
+          <PlateCollection
+            plates={likedPlates}
+            selectedPlates={selectedPlates}
+            onCardClick={onCardClick}
+          />
         </div>
-        <div id="allPlatesRow" className="flex flex-col justify-around">
+        <div className="mb-6">
           <h2 className="mb-3 font-barlow text-xl font-bold uppercase text-white sm:text-2xl md:text-3xl">
             All Plates
           </h2>
-          <div id="allPlates" className="flex flex-row flex-wrap gap-4">
-            {allPlates.map((ap) => {
-              const isSelected = selectedPlates.some((p) => p.id === ap.id)
-              return (
-                <div key={ap.id}>
-                  <PlateCard
-                    className={`max-w-[150px] sm:max-w-[240px] ${
-                      isSelected
-                        ? 'border-4 border-green-500'
-                        : 'border-transparent'
-                    }`}
-                    card={ap}
-                    onPlateCardVote={onCardClick}
-                    windowWidth={750}
-                  />
-                </div>
-              )
-            })}
-          </div>
+          <PlateCollection
+            plates={allPlates}
+            selectedPlates={selectedPlates}
+            onCardClick={onCardClick}
+          />
         </div>
       </div>
       {selectedPlates.length > 0 && (
