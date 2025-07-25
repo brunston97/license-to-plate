@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { IPlateCard } from 'assets/types'
-import PlateCollection from './PlateCollection'
+import PlateCollection from '../components/PlateCollection'
 
 const MyPlatesPage = () => {
   const [likedPlates, setLikedPlates] = useState<IPlateCard[]>([])

@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FaVolumeUp, FaVolumeMute, FaInfoCircle } from 'react-icons/fa'
 import { GiCardExchange } from 'react-icons/gi'
-import PlateOff from './PlateOff'
+import PlateOff from 'components/PlateOff'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
-import PlateCardTable from './Results'
+import PlateCardTable from 'components/Results'
 
 function PlateOffPage() {
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)

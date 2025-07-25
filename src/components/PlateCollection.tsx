@@ -9,7 +9,7 @@ interface PlateCollectionProps {
 
 const PlateCollection = (props: PlateCollectionProps) => {
   return (
-    <div id="likedPlates" className="flex flex-wrap justify-start gap-4">
+    <div className="flex flex-wrap justify-start gap-4">
       {props.plates.map((lp) => {
         const isSelected = props.selectedPlates.some((p) => p.id === lp.id)
         return (
