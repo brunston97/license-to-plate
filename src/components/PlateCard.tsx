@@ -1,4 +1,5 @@
 import { Card, CardBody, CardHeader, CardProps, Image } from '@nextui-org/react'
+import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 import { useState } from 'react'
@@ -14,17 +15,17 @@ const BUCKET_URL = import.meta.env.VITE_BUCKET_URL
 const PlateCard = (props: PlateCardProps) => {
   const { card, onPlateCardVote } = props
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [isLiked, setIsLiked] = useState(true)
 
   // fixes an issue where safari would render the first set of cards really small
   function handleImageLoaded() {
     setImageLoaded(true)
   }
 
-  console.log(card)
   return (
     <div className="carousel-item flex max-h-full min-h-0 max-w-full justify-center">
       <Card
-        className={`relative mx-3 h-full max-h-full shrink grow-0 py-0 md:mx-6 2xl:mx-10 ${
+        className={`relative mx-3 h-full max-h-full py-0 md:mx-6 2xl:mx-10 ${
           imageLoaded ? 'opacity-100' : 'opacity-0'
         }`}
         isHoverable
@@ -44,15 +45,22 @@ const PlateCard = (props: PlateCardProps) => {
               {card.title}
             </h3>
           </div>
+          <div id="likeButtonContainer" className="absolute right-5 top-1">
+            <IoHeart
+              className="mr-1 mt-1"
+              size={32}
+              color={isLiked ? 'red' : 'gray'}
+            ></IoHeart>
+          </div>
         </CardHeader>
-        <CardBody className="flex aspect-[3/4] h-fit shrink grow-0 justify-center">
+        <CardBody className="flex aspect-[3/4] h-fit justify-center">
           <div
             id={`imgContainer-${card.id}`}
             className={`flex max-h-full ${
               props.windowWidth <= MOBILE_WIDTH_CUTOFF
                 ? 'max-w-[400px]'
                 : 'max-w-[600px] 2xl:max-w-[700px]'
-            } shrink justify-center`}
+            } justify-center`}
           >
             <Image
               alt="Card background"
