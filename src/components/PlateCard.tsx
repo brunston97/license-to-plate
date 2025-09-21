@@ -30,7 +30,10 @@ const PlateCard = (props: PlateCardProps) => {
         }`}
         isHoverable
         isPressable
-        onPress={() => onPlateCardVote(card)}
+        onPress={() => {
+          setIsLiked(true) // temporary until the button is working
+          onPlateCardVote(card)
+        }}
         classNames={{
           body: 'max-h-full max-w-full'
         }}

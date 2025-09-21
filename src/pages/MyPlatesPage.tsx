@@ -9,9 +9,9 @@ const MyPlatesPage = () => {
 
   function setMockPlatesData() {
     const mockLikedPlates: IPlateCard[] = [
-      { id: '129', title: 'AGENT DB' },
-      { id: '265', title: 'I BEEST' },
-      { id: '292', title: 'GRR WUF' }
+      { id: '129', title: 'AGENT DB', isLiked: true },
+      { id: '265', title: 'I BEEST', isLiked: true },
+      { id: '292', title: 'GRR WUF', isLiked: true }
     ]
 
     setLikedPlates(
