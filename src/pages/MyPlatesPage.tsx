@@ -13,21 +13,10 @@ const MyPlatesPage = () => {
       { id: '265', title: 'I BEEST' },
       { id: '292', title: 'GRR WUF' }
     ]
-    const mockAllPlates: IPlateCard[] = [
-      { id: '230', title: 'HVAC LIF' },
-      { id: '128', title: 'CLOSR' },
-      { id: '77', title: 'N2MYCRVF' },
-      { id: '129', title: 'AGENT DB' },
-      { id: '265', title: 'I BEEST' },
-      { id: '40', title: 'LEE ANNE' },
-      { id: '120', title: '5TEELER5' },
-      { id: '292', title: 'GRR WUF' }
-    ]
 
     setLikedPlates(
       mockLikedPlates.sort((a, b) => a.title.localeCompare(b.title))
     )
-    setAllPlates(mockAllPlates.sort((a, b) => a.title.localeCompare(b.title)))
   }
 
   function onCardClick(card: IPlateCard) {
@@ -40,6 +29,10 @@ const MyPlatesPage = () => {
   }
 
   useEffect(() => {
+    const stored = localStorage.getItem('seenPlates')
+    if (stored) {
+      setAllPlates(JSON.parse(stored))
+    }
     setMockPlatesData()
   }, [])
 

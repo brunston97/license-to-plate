@@ -19,6 +19,10 @@ const PlateOff = (props: PlateOffProps) => {
   const [plates, setPlates] = useState<IPlateCard[]>([])
   const [isLoading, setLoading] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [seenPlates, setSeenPlates] = useState<IPlateCard[]>(() => {
+    const stored = localStorage.getItem('seenPlates')
+    return stored ? JSON.parse(stored) : []
+  })
 
   // onMount Call
   useEffect(() => {
@@ -31,6 +35,18 @@ const PlateOff = (props: PlateOffProps) => {
       audioRef.current = null
     }
   }, [])
+
+  useEffect(() => {
+    if (plates.length && indexPairs[index]) {
+      indexPairs[index].forEach((plateIndex) => {
+        markPlateAsSeen(plates[plateIndex])
+      })
+    }
+  }, [index, plates, indexPairs])
+
+  useEffect(() => {
+    localStorage.setItem('seenPlates', JSON.stringify(seenPlates))
+  }, [seenPlates])
 
   async function getCards() {
     try {
@@ -55,6 +71,15 @@ const PlateOff = (props: PlateOffProps) => {
     } catch (error) {
       console.log(error)
     }
+  }
+
+  function markPlateAsSeen(plate: IPlateCard) {
+    console.log(`SEEN PLATES: ${JSON.stringify(seenPlates)}`)
+    setSeenPlates((prev) => {
+      if (prev.some((p) => p.id === plate.id))
+        return prev;
+      return [...prev,plate];
+    })
   }
 
   function handleCardClickAudio() {
