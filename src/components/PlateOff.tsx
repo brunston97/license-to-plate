@@ -19,6 +19,7 @@ const PlateOff = (props: PlateOffProps) => {
   const [plates, setPlates] = useState<IPlateCard[]>([])
   const [isLoading, setLoading] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+
   const [seenPlates, setSeenPlates] = useState<IPlateCard[]>(() => {
     const stored = localStorage.getItem('seenPlates')
     return stored ? JSON.parse(stored) : []
@@ -74,7 +75,6 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   function markPlateAsSeen(plate: IPlateCard) {
-    console.log(`SEEN PLATES: ${JSON.stringify(seenPlates)}`)
     setSeenPlates((prev) => {
       if (prev.some((p) => p.id === plate.id))
         return prev;

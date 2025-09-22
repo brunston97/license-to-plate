@@ -7,18 +7,6 @@ const MyPlatesPage = () => {
   const [allPlates, setAllPlates] = useState<IPlateCard[]>([])
   const [selectedPlates, setSelectedPlates] = useState<IPlateCard[]>([])
 
-  function setMockPlatesData() {
-    const mockLikedPlates: IPlateCard[] = [
-      { id: '129', title: 'AGENT DB', isLiked: true },
-      { id: '265', title: 'I BEEST', isLiked: true },
-      { id: '292', title: 'GRR WUF', isLiked: true }
-    ]
-
-    setLikedPlates(
-      mockLikedPlates.sort((a, b) => a.title.localeCompare(b.title))
-    )
-  }
-
   function onCardClick(card: IPlateCard) {
     const alreadySelected = selectedPlates.some((p) => p.id === card.id)
     if (!alreadySelected) {
@@ -29,11 +17,14 @@ const MyPlatesPage = () => {
   }
 
   useEffect(() => {
-    const stored = localStorage.getItem('seenPlates')
-    if (stored) {
-      setAllPlates(JSON.parse(stored))
+    const storedAllPlates = localStorage.getItem('seenPlates')
+    if (storedAllPlates) {
+      setAllPlates(JSON.parse(storedAllPlates))
     }
-    setMockPlatesData()
+    const storedLikedPlates = localStorage.getItem('likedPlates')
+    if (storedLikedPlates) {
+      setLikedPlates(JSON.parse(storedLikedPlates))
+    }
   }, [])
 
   return (
