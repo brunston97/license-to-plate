@@ -3,8 +3,6 @@ import { IPlateCard } from 'assets/types'
 import PlateCollection from '../components/PlateCollection'
 
 const MyPlatesPage = () => {
-  //const [likedPlates, setLikedPlates] = useState<IPlateCard[]>([])
-  //const [allPlates, setAllPlates] = useState<IPlateCard[]>([])
   const [selectedPlates, setSelectedPlates] = useState<IPlateCard[]>([])
   const [cachedPlates, setCachedPlates] = useState<IPlateCard[]>(() => {
     const stored = localStorage.getItem('userPlates')
