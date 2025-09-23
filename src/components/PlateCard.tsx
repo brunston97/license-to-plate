@@ -54,7 +54,10 @@ const PlateCard = (props: PlateCardProps) => {
             ></IoHeart>
           </div>
         </CardHeader>
-        <CardBody className="flex aspect-[3/4] h-fit justify-center">
+        <CardBody
+          className="flex aspect-[3/4] h-fit cursor-pointer justify-center"
+          onClick={() => onPlateCardVote(card)}
+        >
           <div
             id={`imgContainer-${card.id}`}
             className={`flex max-h-full ${
@@ -65,10 +68,9 @@ const PlateCard = (props: PlateCardProps) => {
           >
             <Image
               alt="Card background"
-              className="z-0 max-h-full max-w-full cursor-pointer rounded-xl object-contain"
+              className="z-0 max-h-full max-w-full rounded-xl object-contain"
               src={`${BUCKET_URL}/plate${card.id}.jpg`}
               onLoad={handleImageLoaded}
-              onClick={() => onPlateCardVote(card)}
               classNames={{
                 wrapper: 'flex h-full justify-center items-center',
                 zoomedWrapper: 'h-full'
