@@ -20,8 +20,8 @@ const PlateOff = (props: PlateOffProps) => {
   const [isLoading, setLoading] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  const [seenPlates, setSeenPlates] = useState<IPlateCard[]>(() => {
-    const stored = localStorage.getItem('seenPlates')
+  const [cachedPlateInfo, setCachedPlateInfo] = useState<IPlateCard[]>(() => {
+    const stored = localStorage.getItem('userPlates')
     return stored ? JSON.parse(stored) : []
   })
 
@@ -38,16 +38,8 @@ const PlateOff = (props: PlateOffProps) => {
   }, [])
 
   useEffect(() => {
-    if (plates.length && indexPairs[index]) {
-      indexPairs[index].forEach((plateIndex) => {
-        markPlateAsSeen(plates[plateIndex])
-      })
-    }
-  }, [index, plates, indexPairs])
-
-  useEffect(() => {
-    localStorage.setItem('seenPlates', JSON.stringify(seenPlates))
-  }, [seenPlates])
+    localStorage.setItem('userPlates', JSON.stringify(cachedPlateInfo))
+  }, [cachedPlateInfo])
 
   async function getCards() {
     try {
@@ -74,11 +66,16 @@ const PlateOff = (props: PlateOffProps) => {
     }
   }
 
-  function markPlateAsSeen(plate: IPlateCard) {
-    setSeenPlates((prev) => {
-      if (prev.some((p) => p.id === plate.id))
-        return prev;
-      return [...prev,plate];
+  function onCardLike(clickedPlate: IPlateCard) {
+    setCachedPlateInfo(prev => {
+      const cachedPlate = prev.find(p => p.id === clickedPlate.id)
+      if (cachedPlate) {
+        return prev.map(p =>
+          p.id === clickedPlate.id ? { ...p, isLiked: !p.isLiked } : p
+        )
+      } else {
+        return [...prev, { ...clickedPlate, isLiked: true }]
+      }
     })
   }
 
@@ -136,12 +133,16 @@ const PlateOff = (props: PlateOffProps) => {
                   <PlateCard
                     card={plates[indexPairs[index][0]]}
                     onPlateCardVote={onCardClick}
+                    isLiked={cachedPlateInfo.find((plate) => plate.id === plates[indexPairs[index][0]].id)?.isLiked ?? false}
+                    onLikeButtonClick={onCardLike}
                     windowWidth= {props.windowWidth}
                     id="item1"
                   />
                   <PlateCard
                     card={plates[indexPairs[index][1]]}
                     onPlateCardVote={onCardClick}
+                    isLiked={cachedPlateInfo.find((plate) => plate.id === plates[indexPairs[index][1]].id)?.isLiked ?? false}
+                    onLikeButtonClick={onCardLike}
                     windowWidth= {props.windowWidth}
                     id="item2"
                   />
@@ -167,11 +168,15 @@ const PlateOff = (props: PlateOffProps) => {
                   <PlateCard
                     card={plates[indexPairs[index + 1][0]]}
                     onPlateCardVote={onCardClick}
+                    isLiked={cachedPlateInfo.find((plate) => plate.id === plates[indexPairs[index+1][0]].id)?.isLiked ?? false}
+                    onLikeButtonClick={onCardLike}
                     windowWidth= {props.windowWidth}
                   />
                   <PlateCard
                     card={plates[indexPairs[index + 1][1]]}
                     onPlateCardVote={onCardClick}
+                    isLiked={cachedPlateInfo.find((plate) => plate.id === plates[indexPairs[index+1][1]].id)?.isLiked ?? false}
+                    onLikeButtonClick={onCardLike}
                     windowWidth= {props.windowWidth}
                   />
                 </div>

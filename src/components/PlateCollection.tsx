@@ -5,6 +5,7 @@ interface PlateCollectionProps {
   plates: IPlateCard[]
   selectedPlates: IPlateCard[]
   onCardClick: (plate: IPlateCard) => void
+  onCardLike: (plate: IPlateCard) => void
 }
 
 const PlateCollection = (props: PlateCollectionProps) => {
@@ -20,6 +21,8 @@ const PlateCollection = (props: PlateCollectionProps) => {
               }`}
               card={lp}
               onPlateCardVote={props.onCardClick}
+              isLiked={lp.isLiked ?? false}
+              onLikeButtonClick={props.onCardLike}
               windowWidth={750} // TODO: change this
             />
           </div>

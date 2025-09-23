@@ -2,44 +2,26 @@ import { Card, CardBody, CardHeader, CardProps, Image } from '@nextui-org/react'
 import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 interface PlateCardProps extends CardProps {
   card: IPlateCard
   onPlateCardVote: (plate: IPlateCard) => void
+  isLiked: boolean
+  onLikeButtonClick: (plate: IPlateCard) => void
   windowWidth: number
 }
 
 const BUCKET_URL = import.meta.env.VITE_BUCKET_URL
 
 const PlateCard = (props: PlateCardProps) => {
-  const { card, onPlateCardVote } = props
+  const { card, onPlateCardVote, isLiked, onLikeButtonClick } = props
   const [imageLoaded, setImageLoaded] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
 
   // fixes an issue where safari would render the first set of cards really small
   function handleImageLoaded() {
     setImageLoaded(true)
   }
-
-  function toggleIsLiked() {
-    setIsLiked((prev) => !prev)
-  }
-
-  useEffect(() => {
-    const stored = localStorage.getItem('likedPlates')
-    let liked: IPlateCard[] = stored ? JSON.parse(stored) : []
-
-    if (isLiked) {
-      if (!liked.some((p) => p.id === card.id)) {
-        liked.push(card)
-        localStorage.setItem('likedPlates', JSON.stringify(liked))
-      }
-    } else {
-      liked = liked.filter((p) => p.id !== card.id)
-      localStorage.setItem('likedPlates', JSON.stringify(liked))
-    }
-  }, [isLiked, card])
 
   return (
     <div className="carousel-item flex max-h-full min-h-0 max-w-full justify-center">
@@ -68,7 +50,7 @@ const PlateCard = (props: PlateCardProps) => {
               className="mr-1 mt-1 cursor-pointer"
               size={32}
               color={isLiked ? 'red' : 'gray'}
-              onClick={toggleIsLiked}
+              onClick={() => onLikeButtonClick(card)}
             ></IoHeart>
           </div>
         </CardHeader>

@@ -3,9 +3,13 @@ import { IPlateCard } from 'assets/types'
 import PlateCollection from '../components/PlateCollection'
 
 const MyPlatesPage = () => {
-  const [likedPlates, setLikedPlates] = useState<IPlateCard[]>([])
-  const [allPlates, setAllPlates] = useState<IPlateCard[]>([])
+  //const [likedPlates, setLikedPlates] = useState<IPlateCard[]>([])
+  //const [allPlates, setAllPlates] = useState<IPlateCard[]>([])
   const [selectedPlates, setSelectedPlates] = useState<IPlateCard[]>([])
+  const [cachedPlates, setCachedPlates] = useState<IPlateCard[]>(() => {
+    const stored = localStorage.getItem('userPlates')
+    return stored ? JSON.parse(stored) : []
+  })
 
   function onCardClick(card: IPlateCard) {
     const alreadySelected = selectedPlates.some((p) => p.id === card.id)
@@ -16,16 +20,22 @@ const MyPlatesPage = () => {
     }
   }
 
+  function onCardLike(clickedPlate: IPlateCard) {
+    setCachedPlates((prev) => {
+      const cachedPlate = prev.find((p) => p.id === clickedPlate.id)
+      if (cachedPlate) {
+        return prev.map((p) =>
+          p.id === clickedPlate.id ? { ...p, isLiked: !p.isLiked } : p
+        )
+      } else {
+        return [...prev, { ...clickedPlate, isLiked: true }]
+      }
+    })
+  }
+
   useEffect(() => {
-    const storedAllPlates = localStorage.getItem('seenPlates')
-    if (storedAllPlates) {
-      setAllPlates(JSON.parse(storedAllPlates))
-    }
-    const storedLikedPlates = localStorage.getItem('likedPlates')
-    if (storedLikedPlates) {
-      setLikedPlates(JSON.parse(storedLikedPlates))
-    }
-  }, [])
+    localStorage.setItem('userPlates', JSON.stringify(cachedPlates))
+  }, [cachedPlates])
 
   return (
     <div className="min-h-screen w-screen max-w-full bg-gradient-to-b from-bg-primary-1 to-bg-primary-2">
@@ -36,9 +46,10 @@ const MyPlatesPage = () => {
             Liked Plates
           </h2>
           <PlateCollection
-            plates={likedPlates}
+            plates={cachedPlates.filter((p) => p.isLiked)}
             selectedPlates={selectedPlates}
             onCardClick={onCardClick}
+            onCardLike={onCardLike}
           />
         </div>
         <div className="mb-6">
@@ -46,9 +57,10 @@ const MyPlatesPage = () => {
             All Plates
           </h2>
           <PlateCollection
-            plates={allPlates}
+            plates={cachedPlates}
             selectedPlates={selectedPlates}
             onCardClick={onCardClick}
+            onCardLike={onCardLike}
           />
         </div>
       </div>
