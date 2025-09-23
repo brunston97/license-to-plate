@@ -57,6 +57,16 @@ const PlateOff = (props: PlateOffProps) => {
 
   async function onCardClick(card: IPlateCard) {
     handleCardClickAudio()
+    const plateIndexes = indexPairs[index]
+    const platesToTryAdd = [plates[plateIndexes[0]], plates[plateIndexes[1]]]
+    setCachedPlateInfo((prev) => {
+      const platesToAdd = platesToTryAdd.filter(pa => !prev.some(p => p.id === pa.id))
+      if (platesToAdd) {
+        return [...prev, ...platesToAdd]
+      } else {
+        return prev
+      }
+    })
 
     try {
       axios.post(`/vote/${card.id}`)
