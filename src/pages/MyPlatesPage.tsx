@@ -3,6 +3,11 @@ import { IPlateCard } from 'assets/types'
 import PlateCollection from '../components/PlateCollection'
 
 const MyPlatesPage = () => {
+  // general page settings
+  const [isCardSelectionEnabled] = useState(false)
+  const [isAllPlatesEnabled] = useState(false)
+
+  // user plate data
   const [selectedPlates, setSelectedPlates] = useState<Set<string>>(new Set())
   const [cachedPlates, setCachedPlates] = useState<IPlateCard[]>(() => {
     const stored = localStorage.getItem('userPlates')
@@ -14,15 +19,17 @@ const MyPlatesPage = () => {
   )
 
   function onCardClick(card: IPlateCard) {
-    setSelectedPlates((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(card.id)) {
-        newSet.delete(card.id)
-      } else {
-        newSet.add(card.id)
-      }
-      return newSet
-    })
+    if (isCardSelectionEnabled) {
+      setSelectedPlates((prev) => {
+        const newSet = new Set(prev)
+        if (newSet.has(card.id)) {
+          newSet.delete(card.id)
+        } else {
+          newSet.add(card.id)
+        }
+        return newSet
+      })
+    }
   }
 
   // defined in this component for future case where there will be two PlateCollections on this page 'Liked Plates' and 'All Plates'
@@ -63,19 +70,23 @@ const MyPlatesPage = () => {
             onCardLike={onCardLike}
           />
         </div>
-        <div className="mb-6">
-          <h2 className="mb-3 font-barlow text-xl font-bold uppercase text-white sm:text-2xl md:text-3xl">
-            All Plates
-          </h2>
-          <PlateCollection
-            plates={cachedPlates}
-            isPlateSelected={isPlateSelected}
-            onCardClick={onCardClick}
-            onCardLike={onCardLike}
-          />
-        </div>
+        {isAllPlatesEnabled && (
+          <>
+            <div className="mb-6">
+              <h2 className="mb-3 font-barlow text-xl font-bold uppercase text-white sm:text-2xl md:text-3xl">
+                All Plates
+              </h2>
+              <PlateCollection
+                plates={cachedPlates}
+                isPlateSelected={isPlateSelected}
+                onCardClick={onCardClick}
+                onCardLike={onCardLike}
+              />
+            </div>
+          </>
+        )}
       </div>
-      {selectedPlates.size > 0 && (
+      {isCardSelectionEnabled && selectedPlates.size > 0 && (
         <>
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
             <button className="rounded-full bg-green-600 px-6 py-2 font-semibold text-white shadow-lg transition-colors duration-200 hover:bg-green-700">
