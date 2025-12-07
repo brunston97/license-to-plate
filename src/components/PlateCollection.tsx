@@ -3,7 +3,7 @@ import PlateCard from './PlateCard'
 
 interface PlateCollectionProps {
   plates: IPlateCard[]
-  selectedPlates: IPlateCard[]
+  isPlateSelected: (plateId: string) => boolean
   onCardClick: (plate: IPlateCard) => void
   onCardLike: (plate: IPlateCard) => void
 }
@@ -12,7 +12,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
   return (
     <div className="flex flex-wrap justify-start gap-4">
       {props.plates.map((lp) => {
-        const isSelected = props.selectedPlates.some((p) => p.id === lp.id)
+        const isSelected = props.isPlateSelected(lp.id)
         return (
           <div key={lp.id}>
             <PlateCard

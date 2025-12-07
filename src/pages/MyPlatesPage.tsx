@@ -1,21 +1,34 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { IPlateCard } from 'assets/types'
 import PlateCollection from '../components/PlateCollection'
 
 const MyPlatesPage = () => {
-  const [selectedPlates, setSelectedPlates] = useState<IPlateCard[]>([])
+  const [selectedPlates, setSelectedPlates] = useState<Set<string>>(new Set())
   const [cachedPlates, setCachedPlates] = useState<IPlateCard[]>(() => {
     const stored = localStorage.getItem('userPlates')
     return stored ? JSON.parse(stored) : []
   })
+  const likedPlates = useMemo(
+    () => cachedPlates.filter((p) => p.isLiked),
+    [cachedPlates]
+  )
 
   function onCardClick(card: IPlateCard) {
-    const alreadySelected = selectedPlates.some((p) => p.id === card.id)
-    if (!alreadySelected) {
-      setSelectedPlates([...selectedPlates, card])
-    } else {
-      setSelectedPlates(selectedPlates.filter((p) => p.id !== card.id))
-    }
+    setSelectedPlates((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(card.id)) {
+        newSet.delete(card.id)
+      } else {
+        newSet.add(card.id)
+      }
+      return newSet
+    })
+  }
+
+  // defined in this component for future case where there will be two PlateCollections on this page 'Liked Plates' and 'All Plates'
+  // when selected in one, I want it to be selected in the other.. so this parent component has to define what is and isn't selected
+  function isPlateSelected(plateId: string) {
+    return selectedPlates.has(plateId)
   }
 
   function onCardLike(clickedPlate: IPlateCard) {
@@ -44,8 +57,8 @@ const MyPlatesPage = () => {
             Liked Plates
           </h2>
           <PlateCollection
-            plates={cachedPlates.filter((p) => p.isLiked)}
-            selectedPlates={selectedPlates}
+            plates={likedPlates}
+            isPlateSelected={isPlateSelected}
             onCardClick={onCardClick}
             onCardLike={onCardLike}
           />
@@ -56,17 +69,17 @@ const MyPlatesPage = () => {
           </h2>
           <PlateCollection
             plates={cachedPlates}
-            selectedPlates={selectedPlates}
+            isPlateSelected={isPlateSelected}
             onCardClick={onCardClick}
             onCardLike={onCardLike}
           />
         </div>
       </div>
-      {selectedPlates.length > 0 && (
+      {selectedPlates.size > 0 && (
         <>
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
             <button className="rounded-full bg-green-600 px-6 py-2 font-semibold text-white shadow-lg transition-colors duration-200 hover:bg-green-700">
-              Make Your Fleet! ({`${selectedPlates.length}`})
+              Make Your Fleet! ({`${selectedPlates.size}`})
             </button>
           </div>
         </>
