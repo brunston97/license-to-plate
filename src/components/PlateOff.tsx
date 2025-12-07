@@ -25,7 +25,6 @@ const PlateOff = (props: PlateOffProps) => {
     return stored ? JSON.parse(stored) : []
   })
 
-  // onMount Call
   useEffect(() => {
     getCards()
 
