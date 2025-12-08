@@ -37,3 +37,5 @@ yarn-error.log*
 .vercel
 
 .firebase*
+
+/**/license2plate_key.json
