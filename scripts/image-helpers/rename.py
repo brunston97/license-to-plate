@@ -2,7 +2,7 @@ import os
 import shutil
 
 # directory that contains all author directories (which should have plate images)
-SOURCE_DIR = "C:\\My Stuff\\PlateZonePlateOff\\2025"
+SOURCE_DIR = ""
 VALID_IMAGE_EXTS = (".jpg",".jpeg",".png")
 
 counter = 1

@@ -2,8 +2,8 @@ import os
 import shutil
 import time
 
-SOURCE_DIR = "C:\\My Stuff\\PlateZonePlateOff\\2025"
-DEST_DIR = "C:\\My Stuff\\PlateZonePlateOff\\2025\\all"
+SOURCE_DIR = ""
+DEST_DIR = ""
 os.makedirs(DEST_DIR, exist_ok=True)
 
 def copy_with_retry(src, dest, attempts=20, delay=0.25):
