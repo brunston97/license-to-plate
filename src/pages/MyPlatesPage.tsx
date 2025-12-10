@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { IPlateCard } from 'assets/types'
 import PlateCollection from '../components/PlateCollection'
 import { useOutletContext } from 'react-router-dom'
 
 const MyPlatesPage = () => {
   // general page settings
-  const [isCardSelectionEnabled] = useState(false)
-  const [isAllPlatesEnabled] = useState(false)
+  const [isCardSelectionEnabled] = useState(true)
+  const [isAllPlatesEnabled] = useState(true)
 
   const { windowWidth } = useOutletContext<{ windowWidth: number }>()
 
@@ -20,6 +20,10 @@ const MyPlatesPage = () => {
     () => cachedPlates.filter((p) => p.isLiked),
     [cachedPlates]
   )
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [fleetName, setFleetName] = useState('')
 
   function onCardClick(card: IPlateCard) {
     if (isCardSelectionEnabled) {
@@ -37,9 +41,16 @@ const MyPlatesPage = () => {
 
   // defined in this component for future case where there will be two PlateCollections on this page 'Liked Plates' and 'All Plates'
   // when selected in one, I want it to be selected in the other.. so this parent component has to define what is and isn't selected
-  function isPlateSelected(plateId: string) {
-    return selectedPlates.has(plateId)
-  }
+  const isPlateSelected = useCallback(
+    (plateId: string) => selectedPlates.has(plateId),
+    [selectedPlates]
+  )
+
+  // useMemo for this?
+  const selectedPlateDetails = useMemo(
+    () => cachedPlates.filter((plate) => isPlateSelected(plate.id)),
+    [cachedPlates, isPlateSelected]
+  )
 
   function onCardLike(clickedPlate: IPlateCard) {
     setCachedPlates((prev) => {
@@ -57,6 +68,17 @@ const MyPlatesPage = () => {
   useEffect(() => {
     localStorage.setItem('userPlates', JSON.stringify(cachedPlates))
   }, [cachedPlates])
+
+  // Open modal
+  const handleMakeFleetClick = () => {
+    setIsModalOpen(true)
+  }
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setFleetName('')
+  }
 
   return (
     <div className="min-h-screen w-screen max-w-full bg-gradient-to-b from-bg-primary-1 to-bg-primary-2">
@@ -94,11 +116,57 @@ const MyPlatesPage = () => {
       {isCardSelectionEnabled && selectedPlates.size > 0 && (
         <>
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
-            <button className="rounded-full bg-green-600 px-6 py-2 font-semibold text-white shadow-lg transition-colors duration-200 hover:bg-green-700">
+            <button
+              className="rounded-full bg-green-600 px-6 py-2 font-semibold text-white shadow-lg transition-colors duration-200 hover:bg-green-700"
+              onClick={handleMakeFleetClick}
+            >
               Make Your Fleet! ({`${selectedPlates.size}`})
             </button>
           </div>
         </>
+      )}
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-11/12 max-w-3xl rounded-lg bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-6 shadow-lg">
+            <div className="mb-4 flex flex-col items-center">
+              <input
+                type="text"
+                className="mb-4 bg-transparent text-center text-3xl font-bold text-white placeholder:text-white focus:outline-none"
+                value={fleetName}
+                placeholder="Enter fleet name here..."
+                onFocus={(e) => (e.target.placeholder = '')}
+                onBlur={(e) => (e.target.placeholder = 'Create Your Fleet')}
+                onChange={(e) => setFleetName(e.target.value)}
+              />
+              <button
+                className="absolute right-4 top-4 text-gray-300 hover:text-gray-100"
+                onClick={handleCloseModal}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="grid grid-cols-1 items-center justify-center gap-6 sm:grid-cols-2 md:grid-cols-3">
+              {selectedPlateDetails.map((plate) => (
+                <div
+                  key={plate.id}
+                  className="flex flex-col items-center justify-center"
+                >
+                  <img
+                    src={`${import.meta.env.VITE_BUCKET_URL}/plate${
+                      plate.id
+                    }.jpg`}
+                    alt={plate.title}
+                    className="rounded-lg object-cover shadow-md"
+                  />
+                  <p className="mt-2 text-center text-lg font-medium text-white">
+                    {plate.title}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

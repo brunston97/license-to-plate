@@ -69,7 +69,7 @@ const PlateCard = (props: PlateCardProps) => {
           <div
             id={`imgContainer-${card.id}`}
             className={`flex max-h-full ${
-              props.windowWidth <= MOBILE_WIDTH_CUTOFF
+              windowWidth <= MOBILE_WIDTH_CUTOFF
                 ? 'max-w-[400px]'
                 : 'max-w-[600px] 2xl:max-w-[700px]'
             } justify-center`}
