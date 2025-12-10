@@ -3,8 +3,8 @@ import os
 
 INPUT_FOLDER = ""
 OUTPUT_FOLDER = ""
-TARGET_RATIO = 5 / 7
-FINAL_SIZE = (500,700) #TBD
+TARGET_RATIO = 3 / 4
+FINAL_SIZE = (1200,1600)
 
 count = 0
 

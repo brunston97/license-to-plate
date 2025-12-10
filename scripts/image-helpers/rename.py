@@ -1,5 +1,4 @@
 import os
-import shutil
 
 # directory that contains all author directories (which should have plate images)
 SOURCE_DIR = ""
