@@ -4,9 +4,10 @@ import { GiCardExchange } from 'react-icons/gi'
 import PlateOff from 'components/PlateOff'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 import PlateCardTable from 'components/Results'
+import { useOutletContext } from 'react-router-dom'
 
 function PlateOffPage() {
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
+  const { windowWidth } = useOutletContext<{ windowWidth: number }>()
   const [isMuted, setIsMuted] = useState(true)
   const [isManualSideBySideView, setIsManualSideBySideView] = useState(false)
   const [showResults, setShowResults] = useState(false)
@@ -29,14 +30,8 @@ function PlateOffPage() {
       setShowResults(true)
     }
 
-    function onResizeListener() {
-      setWindowWidth(window.innerWidth)
-    }
-    window.addEventListener('resize', onResizeListener)
-
     return () => {
       document.removeEventListener('click', handleUserInteraction)
-      window.removeEventListener('resize', onResizeListener)
     }
   }, [])
 

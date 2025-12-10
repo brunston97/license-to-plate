@@ -3,6 +3,7 @@ import PlateCard from './PlateCard'
 
 interface PlateCollectionProps {
   plates: IPlateCard[]
+  windowWidth: number
   isPlateSelected: (plateId: string) => boolean
   onCardClick: (plate: IPlateCard) => void
   onCardLike: (plate: IPlateCard) => void
@@ -23,7 +24,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
               onPlateCardVote={props.onCardClick}
               isLiked={lp.isLiked ?? false}
               onLikeButtonClick={props.onCardLike}
-              windowWidth={750} // TODO: change this
+              windowWidth={props.windowWidth}
             />
           </div>
         )

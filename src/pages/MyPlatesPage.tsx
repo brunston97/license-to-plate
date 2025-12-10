@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { IPlateCard } from 'assets/types'
 import PlateCollection from '../components/PlateCollection'
+import { useOutletContext } from 'react-router-dom'
 
 const MyPlatesPage = () => {
   // general page settings
   const [isCardSelectionEnabled] = useState(false)
   const [isAllPlatesEnabled] = useState(false)
+
+  const { windowWidth } = useOutletContext<{ windowWidth: number }>()
 
   // user plate data
   const [selectedPlates, setSelectedPlates] = useState<Set<string>>(new Set())
@@ -65,6 +68,7 @@ const MyPlatesPage = () => {
           </h2>
           <PlateCollection
             plates={likedPlates}
+            windowWidth={windowWidth}
             isPlateSelected={isPlateSelected}
             onCardClick={onCardClick}
             onCardLike={onCardLike}
@@ -78,6 +82,7 @@ const MyPlatesPage = () => {
               </h2>
               <PlateCollection
                 plates={cachedPlates}
+                windowWidth={windowWidth}
                 isPlateSelected={isPlateSelected}
                 onCardClick={onCardClick}
                 onCardLike={onCardLike}

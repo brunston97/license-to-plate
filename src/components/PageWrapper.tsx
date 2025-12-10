@@ -1,9 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Outlet } from 'react-router-dom'
 
 export default function PageWrapper() {
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowWidth(window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   return (
     <div className="relative min-h-screen bg-gray-900 text-white">
@@ -52,7 +64,7 @@ export default function PageWrapper() {
       )}
 
       <div>
-        <Outlet />
+        <Outlet context={{ windowWidth }} />
       </div>
     </div>
   )
