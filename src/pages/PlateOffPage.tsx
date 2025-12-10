@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { FaVolumeUp, FaVolumeMute, FaInfoCircle } from 'react-icons/fa'
+import { FaInfoCircle } from 'react-icons/fa'
 import { GiCardExchange } from 'react-icons/gi'
 import PlateOff from 'components/PlateOff'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
@@ -7,43 +7,19 @@ import PlateCardTable from 'components/Results'
 import { useOutletContext } from 'react-router-dom'
 
 function PlateOffPage() {
-  const { windowWidth } = useOutletContext<{ windowWidth: number }>()
-  const [isMuted, setIsMuted] = useState(true)
+  const { windowWidth, isMuted } = useOutletContext<{
+    windowWidth: number
+    isMuted: boolean
+  }>()
   const [isManualSideBySideView, setIsManualSideBySideView] = useState(false)
   const [showResults, setShowResults] = useState(false)
-  const audioRef = useRef<HTMLAudioElement>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
-  // for only starting audio once user interacts with page
-  // to avoid browser autoplay restriction issues
   useEffect(() => {
-    const handleUserInteraction = () => {
-      if (audioRef.current) {
-        audioRef.current.play()
-      }
-      document.removeEventListener('click', handleUserInteraction)
-    }
-
-    document.addEventListener('click', handleUserInteraction)
-
     if (document.location.pathname == '/results') {
       setShowResults(true)
     }
-
-    return () => {
-      document.removeEventListener('click', handleUserInteraction)
-    }
   }, [])
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.muted = isMuted
-    }
-  }, [isMuted])
-
-  const toggleMute = () => {
-    setIsMuted((prevState) => !prevState)
-  }
 
   const toggleView = () => {
     setIsManualSideBySideView((prevState) => !prevState)
@@ -104,20 +80,6 @@ function PlateOffPage() {
           isManualSideBySideView={isManualSideBySideView}
         />
       )}
-
-      <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop />
-
-      <button
-        onClick={toggleMute}
-        className="fixed bottom-4 left-4 rounded-full bg-transparent p-2 hover:bg-gray-200"
-        title={isMuted ? 'Unmute' : 'Mute'}
-      >
-        {isMuted ? (
-          <FaVolumeMute size={32} color="gray" />
-        ) : (
-          <FaVolumeUp size={32} color="white" />
-        )}
-      </button>
 
       {windowWidth <= MOBILE_WIDTH_CUTOFF && (
         <button
