@@ -37,3 +37,8 @@ yarn-error.log*
 .vercel
 
 .firebase*
+
+#/parsePlates/*/
+parsePlates/openalpr_64/*
+/parsePlates/images/*
+!parsePlates/openalpr_64/install.txt
