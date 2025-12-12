@@ -80,6 +80,10 @@ const MyPlatesPage = () => {
     setFleetName('')
   }
 
+  const handleSelectedPlatesReset = () => {
+    setSelectedPlates(new Set<string>())
+  }
+
   return (
     <div className="min-h-screen w-screen max-w-full bg-gradient-to-b from-bg-primary-1 to-bg-primary-2">
       <Header />
@@ -113,21 +117,38 @@ const MyPlatesPage = () => {
           </>
         )}
       </div>
+
       {isCardSelectionEnabled && selectedPlates.size > 0 && (
         <>
-          <div className="fixed bottom-8 left-1/2 -translate-x-1/2">
+          <div className="fixed bottom-10 left-1/2 -translate-x-1/2 ">
             <button
-              className="rounded-full bg-green-600 px-6 py-2 font-semibold text-white shadow-lg transition-colors duration-200 hover:bg-green-700"
+              className="flex items-center justify-between gap-6 rounded-full bg-green-600 px-5 py-4 text-lg font-semibold text-white shadow-lg transition-colors duration-200 hover:bg-green-700"
               onClick={handleMakeFleetClick}
             >
               Make Your Fleet! ({`${selectedPlates.size}`})
+              <span
+                className="cursor-pointer text-gray-300"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleSelectedPlatesReset()
+                }}
+              >
+                X
+              </span>
             </button>
           </div>
         </>
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handleCloseModal()
+            }
+          }}
+        >
           <div className="w-11/12 max-w-3xl rounded-lg bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-6 shadow-lg">
             <div className="mb-4 flex flex-col items-center">
               <input
