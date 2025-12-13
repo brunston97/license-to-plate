@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { IPlateCard } from 'assets/types'
 import PlateCard from './PlateCard'
+import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 
 interface PlateCollectionProps {
   plates: IPlateCard[]
@@ -15,6 +16,8 @@ const PlateCollection = (props: PlateCollectionProps) => {
     props
 
   const [currentPage, setCurrentPage] = useState(1)
+
+  const isMobileSized = windowWidth <= MOBILE_WIDTH_CUTOFF
   const platesPerPage = 12
 
   // useMemo?
@@ -36,15 +39,19 @@ const PlateCollection = (props: PlateCollectionProps) => {
   return (
     <div>
       <div className="mx-4 flex items-center justify-center">
-        <button
-          className="mr-8 rounded bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400 disabled:opacity-50"
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-        >
-          &larr;
-        </button>
+        {!isMobileSized && (
+          <>
+            <button
+              className="mr-8 rounded bg-gray-300 p-2 text-gray-700 hover:bg-gray-400 disabled:opacity-50 md:px-4"
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+            >
+              &larr;
+            </button>
+          </>
+        )}
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-4 md:gap-4 xl:grid-cols-6">
           {currentPlates.map((lp) => {
             const isSelected = isPlateSelected(lp.id)
             return (
@@ -66,19 +73,45 @@ const PlateCollection = (props: PlateCollectionProps) => {
           })}
         </div>
 
-        <button
-          className="ml-8 rounded bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400 disabled:opacity-50"
-          onClick={handleNextPage}
-          disabled={endIndex >= plates.length}
-        >
-          &rarr;
-        </button>
+        {!isMobileSized && (
+          <>
+            <button
+              className="ml-8 rounded bg-gray-300 p-2 text-gray-700 hover:bg-gray-400 disabled:opacity-50 md:px-4"
+              onClick={handleNextPage}
+              disabled={endIndex >= plates.length}
+            >
+              &rarr;
+            </button>
+          </>
+        )}
       </div>
 
       <div className="mt-4 flex items-center justify-center gap-4">
+        {isMobileSized && (
+          <>
+            <button
+              className="mr-2 rounded bg-gray-300 p-2 text-xs text-gray-700 hover:bg-gray-400 disabled:opacity-50 md:px-4"
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+            >
+              &larr;
+            </button>
+          </>
+        )}
         <span className="font-barlow text-xl text-white">
           Page {currentPage} of {Math.ceil(plates.length / platesPerPage)}
         </span>
+        {isMobileSized && (
+          <>
+            <button
+              className="ml-2 rounded bg-gray-300 p-2 text-xs text-gray-700 hover:bg-gray-400 disabled:opacity-50 md:px-4"
+              onClick={handleNextPage}
+              disabled={endIndex >= plates.length}
+            >
+              &rarr;
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
