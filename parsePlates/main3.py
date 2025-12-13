@@ -1,228 +1,282 @@
-from torch import Tensor
-from ultralytics.utils.checks import check_requirements
-from ultralytics import YOLO # type: ignore
-import numpy as np
-
-import cv2 as cv
-import os
-from pathlib import Path
-
-
 import cv2
 import numpy as np
+from ultralytics import YOLO
+from pathlib import Path
+from typing import List, Tuple, Optional
+import math
 
 
-def find_corners(im: cv.typing.MatLike):
-    """ 
-    Find "card" corners in a binary image.
-    Return a list of points in the following format: [[640, 184], [1002, 409], [211, 625], [589, 940]] 
-    The points order is top-left, top-right, bottom-left, bottom-right.
-    """
-    
-    # Better approach: https://stackoverflow.com/questions/44127342/detect-card-minarea-quadrilateral-from-contour-opencv
+class LicensePlateProcess:
+    def __init__(self, model_path: str):
+        """Initialize the YOLO model once."""
+        print(f"Loading model from: {model_path}")
+        try:
+            self.model = YOLO(model_path)
+        except Exception as e:
+            print(f"Error loading model: {e}")
+            self.model = None
 
-    # Find contours in img.
-    contours = cv2.findContours(im, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]  # [-2] indexing takes return value before last (due to OpenCV compatibility issues).
-    
-    # mx = (0,0,0,0)      # biggest bounding box so far
-    # mx_area = 0
-    # for cont in contours:
-    #     x,y,w,h = cv2.boundingRect(cont)
-    #     area = w*h
-    #     if area > mx_area:
-    #         mx = x,y,w,h
-    #         mx_area = area
-    # x,y,w,h = mx
-
-    # Find the contour with the maximum area (required if there is more than one contour).
-    c = max(contours, key=cv2.contourArea)
-    #print(c)
-
-    # https://stackoverflow.com/questions/41138000/fit-quadrilateral-tetragon-to-a-blob
-    epsilon = 0.1*cv2.arcLength(c, True)
-    box = cv2.approxPolyDP(c, epsilon, True)
-
-    # Draw box for testing
-    tmp_im = cv2.cvtColor(im, cv2.COLOR_GRAY2BGR)
-
-    mx_rect = (0,0,0,0)      # biggest skewed bounding box
-    mx_area = 0
-    for cont in contours:
-        arect = cv2.minAreaRect(cont)
-        area = arect[1][0]*arect[1][1]
-        if area > mx_area:
-            mx_rect, mx_area = arect, area
-
-    tmp_im = crop_minAreaRect(tmp_im, mx_rect)
-                # Resize image
-    #tmp_im = tmp_im[0:300,0:300]
-    #tmp_im = tmp_im[int(box[0]):int(box[0] + box[2] * 10 ), int(box[1]):int(box[1] + box[3]*10)]
-
-    cv2.drawContours(tmp_im, [box], 0, (0, 255, 0), 2)
-    cv2.imshow("tmp_im", tmp_im)
-    # cv2.imshow("output", tmp_im)                       # Show image
-    cv2.waitKey(0)  
-    cv.destroyAllWindows()
-    #box = np.squeeze(box).astype(np.float32) # Remove redundant dimensions
-
-
-    # Sorting the points order is top-left, top-right, bottom-right, bottom-left.
-    # Note: 
-    # The method I am using is a bit of an "overkill".
-    # I am not sure if the implementation is correct.
-    # You may sort the corners using simple logic - find top left, bottom right, and match the other two points.
-    ############################################################################
-    # Find the center of the contour
-    # https://docs.opencv.org/3.4/dd/d49/tutorial_py_contour_features.html
-    # M = cv2.moments(c)
-    # cx = M['m10']/M['m00']
-    # cy = M['m01']/M['m00']
-    # center_xy = np.array([cx, cy])
-
-    # cbox = box - center_xy  # Subtract the center from each corner
-
-    # # For a square the angles of the corners are:
-    # # -135   -45
-    # #
-    # #
-    # # 135     45
-    # ang = np.arctan2(cbox[:,1], cbox[:,0]) * 180 / np.pi  # Compute the angles from the center to each corner
-    # print(ang)
-    # # Sort the corners of box counterclockwise (sort box elements according the order of ang).
-    # box = box[ang.argsort()]
-    # #print(box)
-    # ############################################################################
-
-    # # Reorder points: top-left, top-right, bottom-left, bottom-right
-    # coor = np.float32(np.array([box[0], box[1], box[3], box[2]]))
-    # print(box)
-    # return coor
-
-
-def crop_minAreaRect(img, rect):
-    # Source: https://stackoverflow.com/questions/37177811/
-
-    # rotate img
-    angle = rect[2]
-    rows,cols = img.shape[0], img.shape[1]
-    matrix = cv2.getRotationMatrix2D((cols/2,rows/2),angle,1)
-    img_rot = cv2.warpAffine(img,matrix,(cols,rows))
-
-    # rotate bounding box
-    rect0 = (rect[0], rect[1], 0.0)
-    box = cv2.boxPoints(rect)
-    pts = (cv2.transform(np.array([box]), matrix))[0]
-    pts[pts < 0] = 0
-
-    # crop and return
-    return img_rot[pts[1][1]:pts[0][1], pts[1][0]:pts[2][0]]
-
-# Load a model
-#https://huggingface.co/morsetechlab/yolov11-license-plate-detection
-model = YOLO(f"source\\license-plate-finetune-v1l.pt")  # load an official model
-#model = YOLO(f"source\yolo11n.pt")  # load an official model
-
-def expand_bounds(box: Tensor, scale = 2):
-    x1, y1, x2, y2 = box
-    center_x = (x1 + x2) / 2
-    center_y = (y1 + y2) / 2
-    width = x2 - x1
-    height = y2 - y1
-    new_width = width * scale
-    new_height = height * scale
-    new_x1 = center_x - new_width / 2
-    new_y1 = center_y - new_height / 2
-    new_x2 = center_x + new_width / 2
-    new_y2 = center_y + new_height / 2
-    return [new_x1, new_y1, new_x2, new_y2]
-
-def get_bounding_box(folder_path):
-    results = []
-    toReturn = dict()
-    save = False
-    folder_path = folder_path + '\\20251207_133434.jpg'
-
-    try:
-        results = model(folder_path,imgsz=640, project='source\\output', name='', save=save, exist_ok=True)  # predict on an image
-    except Exception as e: 
-        print(e)
-
-    #Access the results
-    for result in results:
-        if len(result.boxes.xyxy) == 0:
-            continue
-
-        # Get confidence scores (all boxes)
-        confs = result.boxes.conf        
-        # Find index of highest confidence
-        max_idx = confs.argmax()        
-        # Get the most confident bounding box (xyxy format)
-        best_box = result.boxes.xyxy[max_idx]
-        print(best_box)
+    def order_points(self, pts: np.ndarray) -> np.ndarray:
+        """
+        Orders coordinates in the form: top-left, top-right, bottom-right, bottom-left.
+        Essential for consistent perspective transforms.
+        """
+        rect = np.zeros((4, 2), dtype="float32")
         
-        # Now best_box contains [x1, y1, x2, y2] for the top confidence box
-        bounds = expand_bounds(best_box, 4)
-        print(bounds)
-        p = Path(result.path)
-        toReturn[p.name] = {
-            "bounds": bounds,
-            "path": str(p.absolute()),
-            "conf": confs[max_idx]
-            }
-    return toReturn
+        # The top-left point will have the smallest sum, whereas
+        # the bottom-right point will have the largest sum
+        s = pts.sum(axis=1)
+        rect[0] = pts[np.argmin(s)]
+        rect[2] = pts[np.argmax(s)]
 
-def change_perspective(path, box):
-    # Load the image
-    #img = cv.imread(path) # Replace with your image file path
-    #rows, cols, ch = img.shape
-    # print(box)
+        # The top-right point will have the smallest difference,
+        # whereas the bottom-left will have the largest difference
+        diff = np.diff(pts, axis=1)
+        rect[1] = pts[np.argmin(diff)]
+        rect[3] = pts[np.argmax(diff)]
 
-    input_image2 = cv.imread(path, cv.IMREAD_GRAYSCALE)  # Read image as Grayscale
-    input_image2 = input_image2[ int(box[1]):int(box[3]), int(box[0]):int( box[2] )]
+        return rect
 
-    # cv.imshow("tmp_im", input_image2)
-    # # cv2.imshow("output", tmp_im)                       # Show image
-    # cv.waitKey(0)  
-    # cv.destroyAllWindows()
+    def four_point_transform(self, image: np.ndarray, pts: np.ndarray) -> np.ndarray:
+        """
+        Obtains a bird's-eye view of the image based on 4 points.
+        """
+        rect = self.order_points(pts)
+        (tl, tr, br, bl) = rect
 
+        # Compute the width of the new image
+        widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+        widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+        maxWidth = max(int(widthA), int(widthB))
 
-    input_image2 = cv.threshold(input_image2, 0, 255, cv.THRESH_OTSU)[1]  # Convert to binary image (just in case...)
-    original_height, original_width = input_image2.shape[:2]
-    new_width = 720
-    aspect_ratio = new_width / original_width
-    new_height = int(original_height * aspect_ratio)
+        # Compute the height of the new image
+        heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+        heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+        maxHeight = max(int(heightA), int(heightB))
 
-    #print(box)
+        # Construct destination points
+        dst = np.array([
+            [0, 0],
+            [maxWidth - 1, 0],
+            [maxWidth - 1, maxHeight - 1],
+            [0, maxHeight - 1]], dtype="float32")
 
-    #tmp_im = tmp_im[0:300,0:300]
-    input_image2 = cv2.resize(input_image2, (new_width, new_height))
-    # orig_im_coor = np.float32([[640, 184], [1002, 409], [211, 625], [589, 940]])
-    #input_image2 = input_image2[int(box[0]):int( box[2] ), int(box[1]):int(box[3])]
+        # Compute the perspective transform matrix and then apply it
+        M = cv2.getPerspectiveTransform(rect, dst)
+        warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
 
-    cv.imshow("tmp_im", input_image2)
-    # cv2.imshow("output", tmp_im)                       # Show image
-    cv.waitKey(0)  
-    cv.destroyAllWindows()
+        return warped
 
+    def expand_bounds(self, box: np.ndarray, img_w: int, img_h: int, scale: float = 1.1) -> List[int]:
+        """
+        Expands the bounding box by a scale factor, clamping to image boundaries.
+        """
+        x1, y1, x2, y2 = box
+        center_x, center_y = (x1 + x2) / 2, (y1 + y2) / 2
+        width, height = x2 - x1, y2 - y1
 
-    # Find the corners of the card, and sort them
-    orig_im_coor = find_corners(input_image2)
+        new_width = width * scale
+        new_height = height * scale
 
-    height, width = 450, 350
-    new_image_coor =  np.float32(np.array([[0, 0], [width, 0], [0, height], [width, height]]))
+        new_x1 = max(0, center_x - new_width / 2)
+        new_y1 = max(0, center_y - new_height / 2)
+        new_x2 = min(img_w, center_x + new_width / 2)
+        new_y2 = min(img_h, center_y + new_height / 2)
 
-    P = cv.getPerspectiveTransform(orig_im_coor, new_image_coor)
+        return [int(new_x1), int(new_y1), int(new_x2), int(new_y2)]
 
-    perspective = cv.warpPerspective(input_image2, P, (width, height))
-    cv.imshow("Perspective transformation", perspective)
+    def detect_plate_bbox(self, image_path: Path) -> Tuple[Optional[List[int]], Optional[float]]:
+        """
+        Runs YOLO to find the license plate. Returns (bbox, confidence).
+        """
+        if self.model is None:
+            return None, None
 
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+        results = self.model(str(image_path), imgsz=640, verbose=False)
+        
+        best_box = None
+        best_conf = -1.0
+
+        for result in results:
+            if len(result.boxes) == 0:
+                continue
+            
+            # Get the highest confidence box
+            confs = result.boxes.conf.cpu().numpy()
+            max_idx = confs.argmax()
+            best_conf = confs[max_idx]
+            best_box = result.boxes.xyxy[max_idx].cpu().numpy() # x1, y1, x2, y2
+
+        if best_box is not None:
+            # Load image just to get dims for safe clamping
+            img = cv2.imread(str(image_path))
+            h, w = img.shape[:2]
+            # Expand the box slightly to ensure we capture the edges
+            final_box = self.expand_bounds(best_box, w, h, scale=5)
+            return final_box, best_conf
+        
+        return None, 0.0
+
+    def find_plate_corners_in_crop(self, crop_img: np.ndarray) -> Optional[np.ndarray]:
+        """
+        Finds the 4 corners of the plate inside the cropped YOLO image.
+        """
+        gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
+        
+        # Preprocessing: Blur and Threshold
+        blur = cv2.GaussianBlur(gray, (5, 5), 0)
+        # Otsu's thresholding often works well for plates
+        _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        # Find contours
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        if not contours:
+            return None
+        
+        dst = cv2.Canny(crop_img, 50, 200, None, 3)
+        cdst = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
+        cdstP = np.copy(cdst)
+        
+        lines = cv2.HoughLines(dst, 1, np.pi / 180, 150, None, 0, 0)
+        
+        if lines is not None:
+            for i in range(0, len(lines)):
+                rho = lines[i][0][0]
+                theta = lines[i][0][1]
+                a = math.cos(theta)
+                b = math.sin(theta)
+                x0 = a * rho
+                y0 = b * rho
+                pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
+                pt2 = (int(x0 - 1000*(-b)), int(y0 - 1000*(a)))
+                cv2.line(cdst, pt1, pt2, (0,0,255), 3, cv2.LINE_AA)
+        
+        
+        linesP = cv2.HoughLinesP(dst, 1, np.pi / 180, 50, None, 50, 10)
+        
+        if linesP is not None:
+            for i in range(0, len(linesP)):
+                l = linesP[i][0]
+                cv2.line(cdstP, (l[0], l[1]), (l[2], l[3]), (255,255,255), 3, cv2.LINE_AA)
+        
+        #cv2.imshow("Source", crop_img)
+        #cv2.imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst)
+        #cv2.imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP)
+
+        gray = cv2.cvtColor(cdst, cv2.COLOR_BGR2GRAY)
+        # Preprocessing: Blur and Threshold
+        blur = cv2.GaussianBlur(gray, (5, 5), 0)
+        # Otsu's thresholding often works well for plates
+        _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        # Find contours
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        #contours, _ = cv2.findContours(cdstP, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        image_copy = thresh.copy()
+        cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+        #cv2.namedWindow("Contour", cv2.WINDOW_NORMAL)
+
+        cv2.imshow("Contour", image_copy)
+
+        # Sort contours by area, largest first
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+
+        for c in contours:
+            peri = cv2.arcLength(c, True)
+            # Approximate the contour to a polygon
+            approx = cv2.approxPolyDP(c, 0.04 * peri, True)
+
+            # If our approximated contour has 4 points, we assume it's the plate
+            if len(approx) == 4:
+                return approx.reshape(4, 2)
+        
+        # Fallback: if no 4-point polygon found, return the bounding rect of the largest contour
+        x, y, w, h = cv2.boundingRect(contours[0])
+        return np.array([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], dtype="float32")
+
+    def run(self, image_path: str):
+        path_obj = Path(image_path)
+        if not path_obj.exists():
+            print(f"File not found: {image_path}")
+            return
+
+        print(f"Processing: {path_obj.name}")
+
+        # 1. Detect Box
+        bounds, conf = self.detect_plate_bbox(path_obj)
+        
+        if bounds is None:
+            print("No license plate detected.")
+            return
+
+        print(f"Plate Detected (Conf: {conf:.2f}) at: {bounds}")
+
+        # 2. Crop Image
+        original_img = cv2.imread(str(path_obj))
+        x1, y1, x2, y2 = bounds
+        crop = original_img[y1:y2, x1:x2]
+
+        #gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+        #ret,thresh = cv2.threshold(gray,70,255,0)
+        #crop = thresh
+
+        # Debug: Show Crop
+        #cv2.imshow("YOLO Crop", crop)
+
+        # 3. Find accurate corners inside the crop
+        # Resize for consistent processing if needed, though usually YOLO crop is small enough
+        # We perform finding corners on the crop
+        corners = self.find_plate_corners_in_crop(crop)
+
+        if corners is not None:
+            # 4. Warp Perspective
+            warped = self.four_point_transform(crop, corners)
+            cv2.namedWindow("Original Crop", cv2.WINDOW_NORMAL)
+            cv2.namedWindow("Warped Perspective", cv2.WINDOW_NORMAL)
+            # Display Results
+            cv2.imshow("Original Crop", crop)
+            cv2.imshow("Warped Perspective", warped)
+            
+            print("Press any key to close windows...")
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+        else:
+            print("Could not find rectangular contours inside the crop.")
+            cv2.imshow("Crop (No Contours)", crop)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+    def allContours(self, img_original, masque, toggleMode) :
+        if toggleMode :
+            #trouve les contours sur l'image
+            image_copy = img_original.copy()
+            contours, hier = cv2.findContours(image=masque, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
+            cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+            return image_copy
+        else :
+            return None
+
 
 if __name__ == "__main__":
-    folder_path = "source\\images"  # Replace with your image folder
-    results = get_bounding_box(folder_path)
-    print(results)
-    img_to_process = "20251207_133434.jpg"
-    if(img_to_process in results):
-        change_perspective(results[img_to_process]["path"], results[img_to_process]["bounds"])
+    # Settings
+    # Use raw strings (r"...") or forward slashes for paths to avoid escape character issues
+    MODEL_PATH = r"source/license-plate-finetune-v1l.pt" 
+    
+    # If using standard YOLO for testing:
+    # MODEL_PATH = "yolo11n.pt" 
+
+    # Image to process
+    target_folder = Path("source/images")
+    target_image = "IMG_2752.jpg"
+    
+    full_image_path = target_folder / target_image
+
+    # Execution
+    processor = LicensePlateProcess(model_path=MODEL_PATH)
+    
+    # Check if we are processing a specific file or a whole folder logic
+    # For now, processing the specific file requested:
+    processor.run(str(full_image_path))
