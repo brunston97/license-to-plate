@@ -38,7 +38,7 @@ const MyPlatesPage = () => {
     }
   }
 
-  // defined in this component for future case where there will be two PlateCollections on this page 'Liked Plates' and 'All Plates'
+  // defined in this component because there are two PlateCollections on this page 'Liked Plates' and 'All Plates'
   // when selected in one, I want it to be selected in the other.. so this parent component has to define what is and isn't selected
   const isPlateSelected = useCallback(
     (plateId: string) => selectedPlates.has(plateId),
@@ -91,6 +91,7 @@ const MyPlatesPage = () => {
           <PlateCollection
             plates={likedPlates}
             windowWidth={windowWidth}
+            isFleet={false}
             isPlateSelected={isPlateSelected}
             onCardClick={onCardClick}
             onCardLike={onCardLike}
@@ -105,6 +106,7 @@ const MyPlatesPage = () => {
               <PlateCollection
                 plates={cachedPlates}
                 windowWidth={windowWidth}
+                isFleet={false}
                 isPlateSelected={isPlateSelected}
                 onCardClick={onCardClick}
                 onCardLike={onCardLike}
@@ -147,7 +149,7 @@ const MyPlatesPage = () => {
             }
           }}
         >
-          <div className="w-11/12 max-w-3xl rounded-lg bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-6 shadow-lg">
+          <div className="rounded-lg bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-6 shadow-lg">
             <div className="mb-4 flex flex-col items-center">
               <input
                 type="text"
@@ -168,6 +170,7 @@ const MyPlatesPage = () => {
               <PlateCollection
                 plates={selectedPlateDetails}
                 windowWidth={windowWidth}
+                isFleet={true}
                 isPlateSelected={() => false}
                 onCardClick={() => {}}
                 onCardLike={() => {}}
