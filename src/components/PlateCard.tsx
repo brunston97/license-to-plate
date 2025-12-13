@@ -15,7 +15,8 @@ interface PlateCardProps extends CardProps {
 const BUCKET_URL = import.meta.env.VITE_BUCKET_URL
 
 const PlateCard = (props: PlateCardProps) => {
-  const { card, onPlateCardVote, isLiked, onLikeButtonClick } = props
+  const { card, onPlateCardVote, isLiked, onLikeButtonClick, windowWidth } =
+    props
   const [imageLoaded, setImageLoaded] = useState(false)
 
   // fixes an issue where safari would render the first set of cards really small
@@ -45,10 +46,13 @@ const PlateCard = (props: PlateCardProps) => {
               {card.title}
             </h3>
           </div>
-          <div id="likeButtonContainer" className="absolute right-4 top-1">
+          <div
+            id="likeButtonContainer"
+            className="absolute right-1 top-2 sm:top-1 md:right-2 xl:right-3"
+          >
             <IoHeart
               className="mr-1 mt-1 cursor-pointer"
-              size={32}
+              size={windowWidth <= MOBILE_WIDTH_CUTOFF ? 22 : 36}
               color={isLiked ? 'red' : 'gray'}
               onClick={() => onLikeButtonClick(card)}
             ></IoHeart>
@@ -61,7 +65,7 @@ const PlateCard = (props: PlateCardProps) => {
           <div
             id={`imgContainer-${card.id}`}
             className={`flex max-h-full ${
-              props.windowWidth <= MOBILE_WIDTH_CUTOFF
+              windowWidth <= MOBILE_WIDTH_CUTOFF
                 ? 'max-w-[400px]'
                 : 'max-w-[600px] 2xl:max-w-[700px]'
             } justify-center`}

@@ -38,6 +38,8 @@ yarn-error.log*
 
 .firebase*
 
+/**/license2plate_key.json
+
 #/parsePlates/*/
 parsePlates/openalpr_64/*
 /parsePlates/images/*
