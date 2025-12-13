@@ -155,7 +155,6 @@ const MyPlatesPage = () => {
                 value={fleetName}
                 placeholder="Enter fleet name here..."
                 onFocus={(e) => (e.target.placeholder = '')}
-                onBlur={(e) => (e.target.placeholder = 'Create Your Fleet')}
                 onChange={(e) => setFleetName(e.target.value)}
               />
               <button
@@ -165,24 +164,14 @@ const MyPlatesPage = () => {
                 ✕
               </button>
             </div>
-            <div className="grid grid-cols-1 items-center justify-center gap-6 sm:grid-cols-2 md:grid-cols-3">
-              {selectedPlateDetails.map((plate) => (
-                <div
-                  key={plate.id}
-                  className="flex flex-col items-center justify-center"
-                >
-                  <img
-                    src={`${import.meta.env.VITE_BUCKET_URL}/plate${
-                      plate.id
-                    }.jpg`}
-                    alt={plate.title}
-                    className="rounded-lg object-cover shadow-md"
-                  />
-                  <p className="mt-2 text-center text-lg font-medium text-white">
-                    {plate.title}
-                  </p>
-                </div>
-              ))}
+            <div>
+              <PlateCollection
+                plates={selectedPlateDetails}
+                windowWidth={windowWidth}
+                isPlateSelected={() => false}
+                onCardClick={() => {}}
+                onCardLike={() => {}}
+              />
             </div>
           </div>
         </div>
