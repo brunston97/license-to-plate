@@ -1,6 +1,11 @@
 import os
 import subprocess
 import json
+from paddlex import create_pipeline
+# ocr = PaddleOCR(
+#     use_doc_orientation_classify=False,
+#     use_doc_unwarping=False,
+#     use_textline_orientation=False)
 
 def process_images(folder_path):
     results = []
@@ -12,6 +17,15 @@ def process_images(folder_path):
                 command = ["./openalpr_64/alpr.exe", "--json", image_path]
                 process = subprocess.run(command, capture_output=True, text=True, check=True)
                 alpr_output = json.loads(process.stdout)
+
+                #result = ocr.predict(image_path)
+                # Visualize the results and save the JSON results
+                pipeline = create_pipeline(pipeline="OCR")
+                output = pipeline.predict(image_path)
+                for res in output:
+                    res.print()
+                    res.save_to_img("./output/")
+                    res.save_to_json("./output/")
                 #print(alpr_output)
                 # Extract the top result
                 if 'results' in alpr_output and alpr_output['results']:

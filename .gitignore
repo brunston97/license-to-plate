@@ -39,6 +39,13 @@ yarn-error.log*
 .firebase*
 
 #/parsePlates/*/
-parsePlates/openalpr_64/*
-/parsePlates/images/*
-!parsePlates/openalpr_64/install.txt
+#parsePlates/openalpr_64/*
+#parsePlates/*
+#!parsePlates/**/*.{py,txt}
+parsePlates/*/
+!parsePlates/**/*.{py,txt}
+parsePlates/source/output/
+parsePlates/source/images/*.jpg
+parsePlates/source/images/*.png
+#*.jpg
+#*.png
