@@ -45,9 +45,9 @@ export default function PageWrapper() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gray-900 text-white">
+    <div className="relative h-screen text-white">
       <button
-        className="absolute left-3 top-3 z-50 rounded bg-gray-800 p-2 hover:bg-gray-700"
+        className="absolute left-1 top-1 z-50 rounded p-2 text-2xl hover:bg-gray-700"
         onClick={() => setIsOpen(!isOpen)}
       >
         &#9776;

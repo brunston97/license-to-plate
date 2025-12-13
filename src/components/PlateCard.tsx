@@ -48,15 +48,11 @@ const PlateCard = (props: PlateCardProps) => {
           </div>
           <div
             id="likeButtonContainer"
-            className={`${
-              windowWidth <= MOBILE_WIDTH_CUTOFF
-                ? 'absolute right-1 top-2'
-                : 'absolute right-4 top-1'
-            }`}
+            className="absolute right-1 top-2 sm:top-1 md:right-2 xl:right-3"
           >
             <IoHeart
               className="mr-1 mt-1 cursor-pointer"
-              size={windowWidth <= MOBILE_WIDTH_CUTOFF ? 18 : 36}
+              size={windowWidth <= MOBILE_WIDTH_CUTOFF ? 22 : 36}
               color={isLiked ? 'red' : 'gray'}
               onClick={() => onLikeButtonClick(card)}
             ></IoHeart>

@@ -21,7 +21,6 @@ const MyPlatesPage = () => {
     [cachedPlates]
   )
 
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [fleetName, setFleetName] = useState('')
 
@@ -68,12 +67,10 @@ const MyPlatesPage = () => {
     localStorage.setItem('userPlates', JSON.stringify(cachedPlates))
   }, [cachedPlates])
 
-  // Open modal
   const handleMakeFleetClick = () => {
     setIsModalOpen(true)
   }
 
-  // Close modal
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setFleetName('')
@@ -86,9 +83,9 @@ const MyPlatesPage = () => {
   return (
     <div className="min-h-screen w-screen max-w-full bg-gradient-to-b from-bg-primary-1 to-bg-primary-2">
       <Header />
-      <div className="ml-4 mr-1 mt-5">
-        <div className="mb-6">
-          <h2 className="mb-3 font-barlow text-xl font-bold uppercase text-white sm:text-2xl md:text-3xl">
+      <div className="mt-5">
+        <div className="mb-8">
+          <h2 className="mb-3 text-center font-barlow text-xl font-bold uppercase text-white sm:text-2xl md:text-3xl">
             Liked Plates
           </h2>
           <PlateCollection
@@ -101,8 +98,8 @@ const MyPlatesPage = () => {
         </div>
         {isAllPlatesEnabled && (
           <>
-            <div className="mb-6">
-              <h2 className="mb-3 font-barlow text-xl font-bold uppercase text-white sm:text-2xl md:text-3xl">
+            <div className="mb-8">
+              <h2 className="mb-3 text-center font-barlow text-xl font-bold uppercase text-white sm:text-2xl md:text-3xl">
                 All Plates
               </h2>
               <PlateCollection
@@ -119,7 +116,7 @@ const MyPlatesPage = () => {
 
       {isCardSelectionEnabled && selectedPlates.size > 0 && (
         <>
-          <div className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2 ">
+          <div className="fixed bottom-16 left-1/2 z-50 -translate-x-1/2 ">
             <button
               className="relative flex items-center justify-center rounded-full bg-green-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-colors duration-200 hover:bg-green-700"
               onClick={handleMakeFleetClick}
@@ -196,7 +193,7 @@ const MyPlatesPage = () => {
 
 function Header() {
   return (
-    <header className="text-center font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
+    <header className="mb-8 text-center font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
       <h1>My Plates</h1>
     </header>
   )
