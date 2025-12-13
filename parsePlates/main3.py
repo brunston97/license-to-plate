@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from ultralytics import YOLO
+from ultralytics import YOLO # type: ignore
 from pathlib import Path
 from typing import List, Tuple, Optional
 import math
@@ -163,21 +163,21 @@ class LicensePlateProcess:
         #cv2.imshow("Source", crop_img)
         #cv2.imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst)
         #cv2.imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP)
+        # ## testing
+        # gray = cv2.cvtColor(cdst, cv2.COLOR_BGR2GRAY)
+        # # Preprocessing: Blur and Threshold
+        # blur = cv2.GaussianBlur(gray, (5, 5), 0)
+        # # Otsu's thresholding often works well for plates
+        # _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-        gray = cv2.cvtColor(cdst, cv2.COLOR_BGR2GRAY)
-        # Preprocessing: Blur and Threshold
-        blur = cv2.GaussianBlur(gray, (5, 5), 0)
-        # Otsu's thresholding often works well for plates
-        _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        # # Find contours
+        # contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Find contours
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        #contours, _ = cv2.findContours(cdstP, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # #contours, _ = cv2.findContours(cdstP, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         image_copy = thresh.copy()
         cv2.drawContours(image=image_copy, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-        #cv2.namedWindow("Contour", cv2.WINDOW_NORMAL)
+        # #cv2.namedWindow("Contour", cv2.WINDOW_NORMAL)
 
         cv2.imshow("Contour", image_copy)
 
@@ -219,6 +219,20 @@ class LicensePlateProcess:
         x1, y1, x2, y2 = bounds
         crop = original_img[y1:y2, x1:x2]
 
+        # 3. Find Corners (Try Lines first, then Contours)
+        print("Attempting Line Intersection Method...")
+        corners = self.find_corners_by_lines(crop)
+
+        if corners is None:
+            print("Line method failed/insufficient data. Falling back to Contours...")
+            corners = self.find_corners_contour_fallback(crop)
+
+        if corners is not None:
+            # Visualize detected corners on the crop
+            debug_img = crop.copy()
+            for point in corners:
+                cv2.circle(debug_img, (int(point[0]), int(point[1])), 5, (0, 0, 255), -1)
+
         #gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
         #ret,thresh = cv2.threshold(gray,70,255,0)
         #crop = thresh
@@ -229,7 +243,7 @@ class LicensePlateProcess:
         # 3. Find accurate corners inside the crop
         # Resize for consistent processing if needed, though usually YOLO crop is small enough
         # We perform finding corners on the crop
-        corners = self.find_plate_corners_in_crop(crop)
+        #corners = self.find_plate_corners_in_crop(crop)
 
         if corners is not None:
             # 4. Warp Perspective
@@ -275,6 +289,175 @@ class LicensePlateProcess:
         py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom
         
         return int(px), int(py)
+    def find_corners_by_lines(self, crop_img: np.ndarray) -> Optional[np.ndarray]:
+        """
+        Finds corners by detecting lines, extending them, finding intersections,
+        and picking the 4 extreme intersections.
+        """
+        h, w = crop_img.shape[:2]
+        gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
+        
+        # 1. Edge Detection
+        # Canny parameters might need tweaking depending on lighting
+        edges = cv2.Canny(gray, 50, 200, apertureSize=3)
+        
+        # 2. Hough Line Transform (Probabilistic)
+        # minLineLength: lines shorter than this are rejected
+        # maxLineGap: max gap between points to be considered same line
+        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=50, maxLineGap=10)
+
+        if lines is None:
+            return None
+        #lines = self.unify_lines(lines=lines)
+        img_copy = crop_img.copy()
+        if lines is not None:
+            for i in range(0, len(lines)):
+                l = lines[i][0]
+                cv2.line(img_copy, (l[0], l[1]), (l[2], l[3]), (0,255,0), 3, cv2.LINE_AA)
+        #cv2.imshow("lines", img_copy)
+
+        horizontal_lines = []
+        vertical_lines = []
+
+        # CONSTANTS
+        ANGLE_TOLERANCE = 45  # Only accept lines within +/- 15 deg of 0 or 90
+        SHAVE_FACTOR = 0.1    # Remove 10% from line ends to avoid rounded tips
+
+        # 3. Classify Lines
+        for i in range(0, len(lines)):
+        #for line in lines:
+            line = lines[i]
+            x1, y1, x2, y2 = line[0]
+            # Calculate angle in degrees
+            angle = math.degrees(math.atan2(y2 - y1, x2 - x1))
+            
+            # Normalize angle to range [-90, 90]
+            if angle > 90: angle -= 180
+            if angle < -90: angle += 180
+
+            # Shrink the line to ensure we rely on the straight center, not curved ends
+            sx1, sy1, sx2, sy2 = self.shrink_line(x1, y1, x2, y2, SHAVE_FACTOR)
+            
+            # If angle is close to 0, it's horizontal. Close to 90, vertical.
+            # Horizontal check (near 0)
+            if abs(angle) < ANGLE_TOLERANCE:
+                horizontal_lines.append((sx1, sy1, sx2, sy2))
+            
+            # Vertical check (near 90 or -90)
+            elif abs(abs(angle) - 90) < ANGLE_TOLERANCE:
+                vertical_lines.append((sx1, sy1, sx2, sy2))
+
+        if not horizontal_lines or not vertical_lines:
+            return None
+        print(len(horizontal_lines))
+        med = np.median([self.get_line_length(x) for x in horizontal_lines ])
+        horizontal_lines = [x for x in horizontal_lines if self.get_line_length(x) > med] 
+        print(med)
+        print(len(horizontal_lines))
+
+        print(len(vertical_lines))
+        med = np.median([self.get_line_length(x) for x in vertical_lines ])
+        vertical_lines = [x for x in vertical_lines if self.get_line_length(x) > med]
+        #for line in vertical_lines:
+        print(med)
+        print(len(vertical_lines))
+
+        vertical_lines.sort(key=self.get_line_length, reverse=True)
+        horizontal_lines.sort(key=self.get_line_length, reverse=True)
+
+        horizontal_lines = horizontal_lines[:int(len(horizontal_lines)/4)]
+        vertical_lines = vertical_lines[:int(len(vertical_lines)/4)]
+
+
+        img_copy = crop_img.copy()
+        newlines = vertical_lines + horizontal_lines
+        for i in range(0, len(newlines)):
+            l = tuple(map(int, newlines[i])) #newlines[i]
+            #print(l)
+            x1, y1, x2, y2 = l
+            cv2.line(img_copy, (x1, y1), (x2, y2), (0,255,0), 3, cv2.LINE_AA)
+        cv2.imshow("lines2", img_copy)
+
+
+        # 4. Find Intersections
+        intersections = []
+        for h_line in horizontal_lines:
+            for v_line in vertical_lines:
+                pt = self.compute_line_intersection(h_line, v_line)
+                if pt:
+                    px, py = pt
+                    # 5. Filter Intersections:
+                    # Allow points slightly outside the image (e.g. -10 to width+10)
+                    # because corners might be just cut off.
+                    margin = 20
+                    if -margin <= px <= w + margin and -margin <= py <= h + margin:
+                        intersections.append([px, py])
+
+        if len(intersections) < 4:
+            return None
+
+        intersections = np.array(intersections, dtype="float32")
+
+        # 6. Select Best 4 Corners
+        # We assume the "true" corners are the extremes of these intersections.
+        # We reuse the logic: Top-Left (min sum), Bottom-Right (max sum), etc.
+        
+        final_corners = np.zeros((4, 2), dtype="float32")
+        
+        # Sums (x+y)
+        s = intersections.sum(axis=1)
+        final_corners[0] = intersections[np.argmin(s)] # TL
+        final_corners[2] = intersections[np.argmax(s)] # BR
+        
+        # Diffs (y-x) or (x-y)
+        # np.diff does right - left (col1 - col0) = y - x
+        diff = np.diff(intersections, axis=1) 
+        final_corners[1] = intersections[np.argmin(diff)] # TR (smallest y-x means large x small y)
+        final_corners[3] = intersections[np.argmax(diff)] # BL (largest y-x means small x large y)
+
+        return final_corners
+
+    def find_corners_contour_fallback(self, crop_img: np.ndarray) -> Optional[np.ndarray]:
+        """
+        Old method: useful fallback if line detection fails.
+        """
+        gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
+        blur = cv2.GaussianBlur(gray, (5, 5), 0)
+        _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        if not contours:
+            return None
+
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+        for c in contours:
+            peri = cv2.arcLength(c, True)
+            approx = cv2.approxPolyDP(c, 0.04 * peri, True)
+            if len(approx) == 4:
+                return approx.reshape(4, 2)
+        
+        x, y, w, h = cv2.boundingRect(contours[0])
+        return np.array([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], dtype="float32")
+   
+    def shrink_line(self, x1, y1, x2, y2, shave_percent=0.1):
+        """
+        Shrinks a line segment from both ends by a percentage to avoid 
+        curved edges at the corners affecting the slope calculation.
+        """
+        dx = x2 - x1
+        dy = y2 - y1
+        
+        # Move start point forward
+        nx1 = x1 + dx * shave_percent
+        ny1 = y1 + dy * shave_percent
+        
+        # Move end point backward
+        nx2 = x2 - dx * shave_percent
+        ny2 = y2 - dy * shave_percent
+        
+        return nx1, ny1, nx2, ny2
+    def get_line_length(self, x):
+        return  math.dist([x[0], x[1]], [x[2], x[3]])
 
 
 if __name__ == "__main__":
