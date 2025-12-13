@@ -93,7 +93,7 @@ export default function PageWrapper() {
       <FaInfoCircle
         color="white"
         onClick={() => dialogRef.current?.showModal()}
-        className="absolute right-3 top-3 z-50 size-3 rounded-full bg-transparent hover:bg-gray-200 sm:size-5"
+        className="absolute right-3 top-4 z-50 size-5 rounded-full bg-transparent hover:bg-gray-200 sm:size-6"
       >
         <span className="text-xl font-bold">i</span>
       </FaInfoCircle>
