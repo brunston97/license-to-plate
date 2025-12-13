@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { IPlateCard } from 'assets/types'
 import PlateCard from './PlateCard'
-import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
+import { MAX_FLEET_SIZE, MOBILE_WIDTH_CUTOFF } from 'const/constants'
 
 interface PlateCollectionProps {
   plates: IPlateCard[]
@@ -25,7 +25,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
   const [currentPage, setCurrentPage] = useState(1)
 
   const isMobileSized = windowWidth <= MOBILE_WIDTH_CUTOFF
-  const platesPerPage = isFleet ? 6 : 12
+  const platesPerPage = isFleet ? MAX_FLEET_SIZE : 12
 
   // useMemo?
   const startIndex = (currentPage - 1) * platesPerPage
@@ -61,7 +61,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
         <div
           className={`${
             isFleet
-              ? 'grid grid-cols-2 gap-4 lg:grid-cols-3'
+              ? 'grid grid-cols-2 gap-4 lg:grid-cols-4'
               : 'grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 md:gap-4 xl:grid-cols-6'
           }`}
         >

@@ -149,7 +149,7 @@ const MyPlatesPage = () => {
             }
           }}
         >
-          <div className="rounded-lg bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-6 shadow-lg">
+          <div className="max-h-[75vh] overflow-y-auto rounded-lg bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-6 shadow-lg">
             <div className="mb-4 flex flex-col items-center">
               <input
                 type="text"
