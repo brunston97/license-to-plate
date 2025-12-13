@@ -46,7 +46,6 @@ const MyPlatesPage = () => {
     [selectedPlates]
   )
 
-  // useMemo for this?
   const selectedPlateDetails = useMemo(
     () => cachedPlates.filter((plate) => isPlateSelected(plate.id)),
     [cachedPlates, isPlateSelected]
@@ -120,20 +119,22 @@ const MyPlatesPage = () => {
 
       {isCardSelectionEnabled && selectedPlates.size > 0 && (
         <>
-          <div className="fixed bottom-10 left-1/2 -translate-x-1/2 ">
+          <div className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2 ">
             <button
-              className="flex items-center justify-between gap-6 rounded-full bg-green-600 px-5 py-4 text-lg font-semibold text-white shadow-lg transition-colors duration-200 hover:bg-green-700"
+              className="relative flex items-center justify-center rounded-full bg-green-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-colors duration-200 hover:bg-green-700"
               onClick={handleMakeFleetClick}
             >
-              Make Your Fleet! ({`${selectedPlates.size}`})
+              <span className="mr-4">
+                Make Your Fleet! ({`${selectedPlates.size}`})
+              </span>
               <span
-                className="cursor-pointer text-gray-300"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"
                 onClick={(e) => {
                   e.stopPropagation()
                   handleSelectedPlatesReset()
                 }}
               >
-                X
+                ✕
               </span>
             </button>
           </div>
