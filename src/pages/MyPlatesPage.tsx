@@ -17,8 +17,16 @@ const MyPlatesPage = () => {
     const stored = localStorage.getItem('userPlates')
     return stored ? JSON.parse(stored) : []
   })
+
   const likedPlates = useMemo(
-    () => cachedPlates.filter((p) => p.isLiked),
+    () =>
+      cachedPlates
+        .filter((p) => p.isLiked)
+        .sort((a, b) => a.title.localeCompare(b.title)),
+    [cachedPlates]
+  )
+  const allPlates = useMemo(
+    () => cachedPlates.sort((a, b) => a.title.localeCompare(b.title)),
     [cachedPlates]
   )
 
@@ -105,7 +113,7 @@ const MyPlatesPage = () => {
                 All Plates
               </h2>
               <PlateCollection
-                plates={cachedPlates}
+                plates={allPlates}
                 windowWidth={windowWidth}
                 isFleet={false}
                 isPlateSelected={isPlateSelected}
