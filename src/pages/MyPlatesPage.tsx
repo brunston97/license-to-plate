@@ -18,16 +18,13 @@ const MyPlatesPage = () => {
     return stored ? JSON.parse(stored) : []
   })
 
+  const allPlates = useMemo(() => {
+    return [...cachedPlates].sort((a, b) => a.title.localeCompare(b.title))
+  }, [cachedPlates])
+
   const likedPlates = useMemo(
-    () =>
-      cachedPlates
-        .filter((p) => p.isLiked)
-        .sort((a, b) => a.title.localeCompare(b.title)),
-    [cachedPlates]
-  )
-  const allPlates = useMemo(
-    () => cachedPlates.sort((a, b) => a.title.localeCompare(b.title)),
-    [cachedPlates]
+    () => allPlates.filter((p) => p.isLiked),
+    [allPlates]
   )
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -39,7 +36,7 @@ const MyPlatesPage = () => {
         const newSet = new Set(prev)
         if (newSet.has(card.id)) {
           newSet.delete(card.id)
-        } else if (selectedPlates.size < MAX_FLEET_SIZE) {
+        } else if (prev.size < MAX_FLEET_SIZE) {
           newSet.add(card.id)
         }
         return newSet
