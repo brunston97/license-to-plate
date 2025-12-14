@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { IPlateCard } from 'assets/types'
 import PlateCollection from '../components/PlateCollection'
 import { useOutletContext } from 'react-router-dom'
+import { MAX_FLEET_SIZE } from 'const/constants'
 
 const MyPlatesPage = () => {
   // general page settings
@@ -30,7 +31,7 @@ const MyPlatesPage = () => {
         const newSet = new Set(prev)
         if (newSet.has(card.id)) {
           newSet.delete(card.id)
-        } else {
+        } else if (selectedPlates.size < MAX_FLEET_SIZE) {
           newSet.add(card.id)
         }
         return newSet
@@ -124,7 +125,7 @@ const MyPlatesPage = () => {
               onClick={handleMakeFleetClick}
             >
               <span className="mr-4">
-                Make Your Fleet! ({`${selectedPlates.size}`})
+                Make Your Fleet! ({`${selectedPlates.size}`}/4)
               </span>
               <span
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"
