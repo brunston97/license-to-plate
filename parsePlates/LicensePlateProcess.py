@@ -4,6 +4,9 @@ from ultralytics import YOLO # type: ignore
 from pathlib import Path
 from typing import List, Tuple, Optional
 import math
+from paddleocr import PaddleOCR
+
+from helpers import recognize_text, get_line_length
 
 
 class LicensePlateProcess:
@@ -22,7 +25,7 @@ class LicensePlateProcess:
         Essential for consistent perspective transforms.
         """
         rect = np.zeros((4, 2), dtype="float32")
-        
+
         # The top-left point will have the smallest sum, whereas
         # the bottom-right point will have the largest sum
         s = pts.sum(axis=1)
@@ -67,7 +70,7 @@ class LicensePlateProcess:
 
         return warped
 
-    def expand_bounds(self, box: np.ndarray, img_w: int, img_h: int, scale: float = 1.1) -> List[int]:
+    def expand_bounds(self, box: np.ndarray, img_w: int, img_h: int, scale: float = 1.1, min_width: int = None, max_width: int = None) -> List[int]:
         """
         Expands the bounding box by a scale factor, clamping to image boundaries.
         """
@@ -78,6 +81,13 @@ class LicensePlateProcess:
         new_width = width * scale
         new_height = height * scale
 
+        if min_width is not None:
+          new_width = max(new_width, min_width)
+          new_height = max(new_width,new_height)
+        if max_width is not None:
+          new_width = min(new_width, max_width)
+          new_height = min(new_width, new_height)
+
         new_x1 = max(0, center_x - new_width / 2)
         new_y1 = max(0, center_y - new_height / 2)
         new_x2 = min(img_w, center_x + new_width / 2)
@@ -85,36 +95,39 @@ class LicensePlateProcess:
 
         return [int(new_x1), int(new_y1), int(new_x2), int(new_y2)]
 
-    def detect_plate_bbox(self, image_path: Path) -> Tuple[Optional[List[int]], Optional[float]]:
+    def detect_plate_bbox(self, read_path: Path) -> Tuple[Optional[List[int]], Optional[float]]:
         """
         Runs YOLO to find the license plate. Returns (bbox, confidence).
         """
         if self.model is None:
             return None, None
+        bounds = dict()
 
-        results = self.model(str(image_path), imgsz=640, verbose=False)
-        
-        best_box = None
-        best_conf = -1.0
+        mainResults = self.model(str(read_path), imgsz=640, verbose=False)
+        for results in mainResults:
+          best_box = None
+          best_conf = -1.0
+          #print(results.path)
 
-        for result in results:
-            if len(result.boxes) == 0:
-                continue
-            
-            # Get the highest confidence box
-            confs = result.boxes.conf.cpu().numpy()
-            max_idx = confs.argmax()
-            best_conf = confs[max_idx]
-            best_box = result.boxes.xyxy[max_idx].cpu().numpy() # x1, y1, x2, y2
+          for result in results:
+              if len(result.boxes) == 0:
+                  continue
+              image_path = results.path
+              # Get the highest confidence box
+              confs = result.boxes.conf.cpu().numpy()
+              max_idx = confs.argmax()
+              best_conf = confs[max_idx]
+              best_box = result.boxes.xyxy[max_idx].cpu().numpy() # x1, y1, x2, y2
 
-        if best_box is not None:
-            # Load image just to get dims for safe clamping
-            img = cv2.imread(str(image_path))
-            h, w = img.shape[:2]
-            # Expand the box slightly to ensure we capture the edges
-            final_box = self.expand_bounds(best_box, w, h, scale=5)
-            return final_box, best_conf
-        
+              if best_box is not None:
+                  # Load image just to get dims for safe clamping
+                  img = cv2.imread(str(image_path))
+                  h, w = img.shape[:2]
+                  # Expand the box slightly to ensure we capture the edges
+                  final_box = self.expand_bounds(best_box, w, h, scale=1.5, min_width=w//3)
+                  bounds[Path(image_path).name] = final_box
+                  #return final_box, best_conf
+        print(bounds)
         return None, 0.0
 
     def find_plate_corners_in_crop(self, crop_img: np.ndarray) -> Optional[np.ndarray]:
@@ -122,7 +135,7 @@ class LicensePlateProcess:
         Finds the 4 corners of the plate inside the cropped YOLO image.
         """
         gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-        
+
         # Preprocessing: Blur and Threshold
         blur = cv2.GaussianBlur(gray, (5, 5), 0)
         # Otsu's thresholding often works well for plates
@@ -130,16 +143,16 @@ class LicensePlateProcess:
 
         # Find contours
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
+
         if not contours:
             return None
-        
+
         dst = cv2.Canny(crop_img, 50, 200, None, 3)
         cdst = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
         cdstP = np.copy(cdst)
-        
+
         lines = cv2.HoughLines(dst, 1, np.pi / 180, 150, None, 0, 0)
-        
+
         if lines is not None:
             for i in range(0, len(lines)):
                 rho = lines[i][0][0]
@@ -151,15 +164,15 @@ class LicensePlateProcess:
                 pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a)))
                 pt2 = (int(x0 - 1000*(-b)), int(y0 - 1000*(a)))
                 cv2.line(cdst, pt1, pt2, (0,0,255), 3, cv2.LINE_AA)
-        
-        
+
+
         linesP = cv2.HoughLinesP(dst, 1, np.pi / 180, 50, None, 50, 10)
-        
+
         if linesP is not None:
             for i in range(0, len(linesP)):
                 l = linesP[i][0]
                 cv2.line(cdstP, (l[0], l[1]), (l[2], l[3]), (255,255,255), 3, cv2.LINE_AA)
-        
+
         #cv2.imshow("Source", crop_img)
         #cv2.imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst)
         #cv2.imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP)
@@ -192,76 +205,10 @@ class LicensePlateProcess:
             # If our approximated contour has 4 points, we assume it's the plate
             if len(approx) == 4:
                 return approx.reshape(4, 2)
-        
+
         # Fallback: if no 4-point polygon found, return the bounding rect of the largest contour
         x, y, w, h = cv2.boundingRect(contours[0])
         return np.array([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], dtype="float32")
-
-    def run(self, image_path: str):
-        path_obj = Path(image_path)
-        if not path_obj.exists():
-            print(f"File not found: {image_path}")
-            return
-
-        print(f"Processing: {path_obj.name}")
-
-        # 1. Detect Box
-        bounds, conf = self.detect_plate_bbox(path_obj)
-        
-        if bounds is None:
-            print("No license plate detected.")
-            return
-
-        print(f"Plate Detected (Conf: {conf:.2f}) at: {bounds}")
-
-        # 2. Crop Image
-        original_img = cv2.imread(str(path_obj))
-        x1, y1, x2, y2 = bounds
-        crop = original_img[y1:y2, x1:x2]
-
-        # 3. Find Corners (Try Lines first, then Contours)
-        print("Attempting Line Intersection Method...")
-        corners = self.find_corners_by_lines(crop)
-
-        if corners is None:
-            print("Line method failed/insufficient data. Falling back to Contours...")
-            corners = self.find_corners_contour_fallback(crop)
-
-        if corners is not None:
-            # Visualize detected corners on the crop
-            debug_img = crop.copy()
-            for point in corners:
-                cv2.circle(debug_img, (int(point[0]), int(point[1])), 5, (0, 0, 255), -1)
-
-        #gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
-        #ret,thresh = cv2.threshold(gray,70,255,0)
-        #crop = thresh
-
-        # Debug: Show Crop
-        #cv2.imshow("YOLO Crop", crop)
-
-        # 3. Find accurate corners inside the crop
-        # Resize for consistent processing if needed, though usually YOLO crop is small enough
-        # We perform finding corners on the crop
-        #corners = self.find_plate_corners_in_crop(crop)
-
-        if corners is not None:
-            # 4. Warp Perspective
-            warped = self.four_point_transform(crop, corners)
-            cv2.namedWindow("Original Crop", cv2.WINDOW_NORMAL)
-            cv2.namedWindow("Warped Perspective", cv2.WINDOW_NORMAL)
-            # Display Results
-            cv2.imshow("Original Crop", crop)
-            cv2.imshow("Warped Perspective", warped)
-            
-            print("Press any key to close windows...")
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-        else:
-            print("Could not find rectangular contours inside the crop.")
-            cv2.imshow("Crop (No Contours)", crop)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
 
     def allContours(self, img_original, masque, toggleMode) :
         if toggleMode :
@@ -272,7 +219,6 @@ class LicensePlateProcess:
             return image_copy
         else :
             return None
-        
     def compute_line_intersection(self, line1, line2) -> Optional[Tuple[int, int]]:
         """
         Finds intersection (x, y) of two lines given by ((x1, y1), (x2, y2)).
@@ -287,8 +233,9 @@ class LicensePlateProcess:
 
         px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom
         py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denom
-        
+
         return int(px), int(py)
+
     def find_corners_by_lines(self, crop_img: np.ndarray) -> Optional[np.ndarray]:
         """
         Finds corners by detecting lines, extending them, finding intersections,
@@ -296,11 +243,11 @@ class LicensePlateProcess:
         """
         h, w = crop_img.shape[:2]
         gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-        
+
         # 1. Edge Detection
         # Canny parameters might need tweaking depending on lighting
         edges = cv2.Canny(gray, 50, 200, apertureSize=3)
-        
+
         # 2. Hough Line Transform (Probabilistic)
         # minLineLength: lines shorter than this are rejected
         # maxLineGap: max gap between points to be considered same line
@@ -330,19 +277,19 @@ class LicensePlateProcess:
             x1, y1, x2, y2 = line[0]
             # Calculate angle in degrees
             angle = math.degrees(math.atan2(y2 - y1, x2 - x1))
-            
+
             # Normalize angle to range [-90, 90]
             if angle > 90: angle -= 180
             if angle < -90: angle += 180
 
             # Shrink the line to ensure we rely on the straight center, not curved ends
             sx1, sy1, sx2, sy2 = self.shrink_line(x1, y1, x2, y2, SHAVE_FACTOR)
-            
+
             # If angle is close to 0, it's horizontal. Close to 90, vertical.
             # Horizontal check (near 0)
             if abs(angle) < ANGLE_TOLERANCE:
                 horizontal_lines.append((sx1, sy1, sx2, sy2))
-            
+
             # Vertical check (near 90 or -90)
             elif abs(abs(angle) - 90) < ANGLE_TOLERANCE:
                 vertical_lines.append((sx1, sy1, sx2, sy2))
@@ -350,20 +297,20 @@ class LicensePlateProcess:
         if not horizontal_lines or not vertical_lines:
             return None
         print(len(horizontal_lines))
-        med = np.median([self.get_line_length(x) for x in horizontal_lines ])
-        horizontal_lines = [x for x in horizontal_lines if self.get_line_length(x) > med] 
+        med = np.median([get_line_length(x) for x in horizontal_lines ])
+        horizontal_lines = [x for x in horizontal_lines if get_line_length(x) > med]
         print(med)
         print(len(horizontal_lines))
 
         print(len(vertical_lines))
-        med = np.median([self.get_line_length(x) for x in vertical_lines ])
-        vertical_lines = [x for x in vertical_lines if self.get_line_length(x) > med]
+        med = np.median([get_line_length(x) for x in vertical_lines ])
+        vertical_lines = [x for x in vertical_lines if get_line_length(x) > med]
         #for line in vertical_lines:
         print(med)
         print(len(vertical_lines))
 
-        vertical_lines.sort(key=self.get_line_length, reverse=True)
-        horizontal_lines.sort(key=self.get_line_length, reverse=True)
+        vertical_lines.sort(key=get_line_length, reverse=True)
+        horizontal_lines.sort(key=get_line_length, reverse=True)
 
         horizontal_lines = horizontal_lines[:int(len(horizontal_lines)/4)]
         vertical_lines = vertical_lines[:int(len(vertical_lines)/4)]
@@ -401,17 +348,17 @@ class LicensePlateProcess:
         # 6. Select Best 4 Corners
         # We assume the "true" corners are the extremes of these intersections.
         # We reuse the logic: Top-Left (min sum), Bottom-Right (max sum), etc.
-        
+
         final_corners = np.zeros((4, 2), dtype="float32")
-        
+
         # Sums (x+y)
         s = intersections.sum(axis=1)
         final_corners[0] = intersections[np.argmin(s)] # TL
         final_corners[2] = intersections[np.argmax(s)] # BR
-        
+
         # Diffs (y-x) or (x-y)
         # np.diff does right - left (col1 - col0) = y - x
-        diff = np.diff(intersections, axis=1) 
+        diff = np.diff(intersections, axis=1)
         final_corners[1] = intersections[np.argmin(diff)] # TR (smallest y-x means large x small y)
         final_corners[3] = intersections[np.argmax(diff)] # BL (largest y-x means small x large y)
 
@@ -425,7 +372,7 @@ class LicensePlateProcess:
         blur = cv2.GaussianBlur(gray, (5, 5), 0)
         _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
+
         if not contours:
             return None
 
@@ -435,10 +382,9 @@ class LicensePlateProcess:
             approx = cv2.approxPolyDP(c, 0.04 * peri, True)
             if len(approx) == 4:
                 return approx.reshape(4, 2)
-        
+
         x, y, w, h = cv2.boundingRect(contours[0])
         return np.array([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], dtype="float32")
-   
     def shrink_line(self, x1, y1, x2, y2, shave_percent=0.1):
         """
         Shrinks a line segment from both ends by a percentage to avoid 
@@ -446,37 +392,76 @@ class LicensePlateProcess:
         """
         dx = x2 - x1
         dy = y2 - y1
-        
+
         # Move start point forward
         nx1 = x1 + dx * shave_percent
         ny1 = y1 + dy * shave_percent
-        
+
         # Move end point backward
         nx2 = x2 - dx * shave_percent
         ny2 = y2 - dy * shave_percent
-        
+
         return nx1, ny1, nx2, ny2
-    def get_line_length(self, x):
-        return  math.dist([x[0], x[1]], [x[2], x[3]])
+    def run(self, image_path: str):
+        path_obj = Path(image_path)
+        if not path_obj.exists():
+            print(f"File not found: {image_path}")
+            return
+
+        print(f"Processing: {path_obj.name}")
+
+        # 1. Detect Box
+        bounds, conf = self.detect_plate_bbox(path_obj)
+        return
+        if bounds is None:
+            print("No license plate detected.")
+            return
+
+        print(f"Plate Detected (Conf: {conf:.2f}) at: {bounds}")
+
+        # 2. Crop Image
+        original_img = cv2.imread(str(path_obj))
+        x1, y1, x2, y2 = bounds
+        crop = original_img[y1:y2, x1:x2]
+
+        # 3. Find Corners (Try Lines first, then Contours)
+        print("Attempting Line Intersection Method...")
+        corners = self.find_corners_by_lines(crop)
+
+        if corners is None:
+            print("Line method failed/insufficient data. Falling back to Contours...")
+            corners = self.find_corners_contour_fallback(crop)
+
+        # if corners is not None:
+        #     # Visualize detected corners on the crop
+        #     debug_img = crop.copy()
+        #     for point in corners:
+        #         cv2.circle(debug_img, (int(point[0]), int(point[1])), 5, (0, 0, 255), -1)
 
 
-if __name__ == "__main__":
-    # Settings
-    # Use raw strings (r"...") or forward slashes for paths to avoid escape character issues
-    MODEL_PATH = r"source/license-plate-finetune-v1l.pt" 
-    
-    # If using standard YOLO for testing:
-    # MODEL_PATH = "yolo11n.pt" 
+        if corners is not None:
+            # 4. Warp Perspective
+            warped = self.four_point_transform(crop, corners)
+            output_name = "warped_" + path_obj.name
+            cv2.imwrite(f"output/{output_name}", warped)
+            #print(recognize_text(f"output/{output_name}"))
 
-    # Image to process
-    target_folder = Path("source/images")
-    target_image = "IMG_2752.jpg"
-    
-    full_image_path = target_folder / target_image
 
-    # Execution
-    processor = LicensePlateProcess(model_path=MODEL_PATH)
-    
-    # Check if we are processing a specific file or a whole folder logic
-    # For now, processing the specific file requested:
-    processor.run(str(full_image_path))
+
+
+            # cv2.namedWindow("Original Crop", cv2.WINDOW_NORMAL)
+            # cv2.namedWindow("Warped Perspective", cv2.WINDOW_NORMAL)
+            # # Display Results
+            # cv2.imshow("Original Crop", crop)
+            # cv2.imshow("Warped Perspective", warped)
+
+            # print("Press any key to close windows...")
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+        # else:
+        #     print("Could not find rectangular contours inside the crop.")
+        #     cv2.imshow("Crop (No Contours)", crop)
+        #     cv2.waitKey(0)
+        #     cv2.destroyAllWindows()
+
+
