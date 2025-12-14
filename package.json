@@ -22,7 +22,8 @@
     "test:ui": "vitest --ui",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "deploy": "npm run prod:server && npm run prod:client"
+    "deploy": "npm run prod:server && npm run prod:client",
+    "makePyEnv":"python3 -m venv .venv && source .venv/bin/activate && pip install -r parsePlates/requirements.txt"
   },
   "dependencies": {
     "@nextui-org/react": "^2.6.8",
