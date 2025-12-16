@@ -14,8 +14,7 @@ if __name__ == "__main__":
     # Image to process
     target_folder = Path("images")
     target_image = "IMG_2752.jpg"
-    #target_image = "IMG_4570.jpg"
-
+    # target_image = "IMG_4570.jpg"
 
     full_image_path = target_folder / target_image
 

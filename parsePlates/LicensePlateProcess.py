@@ -120,7 +120,12 @@ class LicensePlateProcess:
 
         # Run YOLO inference
         mainResults = self.model(
-            str(read_path), imgsz=640, verbose=False, save=True, project="output"
+            str(read_path),
+            imgsz=640,
+            verbose=False,
+            save=True,
+            project="output",
+            name="detections",
         )
 
         for results in mainResults:
