@@ -24,12 +24,12 @@ if __name__ == "__main__":
     processor.run(str(target_folder))
 
     results = []
-    for filename in os.listdir(target_folder):
-        if filename.endswith((".jpg", ".jpeg", ".png")):  # Add more extensions if needed
-            image_path = os.path.join(target_folder, filename)
-            try:
-                processor.run(str(image_path))
-            except Exception as e:
-                  print(e)
+    # for filename in os.listdir(target_folder):
+    #     if filename.endswith((".jpg", ".jpeg", ".png")):  # Add more extensions if needed
+    #         image_path = os.path.join(target_folder, filename)
+    #         try:
+    #             processor.run(str(image_path))
+    #         except Exception as e:
+    #               print(e)
     # Check if we are processing a specific file or a whole folder logic
     # For now, processing the specific file requested:

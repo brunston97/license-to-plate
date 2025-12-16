@@ -42,10 +42,12 @@ yarn-error.log*
 #parsePlates/openalpr_64/*
 #parsePlates/*
 #!parsePlates/**/*.{py,txt}
-parsePlates/*/
+parsePlates/**/*.jpg
+parsePlates/**/*.pt
+parsePlates/**/*.pyc
 !parsePlates/**/*.{py,txt}
 parsePlates/source/output/
-parsePlates/source/images/*.jpg
-parsePlates/source/images/*.png
+#parsePlates/source/images/*.jpg
+#parsePlates/source/images/*.png
 #*.jpg
 #*.png

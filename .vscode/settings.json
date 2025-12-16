@@ -10,5 +10,8 @@
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+},
+"[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+}
 }
