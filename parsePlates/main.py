@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 from LicensePlateProcess import LicensePlateProcess
+from paddleocr import PaddleOCR
+
+from helpers import recognize_text
 
 
 if __name__ == "__main__":
@@ -17,10 +20,13 @@ if __name__ == "__main__":
     # target_image = "IMG_4570.jpg"
 
     full_image_path = target_folder / target_image
+    output_path = Path("output")
 
     # Execution
-    processor = LicensePlateProcess(model_path=MODEL_PATH)
-    processor.run(str(target_folder))
+    # processor = LicensePlateProcess(model_path=MODEL_PATH)
+    # processor.run(str(target_folder))
+    plates = recognize_text(str(output_path))
+    print(plates)
 
     results = []
     # for filename in os.listdir(target_folder):

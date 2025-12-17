@@ -126,6 +126,7 @@ class LicensePlateProcess:
             save=True,
             project="output",
             name="detections",
+            exist_ok=True,
         )
 
         for results in mainResults:
@@ -153,117 +154,6 @@ class LicensePlateProcess:
                 }
 
         return bounds
-
-    def find_plate_corners_in_crop(self, crop_img: np.ndarray) -> Optional[np.ndarray]:
-        """
-        Finds the 4 corners of the plate inside the cropped YOLO image.
-        """
-        gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-
-        # Preprocessing: Blur and Threshold
-        blur = cv2.GaussianBlur(gray, (5, 5), 0)
-        # Otsu's thresholding often works well for plates
-        _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-        # Find contours
-        contours, _ = cv2.findContours(
-            thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-        )
-
-        if not contours:
-            return None
-
-        dst = cv2.Canny(crop_img, 50, 200, None, 3)
-        cdst = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
-        cdstP = np.copy(cdst)
-
-        lines = cv2.HoughLines(dst, 1, np.pi / 180, 150, None, 0, 0)
-
-        if lines is not None:
-            for i in range(0, len(lines)):
-                rho = lines[i][0][0]
-                theta = lines[i][0][1]
-                a = math.cos(theta)
-                b = math.sin(theta)
-                x0 = a * rho
-                y0 = b * rho
-                pt1 = (int(x0 + 1000 * (-b)), int(y0 + 1000 * (a)))
-                pt2 = (int(x0 - 1000 * (-b)), int(y0 - 1000 * (a)))
-                cv2.line(cdst, pt1, pt2, (0, 0, 255), 3, cv2.LINE_AA)
-
-        linesP = cv2.HoughLinesP(dst, 1, np.pi / 180, 50, None, 50, 10)
-
-        if linesP is not None:
-            for i in range(0, len(linesP)):
-                l = linesP[i][0]
-                cv2.line(
-                    cdstP, (l[0], l[1]), (l[2], l[3]), (255, 255, 255), 3, cv2.LINE_AA
-                )
-
-        # cv2.imshow("Source", crop_img)
-        # cv2.imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst)
-        # cv2.imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP)
-        # ## testing
-        # gray = cv2.cvtColor(cdst, cv2.COLOR_BGR2GRAY)
-        # # Preprocessing: Blur and Threshold
-        # blur = cv2.GaussianBlur(gray, (5, 5), 0)
-        # # Otsu's thresholding often works well for plates
-        # _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-        # # Find contours
-        # contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        # #contours, _ = cv2.findContours(cdstP, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        image_copy = thresh.copy()
-        cv2.drawContours(
-            image=image_copy,
-            contours=contours,
-            contourIdx=-1,
-            color=(0, 255, 0),
-            thickness=2,
-            lineType=cv2.LINE_AA,
-        )
-        # #cv2.namedWindow("Contour", cv2.WINDOW_NORMAL)
-
-        cv2.imshow("Contour", image_copy)
-
-        # Sort contours by area, largest first
-        contours = sorted(contours, key=cv2.contourArea, reverse=True)
-
-        for c in contours:
-            peri = cv2.arcLength(c, True)
-            # Approximate the contour to a polygon
-            approx = cv2.approxPolyDP(c, 0.04 * peri, True)
-
-            # If our approximated contour has 4 points, we assume it's the plate
-            if len(approx) == 4:
-                return approx.reshape(4, 2)
-
-        # Fallback: if no 4-point polygon found, return the bounding rect of the largest contour
-        x, y, w, h = cv2.boundingRect(contours[0])
-        return np.array(
-            [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], dtype="float32"
-        )
-
-    def allContours(self, img_original, masque, toggleMode):
-        if toggleMode:
-            # trouve les contours sur l'image
-            image_copy = img_original.copy()
-            contours, hier = cv2.findContours(
-                image=masque, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE
-            )
-            cv2.drawContours(
-                image=image_copy,
-                contours=contours,
-                contourIdx=-1,
-                color=(0, 255, 0),
-                thickness=2,
-                lineType=cv2.LINE_AA,
-            )
-            return image_copy
-        else:
-            return None
 
     def compute_line_intersection(self, line1, line2) -> Optional[Tuple[int, int]]:
         """
@@ -509,25 +399,3 @@ class LicensePlateProcess:
                     # cv2.imwrite(output_name, )
 
             cv2.imwrite(f"output/{output_name}", warped)
-            # if corners is not None:
-            #     # Visualize detected corners on the crop
-            #     debug_img = crop.copy()
-            #     for point in corners:
-            #         cv2.circle(debug_img, (int(point[0]), int(point[1])), 5, (0, 0, 255), -1)
-
-            # print(recognize_text(f"output/{output_name}"))
-
-            # cv2.namedWindow("Original Crop", cv2.WINDOW_NORMAL)
-            # cv2.namedWindow("Warped Perspective", cv2.WINDOW_NORMAL)
-            # # Display Results
-            # cv2.imshow("Original Crop", crop)
-            # cv2.imshow("Warped Perspective", warped)
-
-            # print("Press any key to close windows...")
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
-        # else:
-        #     print("Could not find rectangular contours inside the crop.")
-        #     cv2.imshow("Crop (No Contours)", crop)
-        #     cv2.waitKey(0)
-        #     cv2.destroyAllWindows()
