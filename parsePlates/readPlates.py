@@ -143,6 +143,10 @@ def read_text(bit_image_path: Path):
     bit_image_path = Path(bit_image_path)
     read_read_dir = bit_image_path.parent / "success"
     read_read_dir.mkdir(exist_ok=True)
+    file_count = len([p for p in bit_image_path.iterdir() if p.is_file()])
+
+    if file_count == 0:
+        return
 
     ocr = PaddleOCR(
         use_textline_orientation=False,

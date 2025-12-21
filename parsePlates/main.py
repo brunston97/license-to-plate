@@ -29,7 +29,11 @@ if __name__ == "__main__":
         # processor = LicensePlateProcess(model_path=MODEL_PATH)
         # processor.run(str(target_folder))
         # plates = recognize_text(str(output_path))
-        reads = read_text(target_folder / "output/bit/split/batch_01")
+        for folder in Path(target_folder / "output/bit/split").iterdir():
+            folderPath = Path(folder)
+            print(folderPath.name[:5])
+            if str(folderPath.name)[:5] == "batch":
+                reads = read_text(str(folderPath))
         # print(plates)
 
     results = []
