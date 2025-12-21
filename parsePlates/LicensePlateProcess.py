@@ -6,7 +6,7 @@ from typing import List, Tuple, Optional, Dict
 import math
 from paddleocr import PaddleOCR
 
-from helpers import recognize_text, get_line_length
+from helpers import get_line_length
 
 
 class LicensePlateProcess:
@@ -238,24 +238,19 @@ class LicensePlateProcess:
 
         if not horizontal_lines or not vertical_lines:
             return None
-        print(len(horizontal_lines))
+
         med = np.median([get_line_length(x) for x in horizontal_lines])
         horizontal_lines = [x for x in horizontal_lines if get_line_length(x) > med]
-        print(med)
-        print(len(horizontal_lines))
 
-        print(len(vertical_lines))
         med = np.median([get_line_length(x) for x in vertical_lines])
         vertical_lines = [x for x in vertical_lines if get_line_length(x) > med]
         # for line in vertical_lines:
-        print(med)
-        print(len(vertical_lines))
 
         vertical_lines.sort(key=get_line_length, reverse=True)
         horizontal_lines.sort(key=get_line_length, reverse=True)
 
-        horizontal_lines = horizontal_lines[: int(len(horizontal_lines) / 4)]
-        vertical_lines = vertical_lines[: int(len(vertical_lines) / 4)]
+        horizontal_lines = horizontal_lines[: int(len(horizontal_lines) / 4) + 1]
+        vertical_lines = vertical_lines[: int(len(vertical_lines) / 4) + 1]
 
         img_copy = crop_img.copy()
         newlines = vertical_lines + horizontal_lines
@@ -264,7 +259,7 @@ class LicensePlateProcess:
             # print(l)
             x1, y1, x2, y2 = l
             cv2.line(img_copy, (x1, y1), (x2, y2), (0, 255, 0), 3, cv2.LINE_AA)
-        cv2.imshow("lines2", img_copy)
+        # cv2.imshow("lines2", img_copy)
 
         # 4. Find Intersections
         intersections = []
@@ -354,16 +349,22 @@ class LicensePlateProcess:
 
         return nx1, ny1, nx2, ny2
 
-    def run(self, read_path: str):
-        path_obj = Path(read_path)
-        if not path_obj.exists():
-            print(f"File not found: {read_path}")
+    def run(self, image_folder_path: str):
+        image_folder = Path(image_folder_path)
+        output_path = Path(f"{image_folder_path}/output/warpedPlates")
+
+        if not image_folder.exists():
+            print(f"File not found: {image_folder_path}")
             return
 
-        print(f"Processing: {path_obj.name}")
+        if not output_path.exists():
+            output_path.mkdir(parents=True, exist_ok=True)
+            # os.mkdir(str(output_path))
+
+        print(f"Processing: {image_folder.name}")
 
         # 1. Detect Box
-        bounds = self.detect_plate_bbox(path_obj)
+        bounds = self.detect_plate_bbox(image_folder)
         print(bounds)
         # #return
         # if len() is None:
@@ -374,12 +375,13 @@ class LicensePlateProcess:
 
         # 2. Crop Image
         for key in self.bounds:
-            original_img = cv2.imread(str(path_obj / key))
+            original_img = cv2.imread(str(image_folder / key))
             x1, y1, x2, y2 = bounds[key]["bbox"]
             conf = bounds[key]["confidence"]
             crop = original_img[y1:y2, x1:x2]
+
             output_name = "not_warped_" + key
-            warped = crop.copy()
+            output_img = crop.copy()
 
             if conf < 0.7:
                 # 3. Find Corners (Try Lines first, then Contours)
@@ -394,8 +396,8 @@ class LicensePlateProcess:
 
                 if corners is not None:
                     # 4. Warp Perspective
-                    warped = self.four_point_transform(crop, corners)
+                    output_img = self.four_point_transform(crop, corners)
                     output_name = "warped_" + key
                     # cv2.imwrite(output_name, )
-
-            cv2.imwrite(f"output/{output_name}", warped)
+            output_img = cv2.resize(output_img, (500, 500))
+            cv2.imwrite(output_path / output_name, output_img)

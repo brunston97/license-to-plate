@@ -1,9 +1,7 @@
 import os
 from pathlib import Path
 from LicensePlateProcess import LicensePlateProcess
-from paddleocr import PaddleOCR
-
-from helpers import recognize_text
+from readPlates import read_text, recognize_text
 
 
 if __name__ == "__main__":
@@ -15,18 +13,24 @@ if __name__ == "__main__":
     # MODEL_PATH = "yolo11n.pt"
 
     # Image to process
-    target_folder = Path("images")
+    target_folder = Path("source/images").absolute()
     target_image = "IMG_2752.jpg"
     # target_image = "IMG_4570.jpg"
-
     full_image_path = target_folder / target_image
-    output_path = Path("output")
 
-    # Execution
-    # processor = LicensePlateProcess(model_path=MODEL_PATH)
-    # processor.run(str(target_folder))
-    plates = recognize_text(str(output_path))
-    print(plates)
+    output_path = (
+        target_folder / "output" / "warpedPlates"
+    )  # Path("source/images/output").absolute()
+    # print(output_path)
+    # print(str(target_folder))
+
+    if 1:
+        # Execution
+        # processor = LicensePlateProcess(model_path=MODEL_PATH)
+        # processor.run(str(target_folder))
+        # plates = recognize_text(str(output_path))
+        reads = read_text(target_folder / "output" / "bitImages")
+        # print(plates)
 
     results = []
     # for filename in os.listdir(target_folder):

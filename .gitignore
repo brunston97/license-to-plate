@@ -46,8 +46,10 @@ parsePlates/**/*.jpg
 parsePlates/**/*.pt
 parsePlates/**/*.pyc
 !parsePlates/**/*.{py,txt}
-parsePlates/source/output/
+parsePlates/source/images/output/
 #parsePlates/source/images/*.jpg
 #parsePlates/source/images/*.png
 #*.jpg
 #*.png
+
+*.onnx
