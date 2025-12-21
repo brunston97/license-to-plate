@@ -23,7 +23,8 @@
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "deploy": "npm run prod:server && npm run prod:client",
-    "makePyEnv:win": "python3 -m venv .venv && .venv\\Scripts\\activate && pip install -r parsePlates\\requirements.txt"
+    "makePyEnv:win": "python3 -m venv .venv && .venv\\Scripts\\activate && pip install -r parsePlates\\requirements.txt",
+    "splitDirs": "cd parsePlates && python organize.py --src source/images/output/bitImages --dst source/images/output/bit/split --size 50 "
   },
   "dependencies": {
     "@nextui-org/react": "^2.6.8",

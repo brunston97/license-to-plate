@@ -204,55 +204,79 @@ Box = Tuple[float, float, float, float]  # (x, y, height, width)
 Boxes = Sequence[Box]  # any iterable of boxes
 
 
-def group_by_height(
-    boxes: Boxes,
-    tolerance: float = 5.0,
+def group_boxes_by_height(
+    boxes: List[Box],
     *,
-    relative: bool = False,
-    ascending: bool = False
-) -> List[List[Box]]:
-    if not len(boxes):
-        return []
+    abs_tol: float = 0.0,  # absolute pixel tolerance (default 0 → exact match)
+    rel_tol: float = 0.0,  # relative tolerance as a fraction (e.g. 0.1 = 10%)
+    min_group_size: int = 1,  # ignore groups smaller than this
+    return_indices: bool = False  # if True, return lists of indices instead of boxes
+) -> Boxes:
+    """
+    Group bounding boxes by similar height.
 
-    # 2️⃣  Extract the heights and keep the original order
-    heights = np.array([h for (_, _, h, _) in boxes], dtype=float)
+    Parameters
+    ----------
+    boxes:
+        List of bounding boxes in (x, y, x2, y2) format.
+    abs_tol:
+        Absolute pixel tolerance. Two boxes are considered the same height
+        if |h1 - h2| <= abs_tol.
+    rel_tol:
+        Relative tolerance (fraction of the average height). Used as an
+        alternative to abs_tol. Ignored if abs_tol > 0.
+    min_group_size:
+        Groups containing fewer items than this threshold are dropped.
+    return_indices:
+        If True, return the list of indices of the original input list
+        instead of the boxes themselves.
 
-    # 3️⃣  Sort the indices by height – this preserves the original ordering
-    #     inside each group, but lets us walk the sorted list once.
-    sorted_idx = np.argsort(heights)
-    sorted_boxes = [boxes[i] for i in sorted_idx]
-    sorted_heights = heights[sorted_idx]
+    Returns
+    -------
+    groups:
+        List of groups. Each group is either a list of BBox objects or
+        a list of indices depending on ``return_indices``.
+    """
+    # ------------------------------------------------------------------
+    # 1. Compute heights and keep the original indices
+    # ------------------------------------------------------------------
+    heights = [(i, b[3] - b[1]) for i, b in enumerate(boxes)]
 
-    # 4️⃣  Walk the sorted list and cluster heights
-    groups: List[List[Box]] = []
-    current_group: List[Box] = [sorted_boxes[0]]
-    current_heights: List[float] = [sorted_heights[0]]
+    # ------------------------------------------------------------------
+    # 2. Decide the tolerance to use
+    # ------------------------------------------------------------------
+    if abs_tol <= 0 and rel_tol <= 0:
+        raise ValueError("At least one of abs_tol or rel_tol must be > 0")
 
-    for box, h in zip(sorted_boxes[1:], sorted_heights[1:]):
-        # Determine if `h` is close enough to the previous height
-        if relative:
-            # tolerance expressed as a percentage of the larger height
-            diff = abs(h - current_heights[-1])
-            limit = (tolerance / 100) * max(h, current_heights[-1])
-            close = diff <= limit
-        else:
-            close = abs(h - current_heights[-1]) <= tolerance
+    # ------------------------------------------------------------------
+    # 3. Bucket boxes by height using a simple O(n^2) sweep
+    #    (good for typical OCR sizes – thousands of boxes is still fine)
+    # ------------------------------------------------------------------
+    visited = [False] * len(boxes)
+    groups = []
 
-        if close:
-            current_group.append(box)
-            current_heights.append(h)
-        else:
+    for i, hi in heights:
+        if visited[i]:
+            continue
+
+        current_group = [i] if return_indices else [boxes[i]]
+        visited[i] = True
+
+        for j, hj in heights[i + 1 :]:
+            if visited[j]:
+                continue
+
+            # Calculate tolerance for this pair
+            tol = abs_tol
+            if tol <= 0 and rel_tol > 0:
+                avg_h = (hi + hj) / 2.0
+                tol = rel_tol * hi  # avg_h
+
+            if abs(hi - hj) <= tol:
+                visited[j] = True
+                current_group.append(j if return_indices else boxes[j])
+
+        if len(current_group) >= min_group_size:
             groups.append(current_group)
-            current_group = [box]
-            current_heights = [h]
-
-    # Don't forget the last group
-    groups.append(current_group)
-
-    # 5️⃣  (Optional)  Sort the groups by their median height
-    if ascending:
-        groups.sort(key=lambda g: np.median([h for (_, _, h, _) in g]))
-    else:
-        groups.sort(key=lambda g: np.median([h for (_, _, h, _) in g]), reverse=True)
-
+    print(groups)
     return groups

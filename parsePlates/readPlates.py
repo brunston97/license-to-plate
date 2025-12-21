@@ -11,7 +11,7 @@ from helpers import (
     expand_bbox,
     get_largest_textbox,
     get_line_length,
-    group_by_height,
+    group_boxes_by_height,
     show_image,
     sort_boxes_by_area,
 )
@@ -43,7 +43,6 @@ def recognize_text(plates_dir_path: str):
 
         image_path = plates_path / filename
         image_path_bit = bit_image_path / filename
-        # read_path = reads_path / f"{Path(filename).stem}.txt"
 
         # ---------------------------------------------------------
         # 2. Read, resize, and preprocess image
@@ -142,6 +141,9 @@ def recognize_text(plates_dir_path: str):
 def read_text(bit_image_path: Path):
     toReturn = []
     bit_image_path = Path(bit_image_path)
+    read_read_dir = bit_image_path.parent / "success"
+    read_read_dir.mkdir(exist_ok=True)
+
     ocr = PaddleOCR(
         use_textline_orientation=False,
         use_doc_orientation_classify=False,
@@ -151,8 +153,17 @@ def read_text(bit_image_path: Path):
     results = ocr.predict(str(bit_image_path))
     for res in results:
         plate_text = ""
+        # read_path = Path(f"{bit_image_path}")
+
         if res and len(res["rec_boxes"]) > 0:
-            boxes = group_by_height(res["rec_boxes"], relative=True)[0]
+            file_path = Path(res["input_path"])
+            sorted_by_area = sorted(
+                res["rec_boxes"],
+                key=lambda b: (int(b[2]) - int(b[0]))
+                * int((b[3]) - int(b[1])),  # width × height
+                reverse=True,  # largest first
+            )
+            boxes = group_boxes_by_height(sorted_by_area, rel_tol=0.1)[0]
             print(str(boxes))
             # plate_text = result[0][0][1]  # first detected text
             # for res in result:
@@ -160,16 +171,19 @@ def read_text(bit_image_path: Path):
             #     continue
             # res.print()
             res.save_to_img(str(bit_image_path.parent / "reads"))
+            res.save_to_json(str(bit_image_path.parent / "reads"))
             for box in boxes:
                 # res.save_to_json("output")
                 # maxVal = max(res["rec_boxes"], key=lambda x: get_line_length(x))
                 index = np.where(res["rec_boxes"] == box)[0][0]
                 plate_text += res["rec_texts"][index] + " "
+            if len(plate_text) > 0:
+                os.rename(str(file_path), str(read_read_dir / file_path.name))
             toReturn.append(plate_text.rstrip())
         # print(toReturn)
 
         # Save OCR result
-        # with open(read_path, "w", encoding="utf-8") as f:
+        # with open(read_path / "notes", "w+", encoding="utf-8") as f:
         #     f.write(plate_text)
 
     print(f"[{toReturn}] Plate text: {plate_text}")
