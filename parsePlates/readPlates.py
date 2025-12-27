@@ -9,7 +9,7 @@ import cv2
 
 from helpers import (
     expand_bbox,
-    get_largest_textbox,
+    find_largest_textbox,
     get_line_length,
     group_boxes_by_height,
     show_image,
@@ -57,10 +57,10 @@ def recognize_text(plates_dir_path: str):
         # boxes, _ = detector.detect(
         #     cv2.cvtColor(im_bw, cv2.COLOR_GRAY2BGR)
         # )  # boxes shape: (N, 4, 2) – pick the biggest
-        largest_box = get_largest_textbox(img)
+        largest_box = find_largest_textbox(cv2.cvtColor(img, cv2.COLOR_GRAY2BGR))
         if largest_box is None:
             print(f"No plate detected in {filename}, trying BW image")
-            largest_box = get_largest_textbox(im_bw)
+            largest_box = find_largest_textbox(cv2.cvtColor(im_bw, cv2.COLOR_GRAY2BGR))
             img = im_bw
             if largest_box is None:
                 print(f"No plate detected in {filename}")
