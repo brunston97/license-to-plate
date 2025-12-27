@@ -38,6 +38,8 @@ yarn-error.log*
 
 .firebase*
 
+.venv
+
 #/parsePlates/*/
 #parsePlates/openalpr_64/*
 #parsePlates/*
