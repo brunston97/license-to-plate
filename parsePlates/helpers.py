@@ -1,4 +1,5 @@
 from collections import Counter
+import itertools
 import math
 import random
 from typing import List, Optional, Sequence, Tuple
@@ -313,17 +314,95 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     # Apply transformations and find lines
     lines = transformer.resize(0.2).blur(5).dialate(1).find_lines()
     lines = merge_lines([x[0] for x in lines], 10)
+
+    # print(lines)
     contours, _ = cv2.findContours(
         transformer.edges_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
     )
-    toMerge = connect_lines(lines)
-    lines = join_xyxy_lines(lines)
+    potential = []
+    rounded = group_lines_by_angle(lines)
+    # print(rounded.keys())
+    # lines = [x for x in lines if x in rounded.get(5) or x in rounded.get(85)]
+    # lines = rounded.get(10) + rounded.get(75)
+    # toMerge = connect_lines(lines)
+    # lines = join_xyxy_lines(lines)
     img = transformer.bgr_img.copy()
-    #cv2.drawContours(img, contours, -1, (0, 255, 0), -1)
-    #print(lines)
-    draw_lines(img, lines)
+    # cv2.drawContours(img, contours, -1, (0, 255, 0), -1)
+    # print(lines)
+    horizontal_lines = []  # [rounded.get(x) for x in rounded.keys() if x <= 45]
+    vertical_lines = []  # [rounded.get(x) for x in rounded.keys() if x > 45]
+    for key in rounded.keys():
+        group = rounded[key]
+        if key > 45:
+            vertical_lines.extend(group)
+        else:
+            horizontal_lines.extend(group)
 
-    #boxes = detect_rectangles(lines, image = img)
+    def are_vert_lines_close(l1, l2, thresh=10):
+        min_y_diff = min(abs(l1[1] - l2[1]), abs(l1[3] - l2[3]))
+        return min_y_diff < thresh
+
+    def are_horiz_lines_close(l1, l2, thresh=10):
+        min_x_diff = min(abs(l1[0] - l2[0]), abs(l1[1] - l2[1]))
+        return min_x_diff < thresh
+
+    # print(horizontal_lines)
+
+    # for i, d in enumerate(horizontal_lines):
+    #     for j, s in enumerate(horizontal_lines[i:]):
+    #         l1 = horizontal_lines[i]
+    #         l2 = horizontal_lines[j]
+    #         # print(l1)
+    #         min_x_diff = min(abs(l1[0] - l2[0]), abs(l1[1] - l2[1]))
+    #         min_y_diff = min(abs(l1[1] - l2[1]), abs(l1[3] - l2[3]))
+    #         if min_x_diff < 30:
+    #             potential.extend([l1, l2])
+    def diff(l1, l2) -> int:
+        return int(abs(l1 - l2))
+
+    threshold = 50
+
+    for i, d in enumerate(vertical_lines):
+        for j, s in enumerate(vertical_lines[i:]):
+            if i == j:
+                continue
+            l1 = vertical_lines[i]
+            l2 = vertical_lines[j]
+
+            # min_distance = min(
+            #     get_line_length((l1[0], l1[1], l2[0], l2[1])),
+            #     get_line_length(l1[1:].extend(l2[1:])),
+            # )
+
+            # compliment = 90 - round_number(calculate_line_angle(l1))
+
+            # if compliment in rounded.keys():
+            #    for h in rounded.get(compliment):
+            for h in horizontal_lines:
+                if test_endpoint_threshold_distance(
+                    l1, h, threshold
+                ) and test_endpoint_threshold_distance(l2, h, threshold):
+                    potential.extend([l1, l2, h])
+
+    for i, d in enumerate(horizontal_lines):
+        for j, s in enumerate(horizontal_lines[i:]):
+            if i == j:
+                continue
+            l1 = horizontal_lines[i]
+            l2 = horizontal_lines[j]
+
+            for v in vertical_lines:
+                if test_endpoint_threshold_distance(
+                    l1, v, threshold
+                ) and test_endpoint_threshold_distance(l2, v, threshold):
+                    potential.extend([l1, l2, v])
+    # print(potential)
+    draw_lines(img, potential)
+    for key in rounded.keys():
+        temp_lines = rounded[key]
+        # draw_lines(img, temp_lines)
+
+    # boxes = detect_rectangles(lines, image = img)
     # for box in boxes:
     #     box = np.array(xyxy_to_points(box), np.int32)
     #     box = box.reshape((-1, 1, 2))
@@ -390,7 +469,6 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
 
     if not horizontal_lines or not vertical_lines:
         return None
-
 
     # longest line removed, get average angles
     horizontal_angles = np.array(
@@ -497,10 +575,11 @@ def shrink_line(x1, y1, x2, y2, shave_percent=0.1):
 
     return nx1, ny1, nx2, ny2
 
+
 def extend_line(line, extend_percent=0.1):
     """
     Extends a line segment from both ends by a percentage of its length.
-    
+
     Parameters
     ----------
     x1, y1, x2, y2 : float
@@ -691,17 +770,22 @@ def calculate_line_angle(line: Box):
 # def detect_strongest_lines(img: cv2.typing.MatLike) -> Tuple[Sequence, cv2.typing.MatLike]:
 
 
-def draw_lines(img, lines=List[Tuple[int, int,int, int]]) -> cv2.typing.MatLike:
-    color = (random.randrange(0, 255), random.randrange(0, 255), random.randrange(0, 255))
-    color = (0, 255, 0)
+def draw_lines(img, lines=List[Tuple[int, int, int, int]]) -> cv2.typing.MatLike:
+    color = (
+        random.randrange(0, 255),
+        random.randrange(0, 255),
+        random.randrange(0, 255),
+    )
+
+    # color = (0, 255, 0)
     for i in range(0, len(lines)):
-        #print(np.array(lines[i]))
+        # print(np.array(lines[i]))
         if np.array(lines[i]).ndim == 1:
             l = lines[i]
         else:
             l = tuple(map(int, lines[i][0]))
         # l = lines[i][0]
-        #l = lines[i]
+        # l = lines[i]
         cv2.line(img, (l[0], l[1]), (l[2], l[3]), color, 2, cv2.LINE_AA)
     return img
 
@@ -802,17 +886,18 @@ class ImageTransformer:
     #     )
 
 
-
-
-def extend_and_close_loop(segments: List[List[float]],
-                          factor: float = 1.0) -> List[float]:
+def extend_and_close_loop(
+    segments: List[List[float]], factor: float = 1.0
+) -> List[float]:
     """
     Extend the two longest sides by `factor` and compute the intersection point
     that would close the loop. Returns the coordinates of the new segment
     that would connect the extended endpoints.
     """
     # Compute lengths and sort
-    seg_lengths = [(length(vec((s[0], s[1]), (s[2], s[3]))), i, s) for i, s in enumerate(segments)]
+    seg_lengths = [
+        (length(vec((s[0], s[1]), (s[2], s[3]))), i, s) for i, s in enumerate(segments)
+    ]
     seg_lengths.sort(reverse=True)  # longest first
 
     # Extend the two longest segments outward
@@ -848,11 +933,14 @@ def extend_and_close_loop(segments: List[List[float]],
     # (pick one endpoint from each extended segment)
     new_seg = [inter[0], inter[1], new_segs[0][1][0], new_segs[0][1][1]]
     return new_seg
+
+
 """
 Utility for merging nearly overlapping line segments.
 Each line is represented as an (x1, y1, x2, y2) tuple.
 Shapely is **not** required – a pure‑Python fallback is used automatically.
 """
+
 
 # ---------- Helper functions ----------
 def _distance_point_to_line(px, py, x1, y1, x2, y2):
@@ -884,12 +972,12 @@ def _merge_two_lines(l1, l2, tolerance):
     dx1, dy1 = l1[2] - l1[0], l1[3] - l1[1]
     dx2, dy2 = l2[2] - l2[0], l2[3] - l2[1]
     dot = dx1 * dx2 + dy1 * dy2
-    norm1 = (dx1 ** 2 + dy1 ** 2) ** 0.5
-    norm2 = (dx2 ** 2 + dy2 ** 2) ** 0.5
+    norm1 = (dx1**2 + dy1**2) ** 0.5
+    norm2 = (dx2**2 + dy2**2) ** 0.5
     if norm1 == 0 or norm2 == 0:
         return None
     cos_angle = dot / (norm1 * norm2)
-    if abs(cos_angle) < 0.99:   # not colinear
+    if abs(cos_angle) < 0.99:  # not colinear
         return None
 
     # Merge by taking the extreme endpoints along the line direction
@@ -938,10 +1026,11 @@ def merge_lines(lines, tolerance=1e-6):
             if m is not None:
                 current = m
                 used[j] = True
-        merged.append(current)
+        merged.append(np.array(current, dtype=np.int32))
         used[i] = True
 
     return merged
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  Filename:  geometry_helpers.py
@@ -951,14 +1040,14 @@ def merge_lines(lines, tolerance=1e-6):
 from typing import List, Tuple, Optional
 
 # --- 1. Update the type alias ---------------------------------------------
-Line = List[int]   # e.g., [x1, y1, x2, y2]  (all integers)
+Line = List[int]  # e.g., [x1, y1, x2, y2]  (all integers)
 
 # Connection stays the same
 Connection = Tuple[Tuple[int, int], Tuple[int, int]]
 
+
 def connect_lines(
-    lines: List[Line],
-    threshold: Optional[float] = None
+    lines: List[Line], threshold: Optional[float] = None
 ) -> List[Connection]:
     """
     For each endpoint of every line (now represented as a 4‑int list),
@@ -968,24 +1057,22 @@ def connect_lines(
     # Gather all endpoints with metadata
     endpoints: List[Tuple[Tuple[float, float], int, int]] = []
     for idx, line in enumerate(lines):
-        start = (line[0], line[1])   # first two ints
-        end   = (line[2], line[3])   # last two ints
+        start = (line[0], line[1])  # first two ints
+        end = (line[2], line[3])  # last two ints
         endpoints.append((start, idx, 0))  # 0 = start side
-        endpoints.append((end,   idx, 1))  # 1 = end side
+        endpoints.append((end, idx, 1))  # 1 = end side
 
     # Build KD‑tree for fast nearest‑neighbour queries
     try:
         from scipy.spatial import KDTree
     except ImportError:
-        raise RuntimeError(
-            "scipy is required for efficient nearest‑neighbour search."
-        )
+        raise RuntimeError("scipy is required for efficient nearest‑neighbour search.")
 
     points = [pt for pt, _, _ in endpoints]
     tree = KDTree(points)
 
     visited = set()
-    connections = [] #: List[Connection] = []
+    connections = []  #: List[Connection] = []
 
     for i, (pt, line_idx, side) in enumerate(endpoints):
         if (line_idx, side) in visited:
@@ -1004,7 +1091,7 @@ def connect_lines(
         if line_idx == n_line_idx:
             continue
 
-        #connections.append(((line_idx, side), (n_line_idx, n_side)))
+        # connections.append(((line_idx, side), (n_line_idx, n_side)))
         connections.append(join_xyxy_lines)
         visited.add((line_idx, side))
         visited.add((n_line_idx, n_side))
@@ -1016,10 +1103,11 @@ def connect_lines(
 import numpy as np
 from shapely.geometry import LineString, box
 
+
 def join_xyxy_lines(lines):
     """
     Stitch together a collection of line segments defined as [x1, y1, x2, y2]
-    by connecting each endpoint to its nearest neighbour.  
+    by connecting each endpoint to its nearest neighbour.
     The function then returns the reconstructed line list **and** the
     axis‑aligned bounding box that would enclose the resulting polygon.
 
@@ -1037,16 +1125,18 @@ def join_xyxy_lines(lines):
         Bounding box coordinates as [minx, miny, maxx, maxy].
     """
     # ---- 1. Flatten to a list of all endpoints --------------------------------
-    endpoints = np.array([lines[i][:2] for i in range(len(lines))] +   # first endpoints
-                         [lines[i][2:] for i in range(len(lines))])  # second endpoints
+    endpoints = np.array(
+        [lines[i][:2] for i in range(len(lines))]  # first endpoints
+        + [lines[i][2:] for i in range(len(lines))]
+    )  # second endpoints
     n = len(endpoints)
 
     # ---- 2. Compute pairwise distances ----------------------------------------
     dist = np.linalg.norm(endpoints[:, None, :] - endpoints[None, :, :], axis=2)
-    np.fill_diagonal(dist, np.inf)                     # ignore self‑distances
+    np.fill_diagonal(dist, np.inf)  # ignore self‑distances
 
     # ---- 3. Nearest‑neighbour pairing -----------------------------------------
-    nn_idx = np.argmin(dist, axis=1)                   # nearest neighbour index for each point
+    nn_idx = np.argmin(dist, axis=1)  # nearest neighbour index for each point
     used = set()
     pairs = []
     for i, j in enumerate(nn_idx):
@@ -1064,3 +1154,130 @@ def join_xyxy_lines(lines):
     bbox = [minx, miny, maxx, maxy]
 
     return new_lines, bbox
+
+
+def group_lines_by_angle(lines):
+    """
+    Groups XYXY lines by their angles.
+
+    Args:
+        lines (list): A list of XYXY lines.
+        angle_rounding_function (function): A function to round angles.
+
+    Returns:
+        dict: A dictionary where keys are rounded angles and values are lists of corresponding lines.
+    """
+    grouped_lines = {}
+    for line in lines:
+        # Calculate the angle of the line
+        # x1, y1, x2, y2 = line
+        angle = calculate_line_angle(line)
+
+        # Round the angle using the provided function
+        rounded_angle = round_number(angle)
+
+        # Add the line to the corresponding group in the dictionary
+        if rounded_angle not in grouped_lines:
+            grouped_lines[rounded_angle] = []
+        grouped_lines[rounded_angle].append(line)
+    return grouped_lines
+
+
+def round_number(number: float, divisor=5):
+    divisor = max(divisor, 1)
+    return round(number / divisor) * divisor
+
+
+def line_distance(l1: Box, l2: Box):
+    """
+    Calculate the shortest distance between two lines defined by their endpoints.
+
+    Args:
+        x1 (float): x-coordinate of the first endpoint of the first line.
+        y1 (float): y-coordinate of the first endpoint of the first line.
+        x2 (float): x-coordinate of the second endpoint of the first line.
+        y2 (float): y-coordinate of the second endpoint of the first line.
+        x3 (float): x-coordinate of the first endpoint of the second line.
+        y3 (float): y-coordinate of the first endpoint of the second line.
+        x4 (float): x-coordinate of the second endpoint of the second line.
+        y4 (float): y-coordinate of the second endpoint of the second line.
+
+    Returns:
+        float: The shortest distance between the two lines.
+    """
+    # Calculate the direction vectors of the lines
+
+    x1, y1, x2, y2 = l1
+    x3, y3, x4, y4 = l2
+    dx1 = x2 - x1
+    dy1 = y2 - y1
+    dx2 = x4 - x3
+    dy2 = y4 - y3
+
+    # Calculate the determinant (area of the parallelogram formed by the two lines)
+    det = dx1 * dy2 - dx2 * dy1
+
+    if det == 0:
+        # The lines are parallel, so we need to find the distance between them
+        # We can do this by finding the distance from a point on one line to the other line
+        return point_line_distance(x3, y3, x1, y1, dx1, dy1)
+    else:
+        # Calculate the parameters of the intersection point
+        t = ((x1 - x3) * dy2 - (y1 - y3) * dx2) / det
+        u = ((x1 - x3) * dy1 - (y1 - y3) * dx1) / det
+
+        # Calculate the coordinates of the intersection point
+        ix = x1 + t * dx1
+        iy = y1 + t * dy1
+
+        # Return the distance between the two lines at the intersection point
+        return math.sqrt((ix - x3) ** 2 + (iy - y3) ** 2)
+
+
+def point_line_distance(px, py, x1, y1, dx, dy):
+    """
+    Calculate the distance from a point to a line.
+
+    Args:
+        px (float): x-coordinate of the point.
+        py (float): y-coordinate of the point.
+        x1 (float): x-coordinate of a point on the line.
+        y1 (float): y-coordinate of a point on the line.
+        dx (float): Direction vector of the line in the x-direction.
+        dy (float): Direction vector of the line in the y-direction.
+
+    Returns:
+        float: The distance from the point to the line.
+    """
+    return abs(dx * py - dy * px + x1 * dy - y1 * dx) / math.sqrt(dx**2 + dy**2)
+
+
+def test_endpoint_threshold_distance(segment1, segment2, threshold):
+    """
+    Determines if any endpoint of segment1 is within 'threshold' distance of any endpoint of segment2.
+
+    Parameters:
+    segment1: list of 4 values [x1, y1, x2, y2]
+    segment2: list of 4 values [x3, y3, x4, y4]
+    threshold: float, maximum allowed distance (inclusive)
+
+    Returns:
+    bool: True if any endpoint of segment1 is within threshold distance of any endpoint of segment2
+    """
+    # Unpack the segments
+    x1, y1, x2, y2 = segment1
+    x3, y3, x4, y4 = segment2
+
+    # Define distance between two points
+    def distance(p1, p2):
+        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
+    # Check distances between all endpoint pairs
+    distances = [
+        distance((x1, y1), (x3, y3)),  # (1,1) to (3,3)
+        distance((x1, y1), (x4, y4)),  # (1,1) to (4,4)
+        distance((x2, y2), (x3, y3)),  # (2,2) to (3,3)
+        distance((x2, y2), (x4, y4)),  # (2,2) to (4,4)
+    ]
+
+    return any(d <= threshold for d in distances)

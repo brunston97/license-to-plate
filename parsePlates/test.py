@@ -138,9 +138,9 @@ if __name__ == "__main__":
     img_name = "not_warped_PXL_20251210_145631502.jpg"
     img_name = "IMG_4570.jpg"
     # img_name = "not_warped_IMG_20251209_124213.jpg"
-    img_name = "IMG_2752.jpg"
+    # img_name = "IMG_2752.jpg"
     # img_name = "IMG_5288.jpg"
-    #img_name = "IMG_1697.jpg"
+    img_name = "IMG_1697.jpg"
     img_dir = Path("source/images")  # /output/warpedPlates")
     if not img_dir.exists():
         img_dir.mkdir(exist_ok=True, parents=True)
