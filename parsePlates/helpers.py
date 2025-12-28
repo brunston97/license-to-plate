@@ -315,89 +315,69 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     lines = transformer.resize(0.2).blur(5).dialate(1).find_lines()
     lines = merge_lines([x[0] for x in lines], 10)
 
-    # print(lines)
     contours, _ = cv2.findContours(
         transformer.edges_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
     )
     potential = []
     rounded = group_lines_by_angle(lines)
-    # print(rounded.keys())
-    # lines = [x for x in lines if x in rounded.get(5) or x in rounded.get(85)]
-    # lines = rounded.get(10) + rounded.get(75)
-    # toMerge = connect_lines(lines)
-    # lines = join_xyxy_lines(lines)
-    img = transformer.bgr_img.copy()
-    # cv2.drawContours(img, contours, -1, (0, 255, 0), -1)
-    # print(lines)
-    horizontal_lines = []  # [rounded.get(x) for x in rounded.keys() if x <= 45]
-    vertical_lines = []  # [rounded.get(x) for x in rounded.keys() if x > 45]
-    for key in rounded.keys():
-        group = rounded[key]
+
+    # Separate horizontal and vertical lines based on angle
+    horizontal_lines: list = []
+    vertical_lines: list = []
+    for key, group in rounded.items():
         if key > 45:
             vertical_lines.extend(group)
         else:
             horizontal_lines.extend(group)
 
-    def are_vert_lines_close(l1, l2, thresh=10):
-        min_y_diff = min(abs(l1[1] - l2[1]), abs(l1[3] - l2[3]))
-        return min_y_diff < thresh
+    threshold = 50  # endpoint distance threshold for considering a corner
 
-    def are_horiz_lines_close(l1, l2, thresh=10):
-        min_x_diff = min(abs(l1[0] - l2[0]), abs(l1[1] - l2[1]))
-        return min_x_diff < thresh
+    # ---- Helper functions for angle filtering ----
+    def angles_similar(a: float, b: float, delta: float = 5.0) -> bool:
+        return abs(a - b) <= delta
 
-    # print(horizontal_lines)
+    def is_complement(pair_angle: float, third_angle: float) -> bool:
+        """Return True if third_angle is ~90° away from pair_angle."""
+        comp_angle = 90.0 - pair_angle
+        return abs(third_angle - comp_angle) <= 5.0
 
-    # for i, d in enumerate(horizontal_lines):
-    #     for j, s in enumerate(horizontal_lines[i:]):
-    #         l1 = horizontal_lines[i]
-    #         l2 = horizontal_lines[j]
-    #         # print(l1)
-    #         min_x_diff = min(abs(l1[0] - l2[0]), abs(l1[1] - l2[1]))
-    #         min_y_diff = min(abs(l1[1] - l2[1]), abs(l1[3] - l2[3]))
-    #         if min_x_diff < 30:
-    #             potential.extend([l1, l2])
-    def diff(l1, l2) -> int:
-        return int(abs(l1 - l2))
-
-    threshold = 50
-
-    for i, d in enumerate(vertical_lines):
-        for j, s in enumerate(vertical_lines[i:]):
-            if i == j:
+    # ---- Find potential corners from vertical line pairs and horizontal lines ----
+    for i in range(len(vertical_lines)):
+        for j in range(i + 1, len(vertical_lines)):
+            l1, l2 = vertical_lines[i], vertical_lines[j]
+            ang1, ang2 = round_number(calculate_line_angle(l1)), round_number(calculate_line_angle(l2))
+            # Only keep pairs with similar angles
+            if not angles_similar(ang1, ang2):
                 continue
-            l1 = vertical_lines[i]
-            l2 = vertical_lines[j]
-
-            # min_distance = min(
-            #     get_line_length((l1[0], l1[1], l2[0], l2[1])),
-            #     get_line_length(l1[1:].extend(l2[1:])),
-            # )
-
-            # compliment = 90 - round_number(calculate_line_angle(l1))
-
-            # if compliment in rounded.keys():
-            #    for h in rounded.get(compliment):
             for h in horizontal_lines:
-                if test_endpoint_threshold_distance(
-                    l1, h, threshold
-                ) and test_endpoint_threshold_distance(l2, h, threshold):
-                    potential.extend([l1, l2, h])
+                ang_h = round_number(calculate_line_angle(h))
+                if abs(180 - sum([ang1,ang2,ang_h])) <= 20:
+                #print(h)
+                    if (
+                        test_endpoint_threshold_distance(l1, h, threshold)
+                        and test_endpoint_threshold_distance(l2, h, threshold)
+                    ):
+                        potential.extend([l1, l2, h])
 
-    for i, d in enumerate(horizontal_lines):
-        for j, s in enumerate(horizontal_lines[i:]):
-            if i == j:
+    # ---- Find potential corners from horizontal line pairs and vertical lines ----
+    for i in range(len(horizontal_lines)):
+        for j in range(i + 1, len(horizontal_lines)):
+            l1, l2 = horizontal_lines[i], horizontal_lines[j]
+            ang1, ang2 = round_number(calculate_line_angle(l1)), round_number(calculate_line_angle(l2))
+            if not angles_similar(ang1, ang2):
                 continue
-            l1 = horizontal_lines[i]
-            l2 = horizontal_lines[j]
-
             for v in vertical_lines:
-                if test_endpoint_threshold_distance(
-                    l1, v, threshold
-                ) and test_endpoint_threshold_distance(l2, v, threshold):
-                    potential.extend([l1, l2, v])
-    # print(potential)
-    draw_lines(img, potential)
+                ang_v = round_number(calculate_line_angle(v))
+                #if is_complement(ang1, ang_v) and is_complement(ang2, ang_v):
+                if abs(180 - sum([ang1,ang2,ang_v])) <= 20:
+                    if (
+                        test_endpoint_threshold_distance(l1, v, threshold)
+                        and test_endpoint_threshold_distance(l2, v, threshold)
+                    ):
+                        potential.extend([l1, l2, v])
+    #print(potential)
+    img_copy = transformer.bgr_img.copy()
+    draw_lines(img_copy, potential)
     for key in rounded.keys():
         temp_lines = rounded[key]
         # draw_lines(img, temp_lines)
@@ -414,7 +394,7 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     #         color=(0, 0, 255),
     #         thickness=3,
     #     )
-    show_image(img)
+    show_image(img_copy)
     return
     # lines = cv2.HoughLinesP(
     #     dialated, 1, np.pi / 180, threshold=50, minLineLength=30, maxLineGap=20
@@ -771,13 +751,13 @@ def calculate_line_angle(line: Box):
 
 
 def draw_lines(img, lines=List[Tuple[int, int, int, int]]) -> cv2.typing.MatLike:
-    color = (
-        random.randrange(0, 255),
-        random.randrange(0, 255),
-        random.randrange(0, 255),
-    )
+    # color = (
+    #     random.randrange(0, 255),
+    #     random.randrange(0, 255),
+    #     random.randrange(0, 255),
+    # )
 
-    # color = (0, 255, 0)
+    color = (0, 255, 0)
     for i in range(0, len(lines)):
         # print(np.array(lines[i]))
         if np.array(lines[i]).ndim == 1:
