@@ -308,43 +308,6 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     Finds corners by detecting lines, extending them, finding intersections,
     and picking the 4 extreme intersections.
     """
-    # h, w = crop_img.shape[:2]
-
-    # crop_img = cv2.resize(crop_img, np.array((w * 0.3, h * 0.3), dtype=np.int32))
-    # h, w = crop_img.shape[:2]
-
-    # gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-
-    # # blurred = cv2.bilateralFilter(gray, 9, 75, 75)
-    # blurred = cv2.medianBlur(gray, 5)
-    # # blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    # ret, img_bw = cv2.threshold(blurred, 155, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    # contours, hierarchy = cv2.findContours(
-    #     img_bw, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-    # )
-    # blurred = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
-    # cv2.drawContours(crop_img, contours, -1, (0, 0, 255), 1)
-    # show_image(blurred)
-    # show_image(crop_img)
-
-    # # 1. Edge Detection
-    # # Canny parameters might need tweaking depending on lighting
-    # # blurred = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    # edges = cv2.Canny(blurred, 50, 200, apertureSize=3)
-    # show_image(edges)
-    # # edges = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    # # find_largest_textbox(crop_img)
-    # kernel = np.ones((2, 2), np.uint8)
-    # # dialated = cv2.dilate(edges, kernel, iterations=1)
-    # dialated = edges
-    # # dialated = cv2.erode(edges, kernel, iterations=1)
-    # # show_image(dialated)
-
-    # 2. Hough Line Transform (Probabilistic)
-    # minLineLength: lines shorter than this are rejected
-    # maxLineGap: max gap between points to be considered same line
-
-    # edges, 1, np.pi / 180, threshold=50, minLineLength=10, maxLineGap=5
     transformer = ImageTransformer(img)
 
     # Apply transformations and find lines
@@ -353,23 +316,25 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     contours, _ = cv2.findContours(
         transformer.edges_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
     )
+    toMerge = connect_lines(lines)
+    lines = join_xyxy_lines(lines)
     img = transformer.bgr_img.copy()
     #cv2.drawContours(img, contours, -1, (0, 255, 0), -1)
     #print(lines)
     draw_lines(img, lines)
 
-    boxes = detect_rectangles(lines, image = img)
-    for box in boxes:
-        box = np.array(xyxy_to_points(box), np.int32)
-        box = box.reshape((-1, 1, 2))
-        #print(box)
-        cv2.polylines(
-            img,
-            [box],
-            isClosed=True,
-            color=(0, 0, 255),
-            thickness=3,
-        )
+    #boxes = detect_rectangles(lines, image = img)
+    # for box in boxes:
+    #     box = np.array(xyxy_to_points(box), np.int32)
+    #     box = box.reshape((-1, 1, 2))
+    #     #print(box)
+    #     cv2.polylines(
+    #         img,
+    #         [box],
+    #         isClosed=True,
+    #         color=(0, 0, 255),
+    #         thickness=3,
+    #     )
     show_image(img)
     return
     # lines = cv2.HoughLinesP(
@@ -426,18 +391,6 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     if not horizontal_lines or not vertical_lines:
         return None
 
-    # med = np.median([get_line_length(x) for x in horizontal_lines])
-    # horizontal_lines = [x for x in horizontal_lines if get_line_length(x) > med]
-
-    # med = np.median([get_line_length(x) for x in vertical_lines])
-    # vertical_lines = [x for x in vertical_lines if get_line_length(x) > med]
-    # for line in vertical_lines:
-
-    # vertical_lines.sort(key=get_line_length, reverse=True)
-    # horizontal_lines.sort(key=get_line_length, reverse=True)
-
-    # horizontal_lines = horizontal_lines[: int(len(horizontal_lines) / 4) + 1]
-    # vertical_lines = vertical_lines[: int(len(vertical_lines) / 4) + 1]
 
     # longest line removed, get average angles
     horizontal_angles = np.array(
@@ -849,521 +802,52 @@ class ImageTransformer:
     #     )
 
 
-def calculate_overlap(line1, line2):
+
+
+def extend_and_close_loop(segments: List[List[float]],
+                          factor: float = 1.0) -> List[float]:
     """
-    Calculates the area of overlap between two rectangles defined by xyxy coordinates.
+    Extend the two longest sides by `factor` and compute the intersection point
+    that would close the loop. Returns the coordinates of the new segment
+    that would connect the extended endpoints.
     """
-    x11, y11, x12, y12 = line1
-    x21, y21, x22, y22 = line2
-
-    # Calculate intersection rectangle
-    ix1 = max(x11, x21)
-    iy1 = max(y11, y21)
-    ix2 = min(x12, x22)
-    iy2 = min(y12, y22)
-
-    if ix1 < ix2 and iy1 < iy2:  # Check for non-zero overlap
-        return (ix2 - ix1) * (iy2 - iy1)
-    else:
-        return 0
-
-
-def merge_lines(lines: List, threshold=0.05):
-    """
-    Merges lines in xyxy format based on a given overlap threshold.
-    """
-    if len(lines) == 0:
-        return []
-
-    merged = [lines[0]]
-
-    for line in lines[1:]:
-        added = False
-        for i, m_line in enumerate(merged):
-            overlap_area = calculate_overlap(m_line, line)
-            total_area_m_line = (m_line[2] - m_line[0]) * (m_line[3] - m_line[1])
-            total_area_line = (line[2] - line[0]) * (line[3] - line[1])
-
-            # Check if overlap is greater than the threshold
-            if (overlap_area / total_area_m_line) > threshold or (
-                overlap_area / total_area_line
-            ) > threshold:
-                # Calculate new bounding box for merged lines
-                x11 = min(m_line[0], line[0])
-                y11 = min(m_line[1], line[1])
-                x12 = max(m_line[2], line[2])
-                y12 = max(m_line[3], line[3])
-
-                # Replace the old line with the merged line
-                merged[i] = (x11, y11, x12, y12)
-                added = True
-                break
-
-        if not added:
-            # If no overlap found, add the line as a new entry
-            merged.append(line)
-
-    return merged
-
-
-# ... existing imports ...
-import cv2
-import numpy as np
-from typing import List, Tuple
-
-# def detect_rectangles(
-#     lines: np.ndarray,
-#     angle_tolerance: float = 5.0,   # degrees
-#     min_length: int = 30,           # ignore very short segments
-#     min_gap: int = 10,              # minimum vertical/horizontal distance to consider “separate”
-#     image = None
-# ) -> List[Tuple[int, int, int, int]]:
-#     """
-#     Detect rectangles from HoughLinesP output.
-#     """
-#     # ------------------------------------------------------------------
-#     # Expected aspect ratio: horizontal ≈ 2 × vertical
-#     MIN_RATIO = 1.5
-#     MAX_RATIO = 3
-#     # ------------------------------------------------------------------
-
-#     if lines is None or len(lines) == 0:
-#         return []
-
-#     # Ensure shape is (N,4)
-#     if lines.ndim == 3 and lines.shape[1] == 1:
-#         lines = lines[:, 0, :]
-
-#     # ------------------------------------------------------------------
-#     # Helper to compute orientation and length
-#     # ------------------------------------------------------------------
-#     def line_attrs(line):
-#         x1, y1, x2, y2 = line
-#         dx, dy = x2 - x1, y2 - y1
-#         length = np.hypot(dx, dy)
-#         angle = np.degrees(np.arctan2(dy, dx))  # [-180, 180]
-#         return angle, length, (x1, y1, x2, y2)
-
-#     # Separate lines into horizontal, vertical, and “other”
-#     horiz = []
-#     vert = []
-#     for line in lines:
-#         ang, length, coords = line_attrs(line)
-#         if length < min_length:
-#             continue
-#         # horizontal: angle ≈ 0° or 180°
-#         if abs(ang) < 45 or abs(abs(ang) - 180) < 45:
-#             horiz.append((coords, ang, length))
-#         # vertical: angle ≈ 90° or -90°
-#         else: #abs(abs(ang) - 90) < 45:
-#             vert.append((coords, ang, length))
-
-#     # ------------------------------------------------------------------
-#     # Keep only *parallel* pairs
-#     # ------------------------------------------------------------------
-#     # def is_parallel(line1, line2):
-        
-#     #     if len(lines) < 2:
-#     #         return lines
-#     #     angles = np.array([a for _, a, _ in lines])
-#     #     med = np.median(angles)
-#     #     return [ln for ln in lines if abs(ln[1] - med) <= angle_tolerance]
-
-#     # horiz = is_parallel(horiz, "horizontal")
-#     # vert  = is_parallel(vert,  "vertical")
-
-#     boxes = []
-#     potential_pairs = []
-    
-#     HORIZONATAL_GRACE = 100
-#     # ------------------------------------------------------------------
-#     # 1. Rectangle from two horizontals + one vertical
-#     # ------------------------------------------------------------------
-#     if len(horiz) >= 2 and len(vert) >= 1:
-#         # choose the two horizontals that are farthest apart
-#         horiz.sort(key=lambda x: (x[0][1] + x[0][3]) / 2)  # sort by mean y
-#         best_pair, best_gap = None, -1
-#         for i in range(len(horiz)):
-#             for j in range(i + 1, len(horiz)):
-#                 line1 = horiz[i][0]
-#                 line2 = horiz[j][0]
-#                 left_distance = min(abs(line1[0] - line2[0]), abs(line1[0] - line2[2]), abs(line1[2] - line2[2]), abs(line1[2] - line2[0]))
-#                 #right_distance = min(abs(line1[1] - line2[0]), abs(line1[0] - line2[2]))
-#                 # If the horizontal lines are sufficiently separated horizontally
-#                 if left_distance < HORIZONATAL_GRACE :
-#                     # Check if the lines are parallel (same rounded angle)
-#                     if round_angle(line1) == round_angle(line2):
-#                         # Optionally ensure they are close vertically
-#                         # if lines_near(line1, line2, 200):
-#                         potential_pairs.append((horiz[i], horiz[j]))
-#                 # y1 = (horiz[i][0][1] + horiz[i][0][3]) / 2
-#                 # y2 = (horiz[j][0][1] + horiz[j][0][3]) / 2
-#                 # gap = abs(y2 - y1)
-#                 # if gap > best_gap:
-#                 #     best_gap = gap
-#                 #     best_pair = (horiz[i], horiz[j])
-#         #print(potential_pairs)
-#         for pair in potential_pairs:
-#             # ... previous checks ...
-
-#             # Aspect‑ratio check (horizontal ≈ 2 × vertical)
-#             h_len1 = pair[0][2]
-#             h_len2 = pair[1][2]
-#             h_min_len = min(h_len1, h_len2)
-
-#             # find the vertical line that matches the horizontal pair
-#             for vline in vert:
-#                 coords, ang, length = vline
-#                 draw_lines(image, [pair[0][0], pair[1][0], coords])
-#                 isRight = any_angle_sum_to_180([pair[0][0], pair[1][0], coords], 10)
-#                 #is_rectangle([pair[0][0], pair[1][0], coords], .6)
-#                 #print(isRight)
-
-#                 ratio = h_min_len / length
-#                 # if not (MIN_RATIO <= ratio <= MAX_RATIO):
-#                 #     continue  # Skip: the pair does not match the expected aspect ratio
-
-#                 # Match vertical line to the horizontal pair (within tolerance)
-#                 #if abs(vline[2] - pair[0][2]) < 50 and abs(vline[1] - pair[0][1]) < 50:
-#                     # Gather all x and y coordinates from both horizontal lines and the vertical line
-#                 if isRight:
-#                     x_coords = [
-#                         pair[0][0][0], pair[0][0][2],   # first horizontal line
-#                         pair[1][0][0], pair[1][0][2],   # second horizontal line
-#                         coords[0], coords[2]            # vertical line
-#                     ]
-#                     y_coords = [
-#                         pair[0][0][1], pair[0][0][3],
-#                         pair[1][0][1], pair[1][0][3],
-#                         coords[1], coords[3]
-#                     ]
-
-#                     # Compute bounding‑box extremes
-#                     x_min, x_max = min(x_coords), max(x_coords)
-#                     y_min, y_max = min(y_coords), max(y_coords)
-
-#                     boxes.append((int(x_min), int(y_min), int(x_max), int(y_max)))
-
-#     # # ------------------------------------------------------------------
-#     # # 2. Rectangle from two verticals + one horizontal (optional)
-#     # # ------------------------------------------------------------------
-#     # if len(vert) >= 2 and len(horiz) >= 1:
-#     #     vert.sort(key=lambda x: (x[0][0] + x[0][2]) / 2)  # sort by mean x
-#     #     best_pair, best_gap = None, -1
-#     #     for i in range(len(vert)):
-#     #         for j in range(i + 1, len(vert)):
-#     #             x1 = (vert[i][0][0] + vert[i][0][2]) / 2
-#     #             x2 = (vert[j][0][0] + vert[j][0][2]) / 2
-#     #             gap = abs(x2 - x1)
-#     #             if gap > best_gap:
-#     #                 best_gap = gap
-#     #                 best_pair = (vert[i], vert[j])
-#     #     if best_pair and best_gap >= min_gap:
-#     #         h_coords, _, _ = horiz[0]
-#     #         y_min = min(h_coords[1], h_coords[3])
-#     #         y_max = max(h_coords[1], h_coords[3])
-#     #         x_min = min(best_pair[0][0][0], best_pair[0][0][2])
-#     #         x_max = max(best_pair[1][0][0], best_pair[1][0][2])
-#     #         boxes.append((int(x_min), int(y_min), int(x_max), int(y_max)))
-#     #print(boxes)
-#     return boxes
-
-def round_angle(line, divisor = 5):
-    divisor = max(divisor, 1)
-    return round(calculate_line_angle(line) / divisor) * divisor
-
-# parsePlates/helpers.py
-import numpy as np
-
-# --------------------------------------------------------------------------- #
-#  New helper: shortest distance between two line segments
-# --------------------------------------------------------------------------- #
-def segment_distance(seg1, seg2):
-    """
-    Compute the shortest distance between two line segments `seg1` and `seg2`.
-    Each segment is a tuple/list of the form (x1, y1, x2, y2).
-
-    Returns a float: the minimum Euclidean distance between the two segments.
-    """
-    p1, p2, p3, p4 = map(np.array, [seg1[:2], seg1[2:], seg2[:2], seg2[2:]])
-    d1 = p2 - p1
-    d2 = p4 - p3
-    r = d1 / np.linalg.norm(d1)
-    s = d2 / np.linalg.norm(d2)
-
-    # vector between origins
-    w0 = p1 - p3
-    a = np.dot(d1, d1)
-    b = np.dot(d1, d2)
-    c = np.dot(d2, d2)
-    d = np.dot(d1, w0)
-    e = np.dot(d2, w0)
-
-    denom = a * c - b * b
-
-    if denom != 0:
-        t = (b * e - c * d) / denom
-    else:  # segments are parallel
-        t = 0.0
-
-    t = np.clip(t, 0, 1)
-
-    if denom != 0:
-        u = (a * e - b * d) / denom
-    else:
-        u = 0.0
-
-    u = np.clip(u, 0, 1)
-
-    closest_on_seg1 = p1 + t * d1
-    closest_on_seg2 = p3 + u * d2
-    return np.linalg.norm(closest_on_seg1 - closest_on_seg2)
-
-
-# --------------------------------------------------------------------------- #
-#  Convenience wrapper
-# --------------------------------------------------------------------------- #
-def lines_near(line1, line2, tol=5.0):
-    """
-    Return True if line1 and line2 are within `tol` pixels of each other.
-    `tol` is the distance threshold.
-    """
-    return segment_distance(line1, line2) <= tol
-
-def point_distance(p1, p2, euclidean=True):
-    """
-    Return the distance between two points in any dimensional space.
-
-    Parameters
-    ----------
-    p1, p2 : array‑like
-        Sequences of coordinates. Must have the same length.
-    euclidean : bool, default=True
-        If True, returns the usual Euclidean distance.
-        If False, returns the Manhattan (ℓ1) distance.
-
-    Returns
-    -------
-    float
-        The distance.
-    """
-    if len(p1) != len(p2):
-        raise ValueError("Points must have the same dimensionality")
-
-    if euclidean:
-        # Euclidean (ℓ2) distance
-        return sum((a - b) ** 2 for a, b in zip(p1, p2)) ** 0.5
-    else:
-        # Manhattan (ℓ1) distance
-        return sum(abs(a - b) for a, b in zip(p1, p2))
-    
-import math
-
-def is_rectangle(lines, tol=1e-2):
-    """
-    lines: list of three [x1, y1, x2, y2] lists
-    tol: tolerance in radians for a 90° angle (default ~0.01°)
-    Returns True if all internal angles are 90° (within tolerance).
-    """
-    # Compute direction vectors for each line
-    vectors = [(x2 - x1, y2 - y1) for x1, y1, x2, y2 in lines]
-    
-    # Helper: angle between two vectors
-    def angle_between(v, w):
-        dot = v[0]*w[0] + v[1]*w[1]
-        norm_v = math.hypot(*v)
-        norm_w = math.hypot(*w)
-        cos_theta = dot / (norm_v * norm_w)
-        # Clamp to avoid numerical issues
-        cos_theta = max(-1.0, min(1.0, cos_theta))
-        return math.acos(cos_theta)
-
-    # Compute angles between consecutive line pairs
-    angles = [
-        angle_between(vectors[0], vectors[1]),
-        angle_between(vectors[1], vectors[2]),
-        angle_between(vectors[2], vectors[0]),  # closes the loop
-    ]
-
-    # 90° in radians
-    right_angle = math.pi / 2
-
-    # Check each angle against a right angle within tolerance
-    return all(abs(a - right_angle) <= tol for a in angles)
-
-
-def any_angle_sum_to_180(lines: List[Tuple[float, float, float, float]],
-                        tol: float = 1e-6) -> bool:
-    """
-    Given three lines specified as (x1, y1, x2, y2), return True if the
-    angle between any pair of lines is 180° (i.e. the lines are collinear
-    but point in opposite directions). The check is tolerant to small
-    numerical errors via the `tol` parameter.
-
-    Parameters
-    ----------
-    lines : List[Tuple[float, float, float, float]]
-        List of three lines in xyxy format.
-    tol : float, optional
-        Numerical tolerance for the 180° comparison.
-
-    Returns
-    -------
-    bool
-        True if any pair of lines forms a 180° angle, False otherwise.
-    """
-    def line_angle(line: Tuple[float, float, float, float]) -> float:
-        """Return the line's direction in degrees, normalised to [0, 360)."""
-        x1, y1, x2, y2 = line
-        return math.degrees(math.atan2(y2 - y1, x2 - x1)) % 360
-
-    # Compute direction angles for all lines
-    angles = [int(line_angle(l)) for l in lines]
-    print(angles)
-
-    # Compare each pair
-    n = len(angles)
-    for i in range(n):
-        for j in range(i + 1, n):
-            diff = abs(angles[i] - angles[j]) % 360
-            # Bring difference into [0, 180]
-            if diff > 180:
-                diff = 360 - diff
-            if abs(diff - 180) < tol:
-                return True
-    return False
-
-
-# ... existing imports ...
-
-# ----------------------------------------------------------------------
-# Helper: group lines that share close endpoints
-# ----------------------------------------------------------------------
-def group_lines_by_endpoints(lines: np.ndarray, threshold: int) -> List[List[np.ndarray]]:
-    """
-    Return a list of groups, each group being a list of line arrays
-    whose endpoints are within *threshold* pixels of any line in the group.
-    """
-    groups: List[List[np.ndarray]] = []
-    for line in lines:
-        added = False
-        x1, y1, x2, y2 = line
-        for group in groups:
-            for gx1, gy1, gx2, gy2 in group:
-                if (np.hypot(x1 - gx1, y1 - gy1) <= threshold or
-                    np.hypot(x1 - gx2, y1 - gy2) <= threshold or
-                    np.hypot(x2 - gx1, y2 - gy1) <= threshold or
-                    np.hypot(x2 - gx2, y2 - gy2) <= threshold):
-                    group.append(line)
-                    added = True
-                    break
-            if added:
-                break
-        if not added:
-            groups.append([line])
-    return groups
-
-
-# ----------------------------------------------------------------------
-# Updated rectangle detection using the new grouping logic
-# ----------------------------------------------------------------------
-def detect_rectangles(
-    lines: np.ndarray,
-    min_length: int = 30,           # ignore very short segments
-    min_gap: int = 10,              # minimum vertical/horizontal distance to consider “separate”
-    image = None
-) -> List[Tuple[int, int, int, int]]:
-    """
-    Detect rectangles from HoughLinesP output by grouping lines that
-    share nearby endpoints and then validating the angular sum of each group.
-    """
-    # ------------------------------------------------------------------
-    # Constants
-    # ------------------------------------------------------------------
-    POINT_PROXIMITY_THRESHOLD = 30   # pixels to consider two endpoints "connected"
-    ANGLE_SUM_TOLERANCE = 10.0       # degrees tolerance for 360° check
-
-    # ------------------------------------------------------------------
-    # Pre‑processing: filter short lines and standardise shape
-    # ------------------------------------------------------------------
-    if lines is None or len(lines) == 0:
-        return []
-
-    # if lines.ndim == 3 and lines.shape[1] == 1:
-    #     lines = lines[:, 0, :]
-
-    # Keep only long enough lines
-    lines = np.array([ l for l in lines if np.hypot(l[2] - l[0], l[3] - l[1]) >= min_length])
-
-    # ------------------------------------------------------------------
-    # Group lines by endpoint proximity
-    # ------------------------------------------------------------------
-    line_groups = group_lines_by_endpoints(lines, POINT_PROXIMITY_THRESHOLD)
-    #print(line_groups)
-
-    boxes: List[Tuple[int, int, int, int]] = []
-
-    # ------------------------------------------------------------------
-    # Inspect each group
-    # ------------------------------------------------------------------
-    for group in line_groups:
-        if len(group) < 3:           # need at least 3 lines to form a shape
-            continue
-
-        # Compute the directed angle of each line (0–360°)
-        angles = []
-        vert_check = 0
-        horiz_check = 0
-        for line in group:
-            #x1, y1, x2, y2 = line
-            #ang = np.degrees(np.arctan2(y2 - y1, x2 - x1)) % 360
-            
-            ang = round_angle(line)
-            if ang < 45: 
-                horiz_check+= 1
-            else:
-                vert_check += 1
-
-            angles.append(ang)
-        if vert_check + horiz_check < 3:
-            continue
-        # Sum of directed angles
-        total_angle = sum(angles) % 360
-        if total_angle - 400 < 0:
-            print(total_angle)
-
-        # Decide if this group forms a rectangle
-        is_rectangle = False
-        if len(group) == 4:
-            # 4 sides: expect sum ≈ 360°
-            if abs(total_angle - 360) <= ANGLE_SUM_TOLERANCE or abs(total_angle) <= ANGLE_SUM_TOLERANCE:
-                is_rectangle = True
-        elif len(group) == 3:
-            # 3 sides: expect sum ≥ 180°
-            if total_angle >= 180 - ANGLE_SUM_TOLERANCE:
-                is_rectangle = True
-
-        if not is_rectangle:
-            continue
-        print(is_rectangle)
-        # ------------------------------------------------------------------
-        # Derive bounding box from all endpoints in the group
-        # ------------------------------------------------------------------
-        xs = []
-        ys = []
-        for line in group:
-            xs.extend([line[0], line[2]])
-            ys.extend([line[1], line[3]])
-        x_min, x_max = int(min(xs)), int(max(xs))
-        y_min, y_max = int(min(ys)), int(max(ys))
-
-        boxes.append((x_min, y_min, x_max, y_max))
-    print(boxes)
-    # ------------------------------------------------------------------
-    # Return all detected rectangles
-    # ------------------------------------------------------------------
-    return boxes
-
+    # Compute lengths and sort
+    seg_lengths = [(length(vec((s[0], s[1]), (s[2], s[3]))), i, s) for i, s in enumerate(segments)]
+    seg_lengths.sort(reverse=True)  # longest first
+
+    # Extend the two longest segments outward
+    new_segs = []
+    for _, idx, seg in seg_lengths[:2]:
+        p1, p2 = (seg[0], seg[1]), (seg[2], seg[3])
+        v = vec(p1, p2)
+        # Extend both ends
+        new_p1 = (p1[0] - factor * v[0], p1[1] - factor * v[1])
+        new_p2 = (p2[0] + factor * v[0], p2[1] + factor * v[1])
+        new_segs.append((new_p1, new_p2))
+
+    # Compute intersection of the two extended lines
+    def line_intersection(p1, p2, p3, p4):
+        """Return intersection of line p1p2 with line p3p4."""
+        A = p2[0] - p1[0]
+        B = p3[0] - p4[0]
+        C = p2[1] - p1[1]
+        D = p3[1] - p4[1]
+        E = p3[0] - p1[0]
+        F = p3[1] - p1[1]
+        denom = A * D - B * C
+        if abs(denom) < 1e-9:
+            return None
+        t = (E * D - B * F) / denom
+        return (p1[0] + t * A, p1[1] + t * C)
+
+    inter = line_intersection(*new_segs[0], *new_segs[1])
+    if inter is None:
+        raise ValueError("Extended lines are parallel; cannot close loop.")
+
+    # The new segment is the line from intersection to the opposite extended endpoint
+    # (pick one endpoint from each extended segment)
+    new_seg = [inter[0], inter[1], new_segs[0][1][0], new_segs[0][1][1]]
+    return new_seg
 """
 Utility for merging nearly overlapping line segments.
 Each line is represented as an (x1, y1, x2, y2) tuple.
@@ -1436,7 +920,7 @@ def merge_lines(lines, tolerance=1e-6):
     list of tuples
         Merged line segments, each as (x1, y1, x2, y2).
     """
-    if len(lines) == 0:
+    if not lines:
         return []
 
     merged = []
@@ -1458,3 +942,125 @@ def merge_lines(lines, tolerance=1e-6):
         used[i] = True
 
     return merged
+
+# ──────────────────────────────────────────────────────────────────────────────
+#  Filename:  geometry_helpers.py
+#  Purpose:   Join line endpoints to the nearest other endpoint
+# ──────────────────────────────────────────────────────────────────────────────
+
+from typing import List, Tuple, Optional
+
+# --- 1. Update the type alias ---------------------------------------------
+Line = List[int]   # e.g., [x1, y1, x2, y2]  (all integers)
+
+# Connection stays the same
+Connection = Tuple[Tuple[int, int], Tuple[int, int]]
+
+def connect_lines(
+    lines: List[Line],
+    threshold: Optional[float] = None
+) -> List[Connection]:
+    """
+    For each endpoint of every line (now represented as a 4‑int list),
+    find the nearest other endpoint that does not belong to the same line.
+    Returns a list of pairs that should be joined.
+    """
+    # Gather all endpoints with metadata
+    endpoints: List[Tuple[Tuple[float, float], int, int]] = []
+    for idx, line in enumerate(lines):
+        start = (line[0], line[1])   # first two ints
+        end   = (line[2], line[3])   # last two ints
+        endpoints.append((start, idx, 0))  # 0 = start side
+        endpoints.append((end,   idx, 1))  # 1 = end side
+
+    # Build KD‑tree for fast nearest‑neighbour queries
+    try:
+        from scipy.spatial import KDTree
+    except ImportError:
+        raise RuntimeError(
+            "scipy is required for efficient nearest‑neighbour search."
+        )
+
+    points = [pt for pt, _, _ in endpoints]
+    tree = KDTree(points)
+
+    visited = set()
+    connections = [] #: List[Connection] = []
+
+    for i, (pt, line_idx, side) in enumerate(endpoints):
+        if (line_idx, side) in visited:
+            continue
+
+        # Find the nearest point (excluding itself)
+        dists, idxs = tree.query(pt, k=2)
+        nearest_idx = idxs[1] if idxs[0] == i else idxs[0]
+        nearest_pt, n_line_idx, n_side = endpoints[nearest_idx]
+
+        # Optional distance threshold
+        if threshold is not None and dists[1] > threshold:
+            continue
+
+        # Avoid connecting a line to itself
+        if line_idx == n_line_idx:
+            continue
+
+        #connections.append(((line_idx, side), (n_line_idx, n_side)))
+        connections.append(join_xyxy_lines)
+        visited.add((line_idx, side))
+        visited.add((n_line_idx, n_side))
+
+    return connections
+
+
+# utils.py
+import numpy as np
+from shapely.geometry import LineString, box
+
+def join_xyxy_lines(lines):
+    """
+    Stitch together a collection of line segments defined as [x1, y1, x2, y2]
+    by connecting each endpoint to its nearest neighbour.  
+    The function then returns the reconstructed line list **and** the
+    axis‑aligned bounding box that would enclose the resulting polygon.
+
+    Parameters
+    ----------
+    lines : list[Sequence[float]]
+        List of 4‑element sequences, each representing a line segment
+        as (x1, y1, x2, y2).
+
+    Returns
+    -------
+    new_lines : list[list[float]]
+        The reconstructed line segments (same format as the input).
+    bbox : list[float]
+        Bounding box coordinates as [minx, miny, maxx, maxy].
+    """
+    # ---- 1. Flatten to a list of all endpoints --------------------------------
+    endpoints = np.array([lines[i][:2] for i in range(len(lines))] +   # first endpoints
+                         [lines[i][2:] for i in range(len(lines))])  # second endpoints
+    n = len(endpoints)
+
+    # ---- 2. Compute pairwise distances ----------------------------------------
+    dist = np.linalg.norm(endpoints[:, None, :] - endpoints[None, :, :], axis=2)
+    np.fill_diagonal(dist, np.inf)                     # ignore self‑distances
+
+    # ---- 3. Nearest‑neighbour pairing -----------------------------------------
+    nn_idx = np.argmin(dist, axis=1)                   # nearest neighbour index for each point
+    used = set()
+    pairs = []
+    for i, j in enumerate(nn_idx):
+        if i in used or j in used or i == j:
+            continue
+        pairs.append((i, j))
+        used.update([i, j])
+
+    # ---- 4. Reconstruct lines from pairs ------------------------------------
+    new_lines = [endpoints[a].tolist() + endpoints[b].tolist() for a, b in pairs]
+
+    # ---- 5. Bounding box of all endpoints ------------------------------------
+    minx, miny = endpoints.min(axis=0)
+    maxx, maxy = endpoints.max(axis=0)
+    bbox = [minx, miny, maxx, maxy]
+
+    return new_lines, bbox
