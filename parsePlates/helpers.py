@@ -340,7 +340,7 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
         """Return True if third_angle is ~90° away from pair_angle."""
         comp_angle = 90.0 - pair_angle
         return abs(third_angle - comp_angle) <= 5.0
-
+    boxes = []
     # ---- Find potential corners from vertical line pairs and horizontal lines ----
     for i in range(len(vertical_lines)):
         for j in range(i + 1, len(vertical_lines)):
@@ -358,6 +358,7 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
                         and test_endpoint_threshold_distance(l2, h, threshold)
                     ):
                         potential.extend([l1, l2, h])
+                        #boxes.append(l1, l2, h, )
 
     # ---- Find potential corners from horizontal line pairs and vertical lines ----
     for i in range(len(horizontal_lines)):
