@@ -6,6 +6,8 @@ from typing import List, Optional, Sequence, Tuple
 import cv2
 import numpy as np
 
+from allai import  find_bounding_boxes_with_orientation_constraint, find_bounding_boxes_with_two_connections
+
 Box = Tuple[int, int, int, int]  # (x1, y1, x2, y2)
 PointBox = List[
     Tuple[float, float]
@@ -336,11 +338,7 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     def angles_similar(a: float, b: float, delta: float = 5.0) -> bool:
         return abs(a - b) <= delta
 
-    def is_complement(pair_angle: float, third_angle: float) -> bool:
-        """Return True if third_angle is ~90° away from pair_angle."""
-        comp_angle = 90.0 - pair_angle
-        return abs(third_angle - comp_angle) <= 5.0
-    boxes = []
+    # boxes = []
     # ---- Find potential corners from vertical line pairs and horizontal lines ----
     for i in range(len(vertical_lines)):
         for j in range(i + 1, len(vertical_lines)):
@@ -354,8 +352,8 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
                 if abs(180 - sum([ang1,ang2,ang_h])) <= 20:
                 #print(h)
                     if (
-                        test_endpoint_threshold_distance(l1, h, threshold)
-                        and test_endpoint_threshold_distance(l2, h, threshold)
+                        get_min_endpoint_distance(l1, h) < threshold
+                        and get_min_endpoint_distance(l2, h) < threshold
                     ):
                         potential.extend([l1, l2, h])
                         #boxes.append(l1, l2, h, )
@@ -372,13 +370,40 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
                 #if is_complement(ang1, ang_v) and is_complement(ang2, ang_v):
                 if abs(180 - sum([ang1,ang2,ang_v])) <= 20:
                     if (
-                        test_endpoint_threshold_distance(l1, v, threshold)
-                        and test_endpoint_threshold_distance(l2, v, threshold)
+                        get_min_endpoint_distance(l1, v) < threshold
+                        and get_min_endpoint_distance(l2, v) < threshold
                     ):
                         potential.extend([l1, l2, v])
-    #print(potential)
+    # print(len(potential))
+
+    arr_list = [np.array(arr) for arr in potential]
+    
+    # Method 1: Using numpy.unique with custom comparison
+    # Convert arrays to tuples for hashing
+    unique_tuples = set(tuple(arr.flatten()) for arr in arr_list)
+    potential = [np.array(list(t)).reshape(arr_list[0].shape) for t in unique_tuples]
+
+    # img_copy = transformer.bgr_img.copy()
+    # draw_lines(img_copy, potential)
+    # show_image(img_copy)
+
+
+    # #potential = np.unique(potential)[0]
+    # print(len(potential))
+
+    boxes = find_bounding_boxes_with_two_connections(potential, 100)
+    #print(boxes)
+
+    # arr_list = [np.array(arr) for arr in potential]
+    
+    # # Method 1: Using numpy.unique with custom comparison
+    # # Convert arrays to tuples for hashing
+    # unique_tuples = set(tuple(arr.flatten()) for arr in arr_list)
+    # potential = [np.array(list(t)).reshape(arr_list[0].shape) for t in unique_tuples]
+    #potential = boxes[0]
     img_copy = transformer.bgr_img.copy()
-    draw_lines(img_copy, potential)
+    for box in boxes:
+        draw_lines(img_copy, box)
     for key in rounded.keys():
         temp_lines = rounded[key]
         # draw_lines(img, temp_lines)
@@ -751,14 +776,14 @@ def calculate_line_angle(line: Box):
 # def detect_strongest_lines(img: cv2.typing.MatLike) -> Tuple[Sequence, cv2.typing.MatLike]:
 
 
-def draw_lines(img, lines=List[Tuple[int, int, int, int]]) -> cv2.typing.MatLike:
-    # color = (
-    #     random.randrange(0, 255),
-    #     random.randrange(0, 255),
-    #     random.randrange(0, 255),
-    # )
-
-    color = (0, 255, 0)
+def draw_lines(img, lines=List[Tuple[int, int, int, int]], randomColor = True) -> cv2.typing.MatLike:
+    color = (
+        random.randrange(0, 255),
+        random.randrange(0, 255),
+        random.randrange(0, 255),
+    )
+    if randomColor == False:
+        color = (0, 255, 0)
     for i in range(0, len(lines)):
         # print(np.array(lines[i]))
         if np.array(lines[i]).ndim == 1:
@@ -1233,14 +1258,13 @@ def point_line_distance(px, py, x1, y1, dx, dy):
     return abs(dx * py - dy * px + x1 * dy - y1 * dx) / math.sqrt(dx**2 + dy**2)
 
 
-def test_endpoint_threshold_distance(segment1, segment2, threshold):
+def get_min_endpoint_distance(segment1, segment2) -> float:
     """
-    Determines if any endpoint of segment1 is within 'threshold' distance of any endpoint of segment2.
+    Check distances between all endpoint pairs
 
     Parameters:
     segment1: list of 4 values [x1, y1, x2, y2]
     segment2: list of 4 values [x3, y3, x4, y4]
-    threshold: float, maximum allowed distance (inclusive)
 
     Returns:
     bool: True if any endpoint of segment1 is within threshold distance of any endpoint of segment2
@@ -1261,4 +1285,4 @@ def test_endpoint_threshold_distance(segment1, segment2, threshold):
         distance((x2, y2), (x4, y4)),  # (2,2) to (4,4)
     ]
 
-    return any(d <= threshold for d in distances)
+    return min(distances) #any(d <= threshold for d in distances)
