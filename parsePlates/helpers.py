@@ -99,7 +99,7 @@ def sort_bbox_corners(points: PointBox) -> PointBox:
     sorted_points : numpy.ndarray of shape (4, 2)
         The points sorted as [TL, TR, BR, BL].
     """
-    pts = np.asarray(points, dtype=float)
+    pts = np.asarray(points, dtype=np.int32)
 
     # 1. Compute the sum and difference of coordinates
     #    sum  : (x + y) – gives a relative “vertical” order
@@ -123,7 +123,7 @@ def sort_bbox_corners(points: PointBox) -> PointBox:
             pts[bottom_idx],  # BR
             pts[left_idx],  # BL
         ],
-        dtype=np.float32,
+        dtype=np.int32,
     )
 
     return sorted_pts
@@ -390,7 +390,7 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
 
     # #potential = np.unique(potential)[0]
     # print(len(potential))
-
+    #lines = cv2.HoughLinesP()
     boxes = find_bounding_boxes_with_two_connections(potential, 100)
     #print(boxes)
 
@@ -647,7 +647,7 @@ def xyxy_to_points(
     x1, y1, x2, y2 = xyxy
 
     # Create the list of points
-    points = [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
+    points = sort_bbox_corners([(x1, y1), (x2, y1), (x2, y2), (x1, y2)])
 
     return points
 
@@ -762,6 +762,18 @@ def calculate_line_angle(line: Box):
     dy = y2 - y1
     angle = np.degrees(np.arctan2(dy, dx))
 
+    # # normalize angle
+    # if angle > 90:
+    #     angle -= 180
+    # if angle < -90:
+    #     angle += 180
+    # # if angle < 0:
+    # #     angle += 360
+
+    # return abs(angle)
+    return angle
+
+def normalize_angle(angle):
     # normalize angle
     if angle > 90:
         angle -= 180
@@ -771,8 +783,6 @@ def calculate_line_angle(line: Box):
     #     angle += 360
 
     return abs(angle)
-
-
 # def detect_strongest_lines(img: cv2.typing.MatLike) -> Tuple[Sequence, cv2.typing.MatLike]:
 
 
@@ -785,7 +795,7 @@ def draw_lines(img, lines=List[Tuple[int, int, int, int]], randomColor = True) -
     if randomColor == False:
         color = (0, 255, 0)
     for i in range(0, len(lines)):
-        # print(np.array(lines[i]))
+        #print(np.array(lines[i]).ndim)
         if np.array(lines[i]).ndim == 1:
             l = lines[i]
         else:
@@ -1286,3 +1296,43 @@ def get_min_endpoint_distance(segment1, segment2) -> float:
     ]
 
     return min(distances) #any(d <= threshold for d in distances)
+
+
+def lines_intersect(line1, line2):
+    """
+    Determine if two lines defined by their endpoints intersect.
+    
+    Parameters:
+    line1: list of 4 values [x1, y1, x2, y2] - first line
+    line2: list of 4 values [x3, y3, x4, y4] - second line
+    
+    Returns:
+    bool: True if the lines intersect, False otherwise
+    """
+    x1, y1, x2, y2 = line1
+    x3, y3, x4, y4 = line2
+    
+    # Calculate direction vectors
+    dx1 = x2 - x1
+    dy1 = y2 - y1
+    dx2 = x4 - x3
+    dy2 = y4 - y3
+    
+    # Calculate determinant
+    det = dx1 * dy2 - dx2 * dy1
+    
+    # If determinant is zero, lines are parallel
+    if abs(det) < 1e-10:  # Using small epsilon for floating point comparison
+        return False
+    
+    # Calculate intersection point parameters
+    dx3 = x1 - x3
+    dy3 = y1 - y3
+    
+    # Calculate parameters t and u for the intersection point
+    t = (dx2 * dy3 - dy2 * dx3) / det
+    u = (dx1 * dy3 - dy1 * dx3) / det
+    
+    # Lines intersect if both parameters are between 0 and 1
+    # (within the line segments)
+    return 0 <= t <= 1 and 0 <= u <= 1
