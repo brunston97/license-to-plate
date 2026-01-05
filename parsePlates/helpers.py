@@ -6,7 +6,10 @@ from typing import List, Optional, Sequence, Tuple
 import cv2
 import numpy as np
 
-from allai import  find_bounding_boxes_with_orientation_constraint, find_bounding_boxes_with_two_connections
+from allai import (
+    find_bounding_boxes_with_orientation_constraint,
+    find_bounding_boxes_with_two_connections,
+)
 
 Box = Tuple[int, int, int, int]  # (x1, y1, x2, y2)
 PointBox = List[
@@ -26,14 +29,15 @@ def points_to_xyxy(points: PointBox) -> Box:
     - A tuple containing the minimum and maximum x and y values defining the bounding box.
     """
     # Convert the list of points to a NumPy array for easier manipulation
-    points_array = np.array(points)
+    points_array = np.array(points).flatten()
 
     # Calculate the min and max along each axis (0: x-axis, 1: y-axis)
-    xmin, xmax = points_array[:, 0].min(), points_array[:, 0].max()
-    ymin, ymax = points_array[:, 1].min(), points_array[:, 1].max()
+    # xmin, xmax = points_array[:, 0].min(), points_array[:, 0].max()
+    # ymin, ymax = points_array[:, 1].min(), points_array[:, 1].max()
 
     # Return the bounding box as a tuple
-    return (xmin, ymin, xmax, ymax)
+    # return (xmin, ymin, xmax, ymax)
+    return points_array
 
 
 def get_line_length(x):
@@ -74,7 +78,7 @@ def expand_bbox(
         (expanded_min_x, expanded_max_y),
     ]
 
-    return np.array(sort_bbox_corners(expanded_bbox), dtype=np.int32)
+    return np.array((expanded_bbox), dtype=np.int32)
 
 
 def show_image(img: cv2.typing.MatLike):
@@ -343,32 +347,36 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     for i in range(len(vertical_lines)):
         for j in range(i + 1, len(vertical_lines)):
             l1, l2 = vertical_lines[i], vertical_lines[j]
-            ang1, ang2 = round_number(calculate_line_angle(l1)), round_number(calculate_line_angle(l2))
+            ang1, ang2 = round_number(calculate_line_angle(l1)), round_number(
+                calculate_line_angle(l2)
+            )
             # Only keep pairs with similar angles
             if not angles_similar(ang1, ang2):
                 continue
             for h in horizontal_lines:
                 ang_h = round_number(calculate_line_angle(h))
-                if abs(180 - sum([ang1,ang2,ang_h])) <= 20:
-                #print(h)
+                if abs(180 - sum([ang1, ang2, ang_h])) <= 20:
+                    # print(h)
                     if (
                         get_min_endpoint_distance(l1, h) < threshold
                         and get_min_endpoint_distance(l2, h) < threshold
                     ):
                         potential.extend([l1, l2, h])
-                        #boxes.append(l1, l2, h, )
+                        # boxes.append(l1, l2, h, )
 
     # ---- Find potential corners from horizontal line pairs and vertical lines ----
     for i in range(len(horizontal_lines)):
         for j in range(i + 1, len(horizontal_lines)):
             l1, l2 = horizontal_lines[i], horizontal_lines[j]
-            ang1, ang2 = round_number(calculate_line_angle(l1)), round_number(calculate_line_angle(l2))
+            ang1, ang2 = round_number(calculate_line_angle(l1)), round_number(
+                calculate_line_angle(l2)
+            )
             if not angles_similar(ang1, ang2):
                 continue
             for v in vertical_lines:
                 ang_v = round_number(calculate_line_angle(v))
-                #if is_complement(ang1, ang_v) and is_complement(ang2, ang_v):
-                if abs(180 - sum([ang1,ang2,ang_v])) <= 20:
+                # if is_complement(ang1, ang_v) and is_complement(ang2, ang_v):
+                if abs(180 - sum([ang1, ang2, ang_v])) <= 20:
                     if (
                         get_min_endpoint_distance(l1, v) < threshold
                         and get_min_endpoint_distance(l2, v) < threshold
@@ -377,7 +385,7 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     # print(len(potential))
 
     arr_list = [np.array(arr) for arr in potential]
-    
+
     # Method 1: Using numpy.unique with custom comparison
     # Convert arrays to tuples for hashing
     unique_tuples = set(tuple(arr.flatten()) for arr in arr_list)
@@ -387,20 +395,19 @@ def find_corners_by_lines(img: np.ndarray) -> Optional[np.ndarray]:
     # draw_lines(img_copy, potential)
     # show_image(img_copy)
 
-
     # #potential = np.unique(potential)[0]
     # print(len(potential))
-    #lines = cv2.HoughLinesP()
+    # lines = cv2.HoughLinesP()
     boxes = find_bounding_boxes_with_two_connections(potential, 100)
-    #print(boxes)
+    # print(boxes)
 
     # arr_list = [np.array(arr) for arr in potential]
-    
+
     # # Method 1: Using numpy.unique with custom comparison
     # # Convert arrays to tuples for hashing
     # unique_tuples = set(tuple(arr.flatten()) for arr in arr_list)
     # potential = [np.array(list(t)).reshape(arr_list[0].shape) for t in unique_tuples]
-    #potential = boxes[0]
+    # potential = boxes[0]
     img_copy = transformer.bgr_img.copy()
     for box in boxes:
         draw_lines(img_copy, box)
@@ -647,8 +654,8 @@ def xyxy_to_points(
     x1, y1, x2, y2 = xyxy
 
     # Create the list of points
-    points = sort_bbox_corners([(x1, y1), (x2, y1), (x2, y2), (x1, y2)])
-
+    # points = [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
+    points = [(x1, y1), (x2, y2)]
     return points
 
 
@@ -773,6 +780,7 @@ def calculate_line_angle(line: Box):
     # return abs(angle)
     return angle
 
+
 def normalize_angle(angle):
     # normalize angle
     if angle > 90:
@@ -783,10 +791,14 @@ def normalize_angle(angle):
     #     angle += 360
 
     return abs(angle)
+
+
 # def detect_strongest_lines(img: cv2.typing.MatLike) -> Tuple[Sequence, cv2.typing.MatLike]:
 
 
-def draw_lines(img, lines=List[Tuple[int, int, int, int]], randomColor = True) -> cv2.typing.MatLike:
+def draw_lines(
+    img, lines=List[Tuple[int, int, int, int]], randomColor=True
+) -> cv2.typing.MatLike:
     color = (
         random.randrange(0, 255),
         random.randrange(0, 255),
@@ -794,15 +806,17 @@ def draw_lines(img, lines=List[Tuple[int, int, int, int]], randomColor = True) -
     )
     if randomColor == False:
         color = (0, 255, 0)
+
+    line_width = max(int(img.shape[1] * 0.005), 2)
     for i in range(0, len(lines)):
-        #print(np.array(lines[i]).ndim)
+        # print(np.array(lines[i]).ndim)
         if np.array(lines[i]).ndim == 1:
             l = lines[i]
         else:
             l = tuple(map(int, lines[i][0]))
         # l = lines[i][0]
         # l = lines[i]
-        cv2.line(img, (l[0], l[1]), (l[2], l[3]), color, 2, cv2.LINE_AA)
+        cv2.line(img, (l[0], l[1]), (l[2], l[3]), color, line_width, cv2.LINE_AA)
     return img
 
 
@@ -814,8 +828,11 @@ class ImageTransformer:
         Args:
             img (np.ndarray): The input image.
         """
-        self.bgr_img = img.copy()
-        self.gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        div = 128
+        img = img.copy()
+        img = img // div * div + div // 2
+        self.bgr_img = img
+        self.gray_img = cv2.cvtColor(self.bgr_img, cv2.COLOR_BGR2GRAY)
         self.binary_img = None
         self.edges_img = None
         self.set_binary_img()
@@ -851,7 +868,7 @@ class ImageTransformer:
         _, self.binary_img = cv2.threshold(
             self.gray_img, threshold, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU
         )
-        self.edges_img = cv2.Canny(self.gray_img, 50, 200)
+        self.edges_img = cv2.Canny(self.binary_img, 50, 200)
         return self
 
     def find_lines(self) -> Tuple[np.ndarray, np.ndarray]:
@@ -862,14 +879,32 @@ class ImageTransformer:
             Tuple[np.ndarray, np.ndarray]: The detected lines and their coordinates.
         """
         # edges = cv2.Canny(self.gray_img, 50, 200, apertureSize=3)
+        # self.edges_img = cv2.medianBlur(self.edges_img, 1)
+        # img = self.bgr_img
+        # img = cv2.medianBlur(img, 3)
+
+        # div = 64
+        # water = img // div * div + div // 2
+        # show_image(water)
+
+        # water = cv2.cvtColor(water, cv2.COLOR_BGR2GRAY)
+        # # water = watershed_algo(img)
+        self.set_binary_img()
+        show_image(self.binary_img)
+        show_image(self.edges_img)
+
         lines = cv2.HoughLinesP(
             self.edges_img,
             1,
             np.pi / 180,
             threshold=50,
-            minLineLength=40,
-            maxLineGap=3,
+            minLineLength=20,
+            maxLineGap=5,
         )
+        # copy = self.bgr_img.copy()
+        # draw_lines(copy, [x[0] for x in lines])
+        # show_image(copy)
+
         return lines
 
     def show_image(self, img: np.ndarray) -> None:
@@ -884,8 +919,9 @@ class ImageTransformer:
         cv2.destroyAllWindows()
 
     def dialate(self, iterations=1):
-        kernel = np.ones((2, 2), np.uint8)
+        kernel = np.ones((1, 1), np.uint8)
         self.edges_img = cv2.dilate(self.edges_img, kernel, iterations=iterations)
+        # self.edges_img = cv2.erode(self.edges_img, kernel, iterations=iterations)
         return self
 
     def blur(self, factor: int = 5):
@@ -1295,44 +1331,98 @@ def get_min_endpoint_distance(segment1, segment2) -> float:
         distance((x2, y2), (x4, y4)),  # (2,2) to (4,4)
     ]
 
-    return min(distances) #any(d <= threshold for d in distances)
+    return min(distances)  # any(d <= threshold for d in distances)
 
 
 def lines_intersect(line1, line2):
     """
     Determine if two lines defined by their endpoints intersect.
-    
+
     Parameters:
     line1: list of 4 values [x1, y1, x2, y2] - first line
     line2: list of 4 values [x3, y3, x4, y4] - second line
-    
+
     Returns:
     bool: True if the lines intersect, False otherwise
     """
     x1, y1, x2, y2 = line1
     x3, y3, x4, y4 = line2
-    
+
     # Calculate direction vectors
     dx1 = x2 - x1
     dy1 = y2 - y1
     dx2 = x4 - x3
     dy2 = y4 - y3
-    
+
     # Calculate determinant
     det = dx1 * dy2 - dx2 * dy1
-    
+
     # If determinant is zero, lines are parallel
     if abs(det) < 1e-10:  # Using small epsilon for floating point comparison
         return False
-    
+
     # Calculate intersection point parameters
     dx3 = x1 - x3
     dy3 = y1 - y3
-    
+
     # Calculate parameters t and u for the intersection point
     t = (dx2 * dy3 - dy2 * dx3) / det
     u = (dx1 * dy3 - dy1 * dx3) / det
-    
+
     # Lines intersect if both parameters are between 0 and 1
     # (within the line segments)
     return 0 <= t <= 1 and 0 <= u <= 1
+
+
+def watershed_algo(img: cv2.typing.MatLike) -> cv2.typing.MatLike:
+    """
+    Applies the watershed segmentation algorithm to the input image.
+
+    Parameters:
+        img (Matlike): Input image (grayscale or color).
+                        If color, it will be converted to grayscale first.
+
+    Returns:
+        MatLike: The segmented image where each region is labeled (i.e., the output of cv2.watershed).
+                 The output is a labeled image where each region is assigned a unique label.
+                 Note: The output is typically a binary mask where foreground pixels are labeled,
+                       and background is 0.
+
+    Note:
+        - The function uses a simple approach: thresholding to get initial markers,
+          then applies watershed segmentation.
+        - For best results, the input should have clear boundaries (e.g., objects with distinct backgrounds).
+        - The function assumes the input is a NumPy array or a compatible image type (e.g., PIL, OpenCV Mat).
+    """
+    # img = cv2.imread("coins.png")
+    assert img is not None, "file could not be read, check with os.path.exists()"
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+    # noise removal
+    kernel = np.ones((3, 3), np.uint8)
+    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
+    show_image(opening)
+
+    # sure background area
+    sure_bg = cv2.dilate(opening, kernel, iterations=3)
+
+    # Finding sure foreground area
+    dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
+    ret, sure_fg = cv2.threshold(dist_transform, 0.7 * dist_transform.max(), 255, 0)
+
+    # Finding unknown region
+    sure_fg = np.uint8(sure_fg)
+    unknown = cv2.subtract(sure_bg, sure_fg)
+
+    # Marker labelling
+    ret, markers = cv2.connectedComponents(sure_fg)
+
+    # Add one to all labels so that sure background is not 0, but 1
+    markers = markers + 1
+
+    # Now, mark the region of unknown with zero
+    markers[unknown == 255] = 0
+    markers = cv2.watershed(img, markers)
+    img[markers == -1] = [255, 0, 0]
+    return img  # .astype(np.uint8)
