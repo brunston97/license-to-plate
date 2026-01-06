@@ -7,7 +7,7 @@ from readPlates import read_text, recognize_text
 if __name__ == "__main__":
     # Settings
     # Use raw strings (r"...") or forward slashes for paths to avoid escape character issues
-    MODEL_PATH = r"source/license-plate-finetune-v1l.pt"
+    MODEL_PATH = r"source/license-plate-finetune-v1x.pt"
 
     # If using standard YOLO for testing:
     # MODEL_PATH = "yolo11n.pt"
@@ -16,24 +16,26 @@ if __name__ == "__main__":
     target_folder = Path("source/images").absolute()
     target_image = "IMG_2752.jpg"
     # target_image = "IMG_4570.jpg"
-    full_image_path = target_folder / target_image
+    #full_image_path = target_folder / target_image
 
     output_path = (
-        target_folder / "output" / "warpedPlates"
+        target_folder / "output" / "detectedPlates"
     )  # Path("source/images/output").absolute()
+    cropped_text_output_path = target_folder / "output" / "bitImages"
+    cropped_text_output_path.mkdir(exist_ok=True)
     # print(output_path)
     # print(str(target_folder))
 
     if 1:
         # Execution
-        # processor = LicensePlateProcess(model_path=MODEL_PATH)
-        # processor.run(str(target_folder))
-        # plates = recognize_text(str(output_path))
-        for folder in Path(target_folder / "output/bit/split").iterdir():
-            folderPath = Path(folder)
-            print(folderPath.name[:5])
-            if str(folderPath.name)[:5] == "batch":
-                reads = read_text(str(folderPath))
+        #processor = LicensePlateProcess(model_path=MODEL_PATH)
+        #processor.run(str(target_folder))
+        plates = recognize_text(str(output_path))
+        # for folder in Path(target_folder / "output/bit/split").iterdir():
+        #     folderPath = Path(folder)
+        #     print(folderPath.name[:5])
+        #     if str(folderPath.name)[:5] == "batch":
+        reads = read_text(str(cropped_text_output_path))
         # print(plates)
 
     results = []

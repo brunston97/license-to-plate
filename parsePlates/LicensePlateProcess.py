@@ -2,23 +2,15 @@ import cv2
 import numpy as np
 from ultralytics import YOLO  # type: ignore
 from pathlib import Path
-from typing import List, Tuple, Optional, Dict
-import math
-from paddleocr import PaddleOCR
-
+from typing import  Optional
 from helpers import (
     PointBox,
     do_boxes_intersect,
-    do_boxes_overlap,
     expand_bbox,
     find_corners_by_lines,
     find_largest_textbox,
-    get_line_length,
-    merge_overlapping_boxes,
     points_to_xyxy,
-    show_image,
     sort_bbox_corners,
-    sort_boxes_by_area,
     sort_flat_boxes,
     xyxy_to_points,
 )
@@ -101,8 +93,8 @@ class LicensePlateProcess:
             # max_idx = confs.argmax()
             # best_conf = confs[max_idx]
             # best_box = results.boxes.xyxy[max_idx].cpu().numpy()  # [x1, y1, x2, y2]
-            # boxes = np.array(results.boxes.xyxy, dtype=np.array[np.int32])
-            boxes = results.boxes.xyxy.numpy()
+            #boxes = np.array(results.boxes.xyxy, dtype=np.array[np.int32])
+            boxes = results.boxes.xyxy.cpu().numpy()
             # print(boxes)
             # boxes = np.vstack((boxes, np.array([0, 0, 1000, 1000])))
             # print(boxes)
@@ -158,7 +150,10 @@ class LicensePlateProcess:
 
     def run(self, image_folder_path: str):
         image_folder = Path(image_folder_path)
-        output_path = Path(f"{image_folder_path}/output/warpedPlates")
+        output_path = image_folder / "output"
+        #Path(f"{image_folder_path}/output/detectedPlates")
+        missed_plates_path = output_path / "missedPlates"
+        detected_plates_path = output_path / "detectedPlates"
 
         if not image_folder.exists():
             print(f"File not found: {image_folder_path}")
@@ -166,13 +161,16 @@ class LicensePlateProcess:
 
         if not output_path.exists():
             output_path.mkdir(parents=True, exist_ok=True)
-            # os.mkdir(str(output_path))
+            detected_plates_path.mkdir(parents=True, exist_ok=True)
+            missed_plates_path.mkdir(parents=True, exist_ok=True)
 
         print(f"Processing: {image_folder.name}")
 
         # 1. Detect Box
         bounds = self.detect_plate_bbox(image_folder)
         self.bounds = bounds
+        with open('source/scans.txt', 'w') as f:
+            f.write(str(self.bounds))
         # print(f"Plate Detected (Conf: {conf:.2f}) at: {bounds}")
 
         # 2. Crop Image
@@ -188,7 +186,7 @@ class LicensePlateProcess:
             )
             conf = bounds[key]["confidence"]
             output_img = img[y1:y2, x1:x2]
-            # show_image(crop)
+            #show_image(output_img)
             # show_image(original_img)
             output_name = "not_warped_" + key
             # output_img = crop.copy()
@@ -205,6 +203,8 @@ class LicensePlateProcess:
                 output_img = img[y1:y2, x1:x2]
                 output_name = "textbox_" + key
                 # show_image(output_img)
+
+            elif False:
 
                 print("Attempting Line Intersection Method...")
                 corners = find_corners_by_lines(img)
@@ -223,5 +223,6 @@ class LicensePlateProcess:
                     output_name = "warped_" + key
                     # show_image(output_img)
                     # cv2.imwrite(output_name, )
-            output_img = cv2.resize(output_img, (500, 500))
-            cv2.imwrite(output_path / output_name, output_img)
+            img_size = np.array(((768 / img.shape[1]) * img.shape[1], (768 / img.shape[1]) * img.shape[0]), dtype=np.int32)
+            output_img = cv2.resize(output_img, img_size)
+            cv2.imwrite(detected_plates_path / output_name, output_img)

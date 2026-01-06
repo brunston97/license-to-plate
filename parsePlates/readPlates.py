@@ -3,7 +3,10 @@ import os
 from pathlib import Path
 import sys
 
+#from paddlex import PaddleOCR
 from paddleocr import PaddleOCR
+from paddlex import create_pipeline
+
 import numpy as np
 import cv2
 
@@ -12,8 +15,10 @@ from helpers import (
     find_largest_textbox,
     get_line_length,
     group_boxes_by_height,
+    points_to_xyxy,
     show_image,
     sort_boxes_by_area,
+    xyxy_to_points,
 )
 
 
@@ -28,14 +33,14 @@ def recognize_text(plates_dir_path: str):
     # 1. Set up detector and OCR
     # detector = textDetectorDB50(threshold=0.5, box_thresh=0.6)   # adjust thresholds if needed
 
-    IMG_SIZE = 500
+    IMG_SIZE = 768
 
     plates_path = Path(plates_dir_path)
     bit_image_path = Path(plates_path.parent / "bitImages")
-    reads_path = Path(plates_path.parent / "reads")
+    #reads_path = Path(plates_path.parent / "reads")
 
     bit_image_path.mkdir(exist_ok=True)
-    reads_path.mkdir(exist_ok=True)
+    #reads_path.mkdir(exist_ok=True)
 
     for filename in os.listdir(plates_path):
         if not filename.lower().endswith((".jpg", ".jpeg", ".png")):
@@ -48,7 +53,7 @@ def recognize_text(plates_dir_path: str):
         # 2. Read, resize, and preprocess image
         # ---------------------------------------------------------
         img = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
-        img = cv2.resize(img, (IMG_SIZE, IMG_SIZE))
+        #img = cv2.resize(img, (img.shape, IMG_SIZE))
         im_bw = cv2.threshold(img, 155, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
         # ---------------------------------------------------------
@@ -74,12 +79,16 @@ def recognize_text(plates_dir_path: str):
         x2 = int(max(largest_box[:, 0]))
         y2 = int(max(largest_box[:, 1]))
         bbox = [x1, y1, x2, y2]
+        #print(bbox)
+        if len(bbox) == 0:
+            print('no bbox found for img:', filename)
+            continue
 
         # ---------------------------------------------------------
         # 4. Expand the bounding box slightly
         # ---------------------------------------------------------
-        expanded_bbox = expand_bbox(bbox, img.shape, margin=int(IMG_SIZE * 0.2))
-        x1, y1, x2, y2 = expanded_bbox
+        expanded_bbox = expand_bbox(xyxy_to_points(bbox), img.shape, margin=int(IMG_SIZE * 0.2))
+        x1, y1, x2, y2 = points_to_xyxy(expanded_bbox)
 
         # ---------------------------------------------------------
         # 5. Crop the plate and run Canny + line drawing (like test.py)
@@ -147,13 +156,14 @@ def read_text(bit_image_path: Path):
 
     if file_count == 0:
         return
+    ocr = create_pipeline(pipeline="OCR")
 
-    ocr = PaddleOCR(
-        use_textline_orientation=False,
-        use_doc_orientation_classify=False,
-        lang="en",
-        use_doc_unwarping=False,
-    )
+    # ocr = PaddleOCR(
+    #     use_textline_orientation=False,
+    #     use_doc_orientation_classify=False,
+    #     lang="en",
+    #     use_doc_unwarping=False,
+    # )
     results = ocr.predict(str(bit_image_path))
     for res in results:
         plate_text = ""
@@ -181,8 +191,8 @@ def read_text(bit_image_path: Path):
                 # maxVal = max(res["rec_boxes"], key=lambda x: get_line_length(x))
                 index = np.where(res["rec_boxes"] == box)[0][0]
                 plate_text += res["rec_texts"][index] + " "
-            if len(plate_text) > 0:
-                os.rename(str(file_path), str(read_read_dir / file_path.name))
+            # if len(plate_text) > 0:
+            #     os.rename(str(file_path), str(read_read_dir / file_path.name))
             toReturn.append(plate_text.rstrip())
         # print(toReturn)
 

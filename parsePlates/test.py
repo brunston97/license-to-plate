@@ -37,7 +37,13 @@ def process_images(img_path: str):
     transformer = ImageTransformer(img)
 
     scaleFactor = 1024 / img.shape[1] if img.shape[1] > 1024 else 1
-    lines = transformer.resize(scaleFactor).blur(5).dialate(9).find_lines()
+    scaleFactor = 1
+    lines = transformer.resize(scaleFactor).blur(3).dialate(1).find_lines()
+    lines = [x[0] for x in lines]
+    copy = transformer.bgr_img.copy()
+    draw_lines(copy, lines, False)
+    show_image(copy)
+    return
 
     # transformer.show_image()
 
@@ -233,17 +239,19 @@ if __name__ == "__main__":
     img_name = "not_warped_PXL_20251210_145631502.jpg"
     img_name = "IMG_4570.jpg"
     # img_name = "not_warped_IMG_20251209_124213.jpg"
-    img_name = "IMG_2752.jpg"
+    #img_name = "IMG_2752.jpg"
     # img_name = "IMG_5288.jpg"
-    img_name = "IMG_1697.jpg"
-    img_dir = Path("source/images")  # /output/warpedPlates")
+    #img_name = "IMG_1697.jpg"
+    img_name = "IMG_7490.jpg"
+    img_name = "IMG_20251209_124213.jpg"
+    img_dir = Path("source/images")  # /output/detectedPlates")
     if not img_dir.exists():
         img_dir.mkdir(exist_ok=True, parents=True)
 
     image_path = img_dir / img_name
     print(image_path)
     # Replace with your image folder
-    # recognize_text(str(Path("source/images/output/warpedPlates")))
+    # recognize_text(str(Path("source/images/output/detectedPlates")))
 
     # img = cv2.imread(image_path)
     try:

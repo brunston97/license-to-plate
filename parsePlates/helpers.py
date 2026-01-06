@@ -73,9 +73,9 @@ def expand_bbox(
     # Create the expanded bounding box
     expanded_bbox = [
         (expanded_min_x, expanded_min_y),
-        (expanded_max_x, expanded_min_y),
+        #(expanded_max_x, expanded_min_y),
         (expanded_max_x, expanded_max_y),
-        (expanded_min_x, expanded_max_y),
+        #(expanded_min_x, expanded_max_y),
     ]
 
     return np.array((expanded_bbox), dtype=np.int32)
@@ -890,16 +890,32 @@ class ImageTransformer:
         # water = cv2.cvtColor(water, cv2.COLOR_BGR2GRAY)
         # # water = watershed_algo(img)
         self.set_binary_img()
-        show_image(self.binary_img)
-        show_image(self.edges_img)
+
+        # Load image, convert to grayscale, and apply thresholding or Canny edge detection
+        ret, thresh = cv2.threshold(self.gray_img, 127, 255, cv2.THRESH_BINARY) # or use cv2.Canny()
+
+        # Find contours
+        # For OpenCV 3.x and 4.x, findContours typically returns two or three values
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Draw all contours as lines on a blank image
+        # Use a positive thickness value (e.g., 2) to draw the boundary lines
+        blank_mask = np.zeros_like(self.bgr_img) # A black image to draw on
+        cv2.drawContours(blank_mask, contours, -1, (255, 255, 255), 2)
+        #self.edges_img = cv2.Canny(self.binary_img, 50, 200)
+
+        #show_image(self.binary_img)
+        #show_image(self.edges_img)
+        show_image(blank_mask)
 
         lines = cv2.HoughLinesP(
-            self.edges_img,
+            #self.edges_img,
+            cv2.cvtColor(blank_mask, cv2.COLOR_BGR2GRAY),
             1,
             np.pi / 180,
             threshold=50,
-            minLineLength=20,
-            maxLineGap=5,
+            minLineLength=40, #int(self.bgr_img.shape[1] * .05),
+            maxLineGap=3,
         )
         # copy = self.bgr_img.copy()
         # draw_lines(copy, [x[0] for x in lines])
