@@ -16,8 +16,6 @@ from helpers import (
     get_line_length,
     group_boxes_by_height,
     points_to_xyxy,
-    show_image,
-    sort_boxes_by_area,
     xyxy_to_points,
 )
 
@@ -186,7 +184,8 @@ def read_text(bit_image_path: Path):
                 * int((b[3]) - int(b[1])),  # width × height
                 reverse=True,  # largest first
             )
-            boxes = group_boxes_by_height(sorted_by_area, rel_tol=0.1)[0]
+            boxes = group_boxes_by_height(sorted_by_area, rel_tol=0.2)[0]
+            boxes.sort(key=lambda box: box[0] + box[2])
             print(str(boxes))
             # plate_text = result[0][0][1]  # first detected text
             # for res in result:

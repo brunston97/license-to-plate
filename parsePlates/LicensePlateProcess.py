@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 from ultralytics import YOLO  # type: ignore
@@ -89,18 +90,8 @@ class LicensePlateProcess:
                 continue
 
             image_path = results.path
-            # confs = results.boxes.conf.cpu().numpy()
-            # max_idx = confs.argmax()
-            # best_conf = confs[max_idx]
-            # best_box = results.boxes.xyxy[max_idx].cpu().numpy()  # [x1, y1, x2, y2]
-            # boxes = np.array(results.boxes.xyxy, dtype=np.array[np.int32])
             boxes = results.boxes.xyxy.cpu().numpy()
-            # print(boxes)
-            # boxes = np.vstack((boxes, np.array([0, 0, 1000, 1000])))
-            # print(boxes)
-
             sorted_boxes = sort_flat_boxes(boxes, ascending=False)
-            # sorted_boxes = np.array(sorted_boxes, np.int32)
             best_box = sorted_boxes[0]
 
             # best_box = np.array(sorted_boxes[0], np.int32)
@@ -148,24 +139,37 @@ class LicensePlateProcess:
             [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], dtype="float32"
         )
 
-    def run(self, image_folder_path: str):
+    def run(self, image_folder_path: str | Path, output_path: str | Path):
         image_folder = Path(image_folder_path)
-        output_path = image_folder / "output"
-        # Path(f"{image_folder_path}/output/detectedPlates")
+        output_path = Path(output_path)
         missed_plates_path = output_path / "missedPlates"
         detected_plates_path = output_path / "detectedPlates"
+        sharpened_plates_path = output_path / "sharpenedPlates"
 
         if not image_folder.exists():
-            print(f"File not found: {image_folder_path}")
+            print(f"File not found: {str(image_folder.absolute())}")
             return
 
-        if not output_path.exists():
-            output_path.mkdir(parents=True, exist_ok=True)
-            detected_plates_path.mkdir(parents=True, exist_ok=True)
-            missed_plates_path.mkdir(parents=True, exist_ok=True)
+        # if not output_path.exists():
+        output_path.mkdir(parents=True, exist_ok=True)
+        detected_plates_path.mkdir(parents=True, exist_ok=True)
+        missed_plates_path.mkdir(parents=True, exist_ok=True)
+        sharpened_plates_path.mkdir(parents=True, exist_ok=True)
 
         print(f"Processing: {image_folder.name}")
 
+        # sharpen_kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+
+        # for filename in os.listdir(image_folder.absolute()):
+        #     if filename.lower().endswith((".jpg", ".jpeg", ".png")):
+        #         temp_img = cv2.imread(str(image_folder / filename))
+        #         # Apply the kernel to the image using filter2D
+        #         # The '-1' depth parameter means the output image will have the same depth as the input
+        #         temp_output_img = cv2.filter2D(temp_img, -1, sharpen_kernel)
+        #         cv2.imwrite(
+        #             str(sharpened_plates_path / ("sharp_" + filename)), temp_output_img
+        #         )
+        # image_folder = sharpened_plates_path
         # 1. Detect Box
         bounds = self.detect_plate_bbox(image_folder)
         self.bounds = bounds
@@ -175,7 +179,8 @@ class LicensePlateProcess:
 
         # 2. Crop Image
         for key in self.bounds:
-            img = cv2.imread(str(image_folder / key))
+            img_path = str(image_folder / key)
+            img = cv2.imread(img_path)
 
             x1, y1, x2, y2 = points_to_xyxy(
                 expand_bbox(
@@ -186,69 +191,50 @@ class LicensePlateProcess:
             )
             conf = bounds[key]["confidence"]
             output_img = img[y1:y2, x1:x2]
-            # show_image(output_img)
-            # show_image(original_img)
-            output_name = "not_warped_" + key
-            # output_img = crop.copy()
+
+            output_name = key
 
             if conf < 0.7:
                 # 3. Find Corners (Try Lines first, then Contours)
                 best_box = find_largest_textbox(img)
                 if best_box is None:
+                    cv2.imwrite(str((missed_plates_path / key)), img)
+                    # os.rename(img_path, str((missed_plates_path / key)))
                     continue
 
                 x1, y1, x2, y2 = points_to_xyxy(
                     expand_bbox(best_box, img.shape, img.shape[1] * 0.2)
                 )
                 output_img = img[y1:y2, x1:x2]
-                output_name = "textbox_" + key
-                # show_image(output_img)
+                # os.rename(img_path, str(missed_plates_path / key))
 
-            elif False:
-
-                print("Attempting Line Intersection Method...")
-                corners = find_corners_by_lines(img)
-                if corners is None:
-                    print(
-                        "Line method failed/insufficient data. Falling back to Contours..."
-                    )
-                    corners = self.find_corners_contour_fallback(output_img)
-                print(do_boxes_intersect(corners, best_box))
-                if corners is not None and do_boxes_intersect(corners, best_box):
-                    # print(corners)
-                    # merged_points = merge_overlapping_boxes(corners, best_box)
-                    # x1, y1, x2, x2 = points_to_xyxy(merged_points)
-                    # 4. Warp Perspective
-                    output_img = self.four_point_transform(output_img, corners)
-                    output_name = "warped_" + key
-                    # show_image(output_img)
-                    # cv2.imwrite(output_name, )
+            img = output_img
             imgScale = 768 / img.shape[1]  # * img.shape[1]
             img_size = np.array(
                 (
                     imgScale * img.shape[0],
-                    imgScale * img.shape[1],
+                    (imgScale - 0.1) * img.shape[1],
                 ),
                 dtype=np.int32,
             )
             output_img = cv2.resize(output_img, img_size)
 
-            sharpen_kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+            # sharpen_kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
 
             # Apply the kernel to the image using filter2D
             # The '-1' depth parameter means the output image will have the same depth as the input
-            output_img = cv2.filter2D(output_img, -1, sharpen_kernel)
+            # output_img = cv2.filter2D(output_img, -1, sharpen_kernel)
 
             cv2.imwrite(detected_plates_path / output_name, output_img)
 
-            _, binary_img = cv2.threshold(
-                cv2.cvtColor(output_img, cv2.COLOR_BGR2GRAY),
-                155,
-                255,
-                cv2.THRESH_BINARY | cv2.THRESH_OTSU,
-            )
+            # _, binary_img = cv2.threshold(
+            #     cv2.cvtColor(output_img, cv2.COLOR_BGR2GRAY),
+            #     155,
+            #     255,
+            #     cv2.THRESH_BINARY | cv2.THRESH_OTSU,
+            # )
 
-            kernel = np.ones((1, 1), np.uint8)
-            edges_img = cv2.dilate(binary_img, kernel, iterations=3)
-            # edges_img = cv2.Canny(self.binary_img, 50, 200)
-            cv2.imwrite(detected_plates_path / ("bw_" + output_name), edges_img)
+            # kernel = np.ones((1, 1), np.uint8)
+            # edges_img = cv2.dilate(binary_img, kernel, iterations=3)
+            # # edges_img = cv2.Canny(self.binary_img, 50, 200)
+            # cv2.imwrite(detected_plates_path / ("bw_" + output_name), edges_img)
