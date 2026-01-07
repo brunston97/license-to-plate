@@ -167,7 +167,13 @@ def read_text(bit_image_path: Path):
     #     lang="en",
     #     use_doc_unwarping=False,
     # )
-    results = ocr.predict(str(bit_image_path))
+    results = ocr.predict(
+        str(bit_image_path),
+        use_textline_orientation=False,
+        use_doc_orientation_classify=False,
+        # lang="en",
+        use_doc_unwarping=False,
+    )
     for res in results:
         plate_text = ""
         # read_path = Path(f"{bit_image_path}")

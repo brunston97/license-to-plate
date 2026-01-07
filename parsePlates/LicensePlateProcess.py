@@ -232,6 +232,13 @@ class LicensePlateProcess:
                 dtype=np.int32,
             )
             output_img = cv2.resize(output_img, img_size)
+
+            sharpen_kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+
+            # Apply the kernel to the image using filter2D
+            # The '-1' depth parameter means the output image will have the same depth as the input
+            output_img = cv2.filter2D(output_img, -1, sharpen_kernel)
+
             cv2.imwrite(detected_plates_path / output_name, output_img)
 
             _, binary_img = cv2.threshold(
@@ -240,5 +247,8 @@ class LicensePlateProcess:
                 255,
                 cv2.THRESH_BINARY | cv2.THRESH_OTSU,
             )
+
+            kernel = np.ones((1, 1), np.uint8)
+            edges_img = cv2.dilate(binary_img, kernel, iterations=3)
             # edges_img = cv2.Canny(self.binary_img, 50, 200)
-            cv2.imwrite(detected_plates_path / ("bw_" + output_name), binary_img)
+            cv2.imwrite(detected_plates_path / ("bw_" + output_name), edges_img)
