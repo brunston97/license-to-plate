@@ -16,20 +16,20 @@ if __name__ == "__main__":
     target_folder = Path("source/images").absolute()
     target_image = "IMG_2752.jpg"
     # target_image = "IMG_4570.jpg"
-    #full_image_path = target_folder / target_image
+    # full_image_path = target_folder / target_image
 
     output_path = (
         target_folder / "output" / "detectedPlates"
     )  # Path("source/images/output").absolute()
     cropped_text_output_path = target_folder / "output" / "bitImages"
-    cropped_text_output_path.mkdir(exist_ok=True)
+    cropped_text_output_path.mkdir(exist_ok=True, parents=True)
     # print(output_path)
     # print(str(target_folder))
 
     if 1:
         # Execution
-        #processor = LicensePlateProcess(model_path=MODEL_PATH)
-        #processor.run(str(target_folder))
+        processor = LicensePlateProcess(model_path=MODEL_PATH)
+        processor.run(str(target_folder))
         plates = recognize_text(str(output_path))
         # for folder in Path(target_folder / "output/bit/split").iterdir():
         #     folderPath = Path(folder)

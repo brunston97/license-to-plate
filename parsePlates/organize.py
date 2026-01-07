@@ -111,7 +111,7 @@ def create_batch_folders(
             continue
         if verbose:
             print(f"Creating folder: {folder}")
-        folder.mkdir(exist_ok=True)
+        folder.mkdir(exist_ok=True, parents=True)
 
 
 def move_files(

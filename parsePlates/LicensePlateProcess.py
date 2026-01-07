@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from ultralytics import YOLO  # type: ignore
 from pathlib import Path
-from typing import  Optional
+from typing import Optional
 from helpers import (
     PointBox,
     do_boxes_intersect,
@@ -79,7 +79,7 @@ class LicensePlateProcess:
             imgsz=640,
             verbose=False,
             save=True,
-            project="output",
+            project="source/images/output",
             name="detections",
             exist_ok=True,
         )
@@ -93,7 +93,7 @@ class LicensePlateProcess:
             # max_idx = confs.argmax()
             # best_conf = confs[max_idx]
             # best_box = results.boxes.xyxy[max_idx].cpu().numpy()  # [x1, y1, x2, y2]
-            #boxes = np.array(results.boxes.xyxy, dtype=np.array[np.int32])
+            # boxes = np.array(results.boxes.xyxy, dtype=np.array[np.int32])
             boxes = results.boxes.xyxy.cpu().numpy()
             # print(boxes)
             # boxes = np.vstack((boxes, np.array([0, 0, 1000, 1000])))
@@ -151,7 +151,7 @@ class LicensePlateProcess:
     def run(self, image_folder_path: str):
         image_folder = Path(image_folder_path)
         output_path = image_folder / "output"
-        #Path(f"{image_folder_path}/output/detectedPlates")
+        # Path(f"{image_folder_path}/output/detectedPlates")
         missed_plates_path = output_path / "missedPlates"
         detected_plates_path = output_path / "detectedPlates"
 
@@ -169,8 +169,8 @@ class LicensePlateProcess:
         # 1. Detect Box
         bounds = self.detect_plate_bbox(image_folder)
         self.bounds = bounds
-        with open('source/scans.txt', 'w') as f:
-            f.write(str(self.bounds))
+        # with open("source/scans.txt", "w") as f:
+        #     f.write(str(self.bounds))
         # print(f"Plate Detected (Conf: {conf:.2f}) at: {bounds}")
 
         # 2. Crop Image
@@ -186,7 +186,7 @@ class LicensePlateProcess:
             )
             conf = bounds[key]["confidence"]
             output_img = img[y1:y2, x1:x2]
-            #show_image(output_img)
+            # show_image(output_img)
             # show_image(original_img)
             output_name = "not_warped_" + key
             # output_img = crop.copy()
@@ -223,6 +223,22 @@ class LicensePlateProcess:
                     output_name = "warped_" + key
                     # show_image(output_img)
                     # cv2.imwrite(output_name, )
-            img_size = np.array(((768 / img.shape[1]) * img.shape[1], (768 / img.shape[1]) * img.shape[0]), dtype=np.int32)
+            imgScale = 768 / img.shape[1]  # * img.shape[1]
+            img_size = np.array(
+                (
+                    imgScale * img.shape[0],
+                    imgScale * img.shape[1],
+                ),
+                dtype=np.int32,
+            )
             output_img = cv2.resize(output_img, img_size)
             cv2.imwrite(detected_plates_path / output_name, output_img)
+
+            _, binary_img = cv2.threshold(
+                cv2.cvtColor(output_img, cv2.COLOR_BGR2GRAY),
+                155,
+                255,
+                cv2.THRESH_BINARY | cv2.THRESH_OTSU,
+            )
+            # edges_img = cv2.Canny(self.binary_img, 50, 200)
+            cv2.imwrite(detected_plates_path / ("bw_" + output_name), binary_img)
