@@ -1,15 +1,10 @@
 import json
-import math
 import os
 from pathlib import Path
-import sys
-
-# from paddlex import PaddleOCR
-from paddleocr import PaddleOCR
 from paddlex import create_pipeline
-
 import numpy as np
 import cv2
+
 
 from helpers import (
     expand_bbox,
@@ -19,6 +14,11 @@ from helpers import (
     points_to_xyxy,
     xyxy_to_points,
 )
+from ImageManager import ImageManager
+
+
+# Database file name
+DB_NAME = "source/images/plates.db"
 
 
 def recognize_text(plates_dir_path: str):
@@ -161,6 +161,8 @@ def read_text(bit_image_path: Path):
     ocr = create_pipeline(pipeline="OCR")
 
     to_export_dict = dict()
+    db = ImageManager(DB_NAME)
+    db.create_table()
 
     # ocr = PaddleOCR(
     #     use_textline_orientation=False,
@@ -168,14 +170,17 @@ def read_text(bit_image_path: Path):
     #     lang="en",
     #     use_doc_unwarping=False,
     # )
-    results = ocr.predict(
-        str(bit_image_path),
-        use_textline_orientation=False,
-        use_doc_orientation_classify=False,
-        # lang="en",
-        use_doc_unwarping=False,
+    results = list(
+        ocr.predict(
+            str(bit_image_path),
+            use_textline_orientation=False,
+            use_doc_orientation_classify=False,
+            # lang="en",
+            use_doc_unwarping=False,
+        )
     )
     count = 0
+    results.sort(key=lambda x: x["input_path"])
     for res in results:
         plate_text = ""
         # read_path = Path(f"{bit_image_path}")
@@ -205,17 +210,23 @@ def read_text(bit_image_path: Path):
                 plate_text += res["rec_texts"][index] + " "
             # if len(plate_text) > 0:
             #     os.rename(str(file_path), str(read_read_dir / file_path.name))
-            toReturn.append(plate_text.rstrip().lstrip())
+
+            final_plate_text = plate_text.rstrip().lstrip()
+            toReturn.append(final_plate_text)
             filePath = Path(res["input_path"])
             count = count + 1
+
+            db.insert(final_plate_text, filePath.name)
+
             to_export_dict[filePath.name] = {
-                "text": toReturn[-1],
+                "text": final_plate_text,
                 "fileName": filePath.name,
                 "filePath": str(filePath.absolute()),
                 "id": count,
             }
     # to_export_dict = to_export_dict  # .values()
-    print(to_export_dict)
+    # print(to_export_dict)
+    # print(db.get_all())
     with open("source/images/results.json", "w") as json_file:
         json.dump(to_export_dict, json_file, indent=4)
         # f.write(str(self.bounds))

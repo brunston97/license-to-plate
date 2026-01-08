@@ -25,7 +25,9 @@ export const ImageEditor: React.FC = () => {
 
   // Handle image selection
   const handleImageSelect = (image: Image) => {
-    axios.get('/images/info/' + image.id).then(({ data }) => {
+    const url = '/images/info/' + image.id.toLocaleString()
+    console.log(image, url)
+    axios.get(url).then(({ data }) => {
       setCurrentImage(data)
     })
   }
@@ -178,12 +180,13 @@ export const ImageEditor: React.FC = () => {
               style={{ backgroundColor: 'red', padding: '10px' }}
               onClick={() => {
                 console.log(currentImage)
-
-                axios
-                  .get('/images/info/' + (currentImage.id - 1))
-                  .then(({ data }) => {
-                    handleImageSelect(data)
-                  })
+                if (currentImage.id > 1) {
+                  axios
+                    .get('/images/info/' + (currentImage.id - 1))
+                    .then(({ data }) => {
+                      handleImageSelect(data)
+                    })
+                }
               }}
             >
               {'Prev!'}
@@ -192,11 +195,13 @@ export const ImageEditor: React.FC = () => {
               style={{ backgroundColor: 'green', padding: '10px' }}
               onClick={() => {
                 console.log(currentImage)
-                axios
-                  .get('/images/info/' + (currentImage.id + 1))
-                  .then(({ data }) => {
-                    handleImageSelect(data)
-                  })
+                if (currentImage.id < images.length) {
+                  axios
+                    .get('/images/info/' + (currentImage.id + 1))
+                    .then(({ data }) => {
+                      handleImageSelect(data)
+                    })
+                }
               }}
             >
               {'Next!'}

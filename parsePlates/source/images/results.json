@@ -1,1 +1,56 @@
-{"IMG_1697.jpg":{"text":"SONGS","fileName":"IMG_1697.jpg","filePath":"/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_1697.jpg","id":1},"IMG_1788.jpg":{"text":"LZRD","fileName":"IMG_1788.jpg","filePath":"/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_1788.jpg","id":2,"correctedText":"LZRD"},"IMG_1792.jpg":{"text":"BIIEVE","fileName":"IMG_1792.jpg","filePath":"/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_1792.jpg","id":3,"correctedText":"BIIEVE"},"IMG_2752.jpg":{"text":"CATDAD7","fileName":"IMG_2752.jpg","filePath":"/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_2752.jpg","id":4,"correctedText":"CATDAD7"},"IMG_4570.jpg":{"text":"DWNTIME","fileName":"IMG_4570.jpg","filePath":"/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_4570.jpg","id":5,"correctedText":"DWNTIME"},"IMG_5288.jpg":{"text":"YODAAH","fileName":"IMG_5288.jpg","filePath":"/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_5288.jpg","id":6,"correctedText":"YODAAH"},"IMG_7532.jpg":{"text":"WELPG2G","fileName":"IMG_7532.jpg","filePath":"/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_7532.jpg","id":7,"correctedText":"WELPG2G"},"PXL_20260101_201726934.jpg":{"text":"CLAERE E3","fileName":"PXL_20260101_201726934.jpg","filePath":"/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/PXL_20260101_201726934.jpg","id":8,"correctedText":"CLAERE 3"},"PXL_20260105_192515398.jpg":{"text":"VET DADB","fileName":"PXL_20260105_192515398.jpg","filePath":"/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/PXL_20260105_192515398.jpg","id":9,"correctedText":"VET DAD"}}
+{
+    "IMG_1697.jpg": {
+        "text": "SONGS",
+        "fileName": "IMG_1697.jpg",
+        "filePath": "/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_1697.jpg",
+        "id": 1
+    },
+    "IMG_1788.jpg": {
+        "text": "LZRD",
+        "fileName": "IMG_1788.jpg",
+        "filePath": "/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_1788.jpg",
+        "id": 2
+    },
+    "IMG_1792.jpg": {
+        "text": "BIIEVE",
+        "fileName": "IMG_1792.jpg",
+        "filePath": "/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_1792.jpg",
+        "id": 3
+    },
+    "IMG_2752.jpg": {
+        "text": "CATDAD7",
+        "fileName": "IMG_2752.jpg",
+        "filePath": "/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_2752.jpg",
+        "id": 4
+    },
+    "IMG_4570.jpg": {
+        "text": "DWNTIME",
+        "fileName": "IMG_4570.jpg",
+        "filePath": "/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_4570.jpg",
+        "id": 5
+    },
+    "IMG_5288.jpg": {
+        "text": "YODAAH",
+        "fileName": "IMG_5288.jpg",
+        "filePath": "/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_5288.jpg",
+        "id": 6
+    },
+    "IMG_7532.jpg": {
+        "text": "WELPG2G",
+        "fileName": "IMG_7532.jpg",
+        "filePath": "/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/IMG_7532.jpg",
+        "id": 7
+    },
+    "PXL_20260101_201726934.jpg": {
+        "text": "CLAERE E3",
+        "fileName": "PXL_20260101_201726934.jpg",
+        "filePath": "/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/PXL_20260101_201726934.jpg",
+        "id": 8
+    },
+    "PXL_20260105_192515398.jpg": {
+        "text": "VET DADB",
+        "fileName": "PXL_20260105_192515398.jpg",
+        "filePath": "/Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/output/detectedPlates/PXL_20260105_192515398.jpg",
+        "id": 9
+    }
+}
