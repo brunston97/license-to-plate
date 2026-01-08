@@ -216,7 +216,7 @@ def read_text(bit_image_path: Path):
             }
     # to_export_dict = to_export_dict  # .values()
     print(to_export_dict)
-    with open("source/results.txt", "w") as json_file:
+    with open("source/images/results.json", "w") as json_file:
         json.dump(to_export_dict, json_file, indent=4)
         # f.write(str(self.bounds))
 
