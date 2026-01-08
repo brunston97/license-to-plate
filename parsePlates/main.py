@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     if 1:
         # Execution
-        processor = LicensePlateProcess(model_path=MODEL_PATH)
-        processor.run(str(target_folder), output_path)
+        # processor = LicensePlateProcess(model_path=MODEL_PATH)
+        # processor.run(str(target_folder), output_path)
         # plates = recognize_text(str(detected_plates_path))
         reads = read_text(str(detected_plates_path))

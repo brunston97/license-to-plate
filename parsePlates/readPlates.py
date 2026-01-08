@@ -1,3 +1,4 @@
+import json
 import math
 import os
 from pathlib import Path
@@ -159,6 +160,8 @@ def read_text(bit_image_path: Path):
         return
     ocr = create_pipeline(pipeline="OCR")
 
+    to_export_dict = dict()
+
     # ocr = PaddleOCR(
     #     use_textline_orientation=False,
     #     use_doc_orientation_classify=False,
@@ -172,6 +175,7 @@ def read_text(bit_image_path: Path):
         # lang="en",
         use_doc_unwarping=False,
     )
+    count = 0
     for res in results:
         plate_text = ""
         # read_path = Path(f"{bit_image_path}")
@@ -201,11 +205,23 @@ def read_text(bit_image_path: Path):
                 plate_text += res["rec_texts"][index] + " "
             # if len(plate_text) > 0:
             #     os.rename(str(file_path), str(read_read_dir / file_path.name))
-            toReturn.append(plate_text.rstrip())
-        # print(toReturn)
+            toReturn.append(plate_text.rstrip().lstrip())
+            filePath = Path(res["input_path"])
+            count = count + 1
+            to_export_dict[filePath.name] = {
+                "text": toReturn[-1],
+                "fileName": filePath.name,
+                "filePath": str(filePath.absolute()),
+                "id": count,
+            }
+    # to_export_dict = to_export_dict  # .values()
+    print(to_export_dict)
+    with open("source/results.txt", "w") as json_file:
+        json.dump(to_export_dict, json_file, indent=4)
+        # f.write(str(self.bounds))
 
-        # Save OCR result
-        # with open(read_path / "notes", "w+", encoding="utf-8") as f:
-        #     f.write(plate_text)
+    # Save OCR result
+    # with open(read_path / "notes", "w+", encoding="utf-8") as f:
+    #     f.write(plate_text)
 
     print(f"[{toReturn}] Plate text: {plate_text}")
