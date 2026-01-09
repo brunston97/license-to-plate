@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from LicensePlateProcess import LicensePlateProcess
 from readPlates import read_text, recognize_text

@@ -163,6 +163,7 @@ def read_text(bit_image_path: Path):
     to_export_dict = dict()
     db = ImageManager(DB_NAME)
     db.create_table()
+    db.backup_database()
 
     # ocr = PaddleOCR(
     #     use_textline_orientation=False,

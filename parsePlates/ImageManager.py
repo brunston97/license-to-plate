@@ -1,9 +1,7 @@
+import datetime
+from pathlib import Path
+import shutil
 import sqlite3
-import os
-
-
-import sqlite3
-import os
 from typing import List, Optional, Dict, Any
 
 
@@ -49,6 +47,13 @@ class ImageManager:
                 )
             """
             )
+
+            cursor.execute(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_filename_unique 
+                ON images (fileName);
+            """
+            )
             self.conn.commit()
             print("✅ Table 'images' created successfully.")
         except sqlite3.Error as e:
@@ -69,6 +74,13 @@ class ImageManager:
 
         try:
             cursor = self.conn.cursor()
+            # Check if filename already exists
+            cursor.execute("SELECT 1 FROM images WHERE fileName = ?", (file_name,))
+            exists = cursor.fetchone()  # Returns (1,) if exists, None otherwise
+
+            if exists:
+                print(f"😅 File '{file_name}' already exists. Skipping insertion.")
+                return False
             cursor.execute(
                 "INSERT INTO images (text, fileName, correctedText) VALUES (?, ?, ?)",
                 (text, file_name, corrected_text),
@@ -146,6 +158,30 @@ class ImageManager:
             print(f"❌ Error deleting record: {e}")
             return False
 
+    def backup_database(self, backup_dir="backups", backup_prefix="plates_backup"):
+        """
+        Create a backup of the database with timestamped filename.
+
+        Args:
+            backup_dir (str): Directory to save backups (default: 'backups')
+            backup_prefix (str): Prefix for backup file (default: 'plates_backup')
+        """
+        # Ensure backup directory exists
+        Path(backup_dir).mkdir(exist_ok=True)
+
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        backup_filename = f"{backup_prefix}_{timestamp}.db"
+        backup_path = Path(backup_dir) / backup_filename
+
+        try:
+            # Copy the database file
+            shutil.copy2(self.db_name, backup_path)
+            print(f"✅ Backup created: {backup_path}")
+            return backup_path
+        except Exception as e:
+            print(f"❌ Error creating backup: {e}")
+            return None
+
     def close(self):
         """Close the database connection."""
         if self.conn:
@@ -160,39 +196,3 @@ class ImageManager:
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Close connection when exiting context."""
         self.close()
-
-
-# ✅ Example usage (you can run this in a script or import)
-if __name__ == "__main__":
-    print("🚀 Starting Image Manager Demo")
-
-    # Create and manage the database
-    with ImageManager() as manager:
-        # Create table
-        manager.create_table()
-
-        # Insert sample data
-        # manager.insert("This is a plate", "plate_001.jpg", "Corrected text")
-        # manager.insert("No plate found", "plate_002.jpg", None)
-        # manager.insert("High contrast image", "plate_003.jpg", "Auto-corrected text")
-
-        # View all records
-        records = manager.get_all()
-        print("\n📋 All records:")
-        for record in records:
-            print(record)
-
-        # Search example
-        print("\n🔍 Search by filename 'plate_001':")
-        result = manager.search_by_filename("plate_001")
-        for r in result:
-            print(r)
-
-        # Search by text
-        print("\n🔍 Search by text 'plate':")
-        result = manager.search_by_text("plate")
-        for r in result:
-            print(r)
-
-        # Delete a record (e.g., ID = 1)
-        manager.delete_by_id(1)

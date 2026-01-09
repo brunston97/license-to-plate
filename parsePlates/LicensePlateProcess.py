@@ -1,4 +1,3 @@
-import os
 import cv2
 import numpy as np
 from ultralytics import YOLO  # type: ignore
@@ -6,9 +5,7 @@ from pathlib import Path
 from typing import Optional
 from helpers import (
     PointBox,
-    do_boxes_intersect,
     expand_bbox,
-    find_corners_by_lines,
     find_largest_textbox,
     points_to_xyxy,
     sort_bbox_corners,
