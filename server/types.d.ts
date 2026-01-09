@@ -11,4 +11,5 @@ export interface Image {
   text: string
   fileName: string
   correctedText: string
+  user: string
 }

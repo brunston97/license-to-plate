@@ -4,8 +4,8 @@ import express from 'express'
 import { FieldValue, Firestore } from '@google-cloud/firestore'
 import cors from 'cors'
 import { IPlateCard, Image } from './types'
-import path from 'path'
-import { existsSync } from 'fs'
+import path, { join } from 'path'
+import { existsSync, readdirSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { SQLiteImageManager } from './plateManager'
 
@@ -20,8 +20,8 @@ app.use(express.json())
 app.use(cors())
 
 const db = new Firestore({
-  projectId: 'license2plate-b4c6e',
-  keyFilename: process.env.KEY_FILE_PATH
+  projectId: 'license2plate-b4c6e'
+  //keyFilename: process.env.KEY_FILE_PATH
 })
 
 const DB_NAME = path.join('..', 'parsePlates/source/images/plates.db')
@@ -123,13 +123,52 @@ openRouter.get('/images/:id', async (req, res) => {
 
 // Save text to a database or file
 openRouter.post('/save-text', async (req, res) => {
-  const { id, text, correctedText, fileName } = req.body as Image
+  const { id, text, correctedText, fileName, user } = req.body as Image
   try {
-    await localDb.updateImage({ id, text, correctedText, fileName })
+    await localDb.updateImage({ id, text, correctedText, fileName, user })
     res.status(200).json(req.body)
   } catch (error) {
     res.status(500).json(error)
   }
+})
+
+openRouter.get('/sync', async (req, res) => {
+  const collection = db.collection('plates2025')
+  const images = await localDb.getAllImages()
+  const filesPath = join(
+    __dirname,
+    '..',
+    'parsePlates/source/images/input/2025'
+  )
+  const userMap: { [key: string]: string } = {}
+  ///Users/mikalyoung/Documents/repos/license-to-plate/parsePlates/source/images/input/2025
+  const files = readdirSync(filesPath, { withFileTypes: true })
+
+  for (const file of files) {
+    if (file.isDirectory()) {
+      const userFiles = readdirSync(join(filesPath, file.name)).filter((x) =>
+        x.endsWith('.jpg')
+      )
+      userFiles.forEach((f) => {
+        userMap[f] = file.name
+      })
+      //userMap[file.name] = userFiles.filter((x) => x.endsWith('.jpg'))
+    }
+  }
+
+  for (const image of images) {
+    image.user = userMap[image.fileName] ?? ''
+    //if(image.correctedText)
+    await collection.doc(image.id.toString()).set(image)
+
+    //console.log(image)
+    //if (image.user) {
+    //await localDb.updateImage(image)
+    //}
+  }
+
+  //console.log(userMap)
+  res.json(userMap)
 })
 
 app.use('/api', openRouter)

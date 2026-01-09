@@ -111,24 +111,24 @@ if __name__ == "__main__":
     output = Path(home_dir / "source/images/output/missing")
     output.mkdir(exist_ok=True, parents=True)
 
-    missing = [
-        "plate126.jpg",
-        "plate19.jpg",
-        "plate211.jpg",
-        "plate257.jpg",
-        "plate260.jpg",
-        "plate27.jpg",
-        "plate274.jpg",
-        "plate33.jpg",
-        "plate34.jpg",
-        "plate368.jpg",
-        "plate431.jpg",
-        "plate473.jpg",
-        "plate503.jpg",
-        "plate599.jpg",
-        "plate770.jpg",
-        "plate835.jpg",
-        "plate95.jpg",
-    ]
-    for file in missing:
-        shutil.copy2(str(input / file), str(output / file))
+    # missing = [
+    #     "plate126.jpg",
+    #     "plate19.jpg",
+    #     "plate211.jpg",
+    #     "plate257.jpg",
+    #     "plate260.jpg",
+    #     "plate27.jpg",
+    #     "plate274.jpg",
+    #     "plate33.jpg",
+    #     "plate34.jpg",
+    #     "plate368.jpg",
+    #     "plate431.jpg",
+    #     "plate473.jpg",
+    #     "plate503.jpg",
+    #     "plate599.jpg",
+    #     "plate770.jpg",
+    #     "plate835.jpg",
+    #     "plate95.jpg",
+    # ]
+    # for file in missing:
+    #     shutil.copy2(str(input / file), str(output / file))

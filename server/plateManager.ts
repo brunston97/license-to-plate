@@ -143,22 +143,27 @@ export class SQLiteImageManager {
     text,
     fileName,
     correctedText = '',
-    id
+    id,
+    user
   }: Image): Promise<Image> {
     return new Promise((resolve, reject) => {
       const query =
-        'UPDATE images SET text = ?, fileName = ?, correctedText = ? WHERE id = ?'
-      this.db.run(query, [text, fileName, correctedText, id], function (err) {
-        if (err) {
-          reject(err)
-        } else if (this.changes === 0) {
-          console.log(`⚠️ No record found with ID: ${id}`)
-          reject(err)
-        } else {
-          console.log(`✅ Updated record with ID: ${id}`)
-          resolve({ text, fileName, correctedText, id })
+        'UPDATE images SET text = ?, fileName = ?, correctedText = ? , user = ? WHERE id = ?'
+      this.db.run(
+        query,
+        [text, fileName, correctedText, user, id],
+        function (err) {
+          if (err) {
+            reject(err)
+          } else if (this.changes === 0) {
+            console.log(`⚠️ No record found with ID: ${id}`)
+            reject(err)
+          } else {
+            console.log(`✅ Updated record with ID: ${id}`)
+            resolve({ text, fileName, correctedText, id, user })
+          }
         }
-      })
+      )
     })
   }
 }
