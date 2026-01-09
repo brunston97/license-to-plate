@@ -75,11 +75,13 @@ class LicensePlateProcess:
         mainResults = self.model(
             str(read_path),
             imgsz=640,
-            verbose=False,
-            save=True,
+            verbose=True,
+            # save=True,
             project="source/images/output",
             name="detections",
             exist_ok=True,
+            batch=10,
+            stream=True,
         )
 
         for results in mainResults:
@@ -136,7 +138,12 @@ class LicensePlateProcess:
             [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], dtype="float32"
         )
 
-    def run(self, image_folder_path: str | Path, output_path: str | Path):
+    def run(
+        self,
+        image_folder_path: str | Path,
+        output_path: str | Path,
+        skip_ok: bool = True,
+    ):
         image_folder = Path(image_folder_path)
         output_path = Path(output_path)
         missed_plates_path = output_path / "missedPlates"

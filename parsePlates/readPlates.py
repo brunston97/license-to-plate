@@ -149,21 +149,24 @@ def recognize_text(plates_dir_path: str):
     print(f"[{filename}] Plate text: {plate_text}")
 
 
-def read_text(bit_image_path: Path):
+def read_text(read_images_path: Path | str):
     toReturn = []
-    bit_image_path = Path(bit_image_path)
-    read_read_dir = bit_image_path.parent / "success"
-    read_read_dir.mkdir(exist_ok=True, parents=True)
-    file_count = len([p for p in bit_image_path.iterdir() if p.is_file()])
+    if type(read_images_path) == str:
+        read_images_path = Path(read_images_path)
+    # read_images_path = Path(read_images_path)
+    # read_read_dir = read_images_path.parent / "success"
+    # read_read_dir.mkdir(exist_ok=True, parents=True)
+    # file_count = len([p for p in read_images_path.iterdir() if p.is_file()])
 
-    if file_count == 0:
-        return
+    # if file_count == 0:
+    #     return
     ocr = create_pipeline(pipeline="OCR")
 
     to_export_dict = dict()
     db = ImageManager(DB_NAME)
     db.create_table()
     db.backup_database()
+    count = 0
 
     # ocr = PaddleOCR(
     #     use_textline_orientation=False,
@@ -171,60 +174,67 @@ def read_text(bit_image_path: Path):
     #     lang="en",
     #     use_doc_unwarping=False,
     # )
-    results = list(
-        ocr.predict(
-            str(bit_image_path),
-            use_textline_orientation=False,
-            use_doc_orientation_classify=False,
-            # lang="en",
-            use_doc_unwarping=False,
-        )
+    files_to_process = sorted(
+        [x.name for x in read_images_path.iterdir() if x.name.endswith(".jpg")]
     )
-    count = 0
-    results.sort(key=lambda x: x["input_path"])
-    for res in results:
-        plate_text = ""
-        # read_path = Path(f"{bit_image_path}")
 
-        if res and len(res["rec_boxes"]) > 0:
-            file_path = Path(res["input_path"])
-            sorted_by_area = sorted(
-                res["rec_boxes"],
-                key=lambda b: (int(b[2]) - int(b[0]))
-                * int((b[3]) - int(b[1])),  # width × height
-                reverse=True,  # largest first
+    for file_name in files_to_process:
+        if len(db.search_by_filename(file_name)) > 0:
+            continue
+
+        results = list(
+            ocr.predict(
+                str(read_images_path / file_name),
+                use_textline_orientation=False,
+                use_doc_orientation_classify=False,
+                # lang="en",
+                use_doc_unwarping=False,
             )
-            boxes = group_boxes_by_height(sorted_by_area, rel_tol=0.2)[0]
-            boxes.sort(key=lambda box: box[0] + box[2])
-            print(str(boxes))
-            # plate_text = result[0][0][1]  # first detected text
-            # for res in result:
-            # if len(res["rec_boxes"]) == 0:
-            #     continue
-            # res.print()
-            res.save_to_img(str(bit_image_path.parent / "reads"))
-            res.save_to_json(str(bit_image_path.parent / "reads"))
-            for box in boxes:
-                # res.save_to_json("output")
-                # maxVal = max(res["rec_boxes"], key=lambda x: get_line_length(x))
-                index = np.where(res["rec_boxes"] == box)[0][0]
-                plate_text += res["rec_texts"][index] + " "
-            # if len(plate_text) > 0:
-            #     os.rename(str(file_path), str(read_read_dir / file_path.name))
+        )
+        # results.sort(key=lambda x: x["input_path"])
+        for res in results:
+            plate_text = ""
+            # read_path = Path(f"{bit_image_path}")
 
-            final_plate_text = plate_text.rstrip().lstrip()
-            toReturn.append(final_plate_text)
-            filePath = Path(res["input_path"])
-            count = count + 1
+            if res and len(res["rec_boxes"]) > 0:
+                # file_path = Path(res["input_path"])
+                sorted_by_area = sorted(
+                    res["rec_boxes"],
+                    key=lambda b: (int(b[2]) - int(b[0]))
+                    * int((b[3]) - int(b[1])),  # width × height
+                    reverse=True,  # largest first
+                )
+                boxes = group_boxes_by_height(sorted_by_area, rel_tol=0.2)[0]
+                boxes.sort(key=lambda box: box[0] + box[2])
+                print(f"box found for {file_name}")
+                # plate_text = result[0][0][1]  # first detected text
+                # for res in result:
+                # if len(res["rec_boxes"]) == 0:
+                #     continue
+                # res.print()
+                res.save_to_img(str(read_images_path.parent / "reads"))
+                res.save_to_json(str(read_images_path.parent / "reads"))
+                for box in boxes:
+                    # res.save_to_json("output")
+                    # maxVal = max(res["rec_boxes"], key=lambda x: get_line_length(x))
+                    index = np.where(res["rec_boxes"] == box)[0][0]
+                    plate_text += res["rec_texts"][index] + " "
+                # if len(plate_text) > 0:
+                #     os.rename(str(file_path), str(read_read_dir / file_path.name))
 
-            db.insert(final_plate_text, filePath.name)
+                final_plate_text = plate_text.rstrip().lstrip()
+                toReturn.append(final_plate_text)
+                filePath = Path(res["input_path"])
+                count = count + 1
 
-            to_export_dict[filePath.name] = {
-                "text": final_plate_text,
-                "fileName": filePath.name,
-                "filePath": str(filePath.absolute()),
-                "id": count,
-            }
+                db.insert(final_plate_text, filePath.name)
+
+                to_export_dict[filePath.name] = {
+                    "text": final_plate_text,
+                    "fileName": filePath.name,
+                    "filePath": str(filePath.absolute()),
+                    "id": count,
+                }
     # to_export_dict = to_export_dict  # .values()
     # print(to_export_dict)
     # print(db.get_all())

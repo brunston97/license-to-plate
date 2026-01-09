@@ -46,6 +46,7 @@ yarn-error.log*
 #!parsePlates/**/*.{py,txt}
 parsePlates/**/*.jpg
 parsePlates/**/*.pt
+parsePlates/**/*.zip
 parsePlates/**/*.pyc
 !parsePlates/**/*.{py,txt}
 parsePlates/source/images/output/

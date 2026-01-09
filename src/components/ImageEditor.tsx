@@ -1,5 +1,5 @@
 // src/ImageEditor.tsx
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Image } from '../assets/types'
 import axios from '../utils/axiosInstance'
 import { Button, Input } from '@nextui-org/react'
@@ -32,15 +32,10 @@ export const ImageEditor: React.FC = () => {
   // Handle image selection
   const handleImageSelect = (image: Image) => {
     const url = '/images/info/' + image.id.toLocaleString()
-    console.log(image, url)
+    //console.log(image, url)
     axios.get(url).then(({ data }) => {
       setCurrentImage(data)
     })
-  }
-
-  // Handle text edit
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value.toLocaleUpperCase())
   }
 
   async function getAndSetAllImages() {
@@ -55,7 +50,7 @@ export const ImageEditor: React.FC = () => {
   }
 
   // Save to backend
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!currentImage) return
 
     setLoading(true)
@@ -73,21 +68,18 @@ export const ImageEditor: React.FC = () => {
       if (response.status != 200) {
         throw new Error(`Failed to save: ${response.status}`)
       }
-
-      handleImageSelect(response.data)
-
       console.log('Text saved successfully')
     } catch (err) {
       setError((err as Error).message)
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentImage, text])
 
   // Fetch images on mount
   useEffect(() => {
     const imgId = location.pathname.match(/\d+/g)?.at(-1)
-    console.log(location, imgId)
+    //console.log(location, imgId)
     if (imgId) {
       getAndSetAllImages().then((images) => {
         console.log(images[parseInt(imgId)])
@@ -96,7 +88,7 @@ export const ImageEditor: React.FC = () => {
     } else {
       getAndSetAllImages()
     }
-  }, [location.pathname])
+  }, [location, location.pathname])
 
   // Render image with text (centered, clean)
   const renderImage = () => {
@@ -104,6 +96,11 @@ export const ImageEditor: React.FC = () => {
     //       images.findIndex((i) => i.id == currentImage.id),
     // if (currentIndex < 0) currentIndex = 0
     if (!currentImage) return null
+
+    // Handle text edit
+    const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setText(e.target.value.toLocaleUpperCase())
+    }
 
     return (
       <div
@@ -117,18 +114,17 @@ export const ImageEditor: React.FC = () => {
           height: '94vh'
         }}
       >
-        <button
+        <Button
           style={{
             position: 'absolute',
             right: 10,
             top: 10,
-            backgroundColor: 'gray',
             padding: '10px'
           }}
-          onClick={() => setCurrentImage(null)}
+          onPress={() => setCurrentImage(null)}
         >
           close
-        </button>
+        </Button>
         <img
           src={BUCKET_URL + currentImage.id}
           alt={currentImage.fileName}
@@ -165,12 +161,15 @@ export const ImageEditor: React.FC = () => {
             <span style={{ display: 'flex' }}>
               <Input
                 value={text}
-                onChange={handleTextChange}
+                onInput={handleTextChange}
                 className="mr-4"
                 placeholder="Edit the text here..."
               />
               <Button
-                onPress={handleSave}
+                onPress={() => {
+                  handleSave()
+                  setCurrentImage({ ...currentImage, correctedText: text })
+                }}
                 isDisabled={loading || currentImage.correctedText == text}
                 color="secondary"
                 className="px-8"
@@ -198,6 +197,9 @@ export const ImageEditor: React.FC = () => {
               onPress={() => {
                 console.log(currentImage)
                 if (currentImage.id > 1) {
+                  if (currentImage.correctedText != text) {
+                    handleSave()
+                  }
                   axios
                     .get('/images/info/' + (currentImage.id - 1))
                     .then(({ data }) => {
@@ -214,6 +216,9 @@ export const ImageEditor: React.FC = () => {
               onPress={() => {
                 console.log(currentImage)
                 if (currentImage.id < images.length) {
+                  if (currentImage.correctedText != text) {
+                    handleSave()
+                  }
                   axios
                     .get('/images/info/' + (currentImage.id + 1))
                     .then(({ data }) => {
@@ -245,6 +250,9 @@ export const ImageEditor: React.FC = () => {
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>
         Select an Image to View & Edit Text
       </h2>
+      <h3 className="text-center">
+        {images.filter((a) => !a.correctedText).length} / {images.length} To Go
+      </h3>
 
       <div
         style={{
@@ -278,10 +286,7 @@ export const ImageEditor: React.FC = () => {
                   padding: '8px',
                   borderRadius: '8px',
                   textAlign: 'center',
-                  backgroundColor:
-                    currentImage?.fileName === img.fileName
-                      ? '#e0f7fa'
-                      : '#fff',
+                  backgroundColor: img.correctedText ? 'white' : 'burlywood',
                   transition: 'all 0.2s ease',
                   boxSizing: 'border-box',
                   display: 'flex',
