@@ -1,7 +1,10 @@
+from pathlib import Path
+import shutil
 import cv2
 import numpy as np
-import paddlex as pdx
-from paddleocr import PaddleOCR, draw_ocr
+
+# import paddlex as pdx
+# from paddleocr import PaddleOCR
 import os
 
 
@@ -102,20 +105,30 @@ def main(image_path):
 
 if __name__ == "__main__":
     # Example usage - replace with your image path
-    IMAGE_PATH = ".\\images\\PXL_20251210_145631502.jpg"
+    home_dir = Path(__file__).parent.parent
+    print(home_dir)
+    input = Path(home_dir / "source/images/input")
+    output = Path(home_dir / "source/images/output/missing")
+    output.mkdir(exist_ok=True, parents=True)
 
-    # Check if image exists
-    if not os.path.exists(IMAGE_PATH):
-        print(f"Error: Image '{IMAGE_PATH}' not found.")
-        print(
-            "Please replace 'your_license_plate_image.jpg' with your actual image path"
-        )
-        print(
-            "or download a sample image from: https://paddlex.com/datasets/license_plate/"
-        )
-        print(
-            "Sample image URL: https://paddlex.com/static/images/license_plate_sample.jpg"
-        )
-        exit(1)
-
-    main(IMAGE_PATH)
+    missing = [
+        "plate126.jpg",
+        "plate19.jpg",
+        "plate211.jpg",
+        "plate257.jpg",
+        "plate260.jpg",
+        "plate27.jpg",
+        "plate274.jpg",
+        "plate33.jpg",
+        "plate34.jpg",
+        "plate368.jpg",
+        "plate431.jpg",
+        "plate473.jpg",
+        "plate503.jpg",
+        "plate599.jpg",
+        "plate770.jpg",
+        "plate835.jpg",
+        "plate95.jpg",
+    ]
+    for file in missing:
+        shutil.copy2(str(input / file), str(output / file))
