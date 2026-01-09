@@ -104,7 +104,11 @@ openRouter.get('/images/:id', async (req, res) => {
   try {
     const fileInfo = await localDb.getImgById(id)
     if (fileInfo) {
-      const filePath = path.join(imagesDir, fileInfo.fileName)
+      const filePath = path.join(
+        imagesDir,
+        'output/detectedPlates',
+        fileInfo.fileName
+      )
       res.sendFile(filePath)
       if (!existsSync(filePath)) {
         res.status(404).json({ error: `File does not exists` })
@@ -122,7 +126,7 @@ openRouter.post('/save-text', async (req, res) => {
   const { id, text, correctedText, fileName } = req.body as Image
   try {
     await localDb.updateImage({ id, text, correctedText, fileName })
-    res.status(200).json({ success: true, message: 'Text saved successfully' })
+    res.status(200).json(req.body)
   } catch (error) {
     res.status(500).json(error)
   }

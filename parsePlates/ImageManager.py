@@ -169,7 +169,7 @@ class ImageManager:
         # Ensure backup directory exists
         Path(backup_dir).mkdir(exist_ok=True)
 
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
         backup_filename = f"{backup_prefix}_{timestamp}.db"
         backup_path = Path(backup_dir) / backup_filename
 

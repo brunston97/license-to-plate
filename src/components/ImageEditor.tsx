@@ -2,11 +2,15 @@
 import React, { useState, useEffect } from 'react'
 import { Image } from '../assets/types'
 import axios from '../utils/axiosInstance'
+import { Button, Input } from '@nextui-org/react'
+import { useLocation } from 'react-router-dom'
 
 // Mock data (you can replace with API fetch)
 // const mockImageTextMap: ImageTextMap = { ... }
 
 const BUCKET_URL = `http://localhost:${import.meta.env.VITE_PORT}/api/images/`
+
+Button
 
 // Main Component
 export const ImageEditor: React.FC = () => {
@@ -16,12 +20,14 @@ export const ImageEditor: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [images, setImages] = useState<Image[]>([])
 
+  const location = useLocation()
+
   // Load text from JSON based on image name
   useEffect(() => {
     if (currentImage) {
       setText(currentImage.correctedText ?? currentImage.text ?? '')
     }
-  }, [currentImage])
+  }, [currentImage, currentImage?.text, currentImage?.correctedText])
 
   // Handle image selection
   const handleImageSelect = (image: Image) => {
@@ -34,7 +40,18 @@ export const ImageEditor: React.FC = () => {
 
   // Handle text edit
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value)
+    setText(e.target.value.toLocaleUpperCase())
+  }
+
+  async function getAndSetAllImages() {
+    try {
+      const { data } = await axios.get('/images')
+      setImages(data)
+      return data
+    } catch (error) {
+      console.log(error)
+      return []
+    }
   }
 
   // Save to backend
@@ -43,6 +60,7 @@ export const ImageEditor: React.FC = () => {
 
     setLoading(true)
     setError(null)
+    getAndSetAllImages()
 
     try {
       const response = await axios.post('/save-text', {
@@ -56,6 +74,8 @@ export const ImageEditor: React.FC = () => {
         throw new Error(`Failed to save: ${response.status}`)
       }
 
+      handleImageSelect(response.data)
+
       console.log('Text saved successfully')
     } catch (err) {
       setError((err as Error).message)
@@ -66,10 +86,17 @@ export const ImageEditor: React.FC = () => {
 
   // Fetch images on mount
   useEffect(() => {
-    axios.get('/images').then(({ data }) => {
-      setImages(data)
-    })
-  }, [])
+    const imgId = location.pathname.match(/\d+/g)?.at(-1)
+    console.log(location, imgId)
+    if (imgId) {
+      getAndSetAllImages().then((images) => {
+        console.log(images[parseInt(imgId)])
+        handleImageSelect(images[parseInt(imgId)])
+      })
+    } else {
+      getAndSetAllImages()
+    }
+  }, [location.pathname])
 
   // Render image with text (centered, clean)
   const renderImage = () => {
@@ -135,28 +162,23 @@ export const ImageEditor: React.FC = () => {
             <h3 style={{ marginBottom: '10px' }}>
               Text for &quot;{currentImage.fileName}&quot;
             </h3>
-            <input
-              value={text}
-              onChange={handleTextChange}
-              style={{
-                padding: '12px',
-                color: 'black',
-                fontSize: '24px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                //resize: 'vertical',
-                margin: '10px 0'
-                //background: '#f9f9f9'
-              }}
-              placeholder="Edit the text here..."
-            />
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              style={{ margin: '10px 10px', backgroundColor: 'grey' }}
-            >
-              {loading ? 'Saving...' : 'Save Changes'}
-            </button>
+            <span style={{ display: 'flex' }}>
+              <Input
+                value={text}
+                onChange={handleTextChange}
+                className="mr-4"
+                placeholder="Edit the text here..."
+              />
+              <Button
+                onPress={handleSave}
+                isDisabled={loading || currentImage.correctedText == text}
+                color="secondary"
+                className="px-8"
+              >
+                Save Changes
+              </Button>
+            </span>
+
             {error && (
               <p
                 style={{
@@ -169,16 +191,11 @@ export const ImageEditor: React.FC = () => {
               </p>
             )}
           </div>
-          <span
-            style={{
-              width: '80%',
-              display: 'flex',
-              justifyContent: 'space-around'
-            }}
-          >
-            <button
-              style={{ backgroundColor: 'red', padding: '10px' }}
-              onClick={() => {
+          <span className="flex w-4/5 justify-around p-3">
+            <Button
+              //style={{ backgroundColor: '#D90368', padding: '10px' }}
+              color="primary"
+              onPress={() => {
                 console.log(currentImage)
                 if (currentImage.id > 1) {
                   axios
@@ -190,10 +207,11 @@ export const ImageEditor: React.FC = () => {
               }}
             >
               {'Prev!'}
-            </button>
-            <button
-              style={{ backgroundColor: 'green', padding: '10px' }}
-              onClick={() => {
+            </Button>
+            <Button
+              //style={{ backgroundColor: '#417B5A', padding: '10px' }}
+              color="primary"
+              onPress={() => {
                 console.log(currentImage)
                 if (currentImage.id < images.length) {
                   axios
@@ -205,7 +223,7 @@ export const ImageEditor: React.FC = () => {
               }}
             >
               {'Next!'}
-            </button>
+            </Button>
           </span>
         </span>
       </div>
@@ -231,7 +249,7 @@ export const ImageEditor: React.FC = () => {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
           gap: '16px',
           padding: '10px',
           width: '100%'
@@ -257,7 +275,7 @@ export const ImageEditor: React.FC = () => {
                 style={{
                   cursor: 'pointer',
                   border: '1px solid #e0e0e0',
-                  padding: '12px',
+                  padding: '8px',
                   borderRadius: '8px',
                   textAlign: 'center',
                   backgroundColor:
@@ -277,8 +295,8 @@ export const ImageEditor: React.FC = () => {
                   src={BUCKET_URL + img.id}
                   alt={img.fileName}
                   style={{
-                    width: '100px',
-                    height: '100px',
+                    width: '100%',
+                    height: '100%',
                     objectFit: 'cover',
                     borderRadius: '4px',
                     marginBottom: '6px'
@@ -286,8 +304,8 @@ export const ImageEditor: React.FC = () => {
                 />
                 <p
                   style={{
-                    fontSize: '12px',
-                    fontWeight: '500',
+                    fontSize: '16px',
+                    fontWeight: '700',
                     color: '#333',
                     marginTop: '4px',
                     whiteSpace: 'nowrap',
@@ -295,7 +313,7 @@ export const ImageEditor: React.FC = () => {
                     textOverflow: 'ellipsis'
                   }}
                 >
-                  {img.fileName}
+                  {img.correctedText ?? img.text}
                 </p>
               </div>
             ))
