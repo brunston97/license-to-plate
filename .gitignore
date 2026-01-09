@@ -35,3 +35,15 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+.firebase*
+
+.venv
+parsePlates/**/*.jpg
+parsePlates/**/*.pt
+parsePlates/**/*.zip
+parsePlates/**/*.pyc
+!parsePlates/**/*.{py,txt}
+parsePlates/source/images/output/
+
+*.onnx
