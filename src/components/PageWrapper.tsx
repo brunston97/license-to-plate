@@ -79,6 +79,15 @@ export default function PageWrapper() {
             >
               My Plates
             </button>
+            <button
+              onClick={() => {
+                navigate('/label')
+                setIsOpen(false)
+              }}
+              className="text-left hover:text-yellow-400"
+            >
+              Label
+            </button>
           </nav>
         </div>
       </div>

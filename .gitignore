@@ -40,7 +40,12 @@ yarn-error.log*
 
 /**/license2plate_key.json
 
-#/parsePlates/*/
-parsePlates/openalpr_64/*
-/parsePlates/images/*
-!parsePlates/openalpr_64/install.txt
+.venv
+parsePlates/**/*.jpg
+parsePlates/**/*.pt
+parsePlates/**/*.zip
+parsePlates/**/*.pyc
+!parsePlates/**/*.{py,txt}
+parsePlates/source/images/output/
+
+*.onnx

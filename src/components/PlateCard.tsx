@@ -43,7 +43,7 @@ const PlateCard = (props: PlateCardProps) => {
             className="relative mb-2 leading-none text-black"
           >
             <h3 className="text-large font-bold uppercase leading-none">
-              {card.title}
+              {card.correctedText}
             </h3>
           </div>
           <div
@@ -73,7 +73,7 @@ const PlateCard = (props: PlateCardProps) => {
             <Image
               alt="Card background"
               className="z-0 max-h-full max-w-full rounded-xl object-contain"
-              src={`${BUCKET_URL}/plate${card.id}.jpg`}
+              src={`${BUCKET_URL}/plates_2026/plate${card.fileName}`}
               onLoad={handleImageLoaded}
               classNames={{
                 wrapper: 'flex h-full justify-center items-center',

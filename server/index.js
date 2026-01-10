@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import { FieldValue, Firestore } from '@google-cloud/firestore';
 import cors from 'cors';
@@ -26,6 +27,22 @@ openRouter.post('/vote/:id', async (req, res) => {
         console.log(error);
     }
     res.send(id);
+});
+openRouter.get('/vote/results', async (req, res) => {
+    const docRef = db.collection('plates').orderBy('voteCount', 'desc').limit(24);
+    try {
+        const querySnapshot = await docRef.get();
+        const results = querySnapshot.docs.map((doc) => {
+            const toReturn = doc.data();
+            console.log(toReturn);
+            return toReturn;
+        });
+        res.json(results);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
 });
 app.use('/api', openRouter);
 app.listen(PORT, () => {
