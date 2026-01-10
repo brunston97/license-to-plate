@@ -2,26 +2,25 @@ import { Image } from '@nextui-org/react'
 
 import { IPlateCard } from 'assets/types'
 import axios from 'axios'
+import { BUCKET_URL } from 'const/constants'
 import { ReactElement, useEffect, useRef, useState } from 'react'
-
-const BUCKET_URL = import.meta.env.VITE_BUCKET_URL
 
 export default function PlateCardTable(): ReactElement {
   const [topTenPlates, setTopTenPlates] = useState<IPlateCard[]>([])
   const [modalId, setModalId] = useState('')
 
-  async function getPlates() {
-    const { data } = await axios.get('/vote/results')
-    setTopTenPlates(
-      (data as IPlateCard[]).sort((a, b) => {
-        // Define your ranking logic here, e.g., by a 'score' property
-        const scoreA = a.voteCount || 0
-        const scoreB = b.voteCount || 0
-        return scoreB - scoreA // Sort in descending order of score
-      })
-    )
-  }
   useEffect(() => {
+    async function getPlates() {
+      const { data } = await axios.get('/vote/results')
+      setTopTenPlates(
+        (data as IPlateCard[]).sort((a, b) => {
+          // Define your ranking logic here, e.g., by a 'score' property
+          const scoreA = a.voteCount || 0
+          const scoreB = b.voteCount || 0
+          return scoreB - scoreA // Sort in descending order of score
+        })
+      )
+    }
     getPlates()
   }, [])
 

@@ -1,11 +1,12 @@
 // TODO, put in own export types tsx file
 export interface IPlateCard extends Image {
-  id: string
+  //id: string
   voteCount: number
-  uploader: string
-  title?: string
+  // uploader: string
+  //title?: string
 }
 
+// backend related
 export interface Image {
   id: number
   text: string
