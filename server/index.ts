@@ -74,6 +74,8 @@ openRouter.get('/vote/results', async (req, res) => {
   }
 })
 
+openRouter.get('/plate/:id', (req, res) => {})
+
 /// local image management for tagging
 // Middleware to serve static files from 'images' directory
 openRouter.use('/images', express.static(imagesDir))

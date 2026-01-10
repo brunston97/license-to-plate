@@ -1,5 +1,5 @@
 // TODO, put in own export types tsx file
-export interface IPlateCard {
+export interface IPlateCard extends Image {
   id: string
   voteCount: number
   uploader: string
