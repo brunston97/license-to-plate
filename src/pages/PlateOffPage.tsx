@@ -9,7 +9,7 @@ function PlateOffPage() {
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
   const [isMuted, setIsMuted] = useState(true)
   const [isManualSideBySideView, setIsManualSideBySideView] = useState(false)
-  const [showResults, setShowResults] = useState(false)
+  const [showResults, setShowResults] = useState(true)
   const audioRef = useRef<HTMLAudioElement>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
 

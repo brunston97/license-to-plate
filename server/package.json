@@ -9,7 +9,7 @@
     "start": "node index.js",
     "tsc": "tsc",
     "dev": "tsx watch ./index.ts",
-    "prod": "gcloud config set run/region us-central1 && tsc && gcloud run deploy --source ."
+    "prod": "gcloud config set run/region us-central1 && tsc && gcloud run deploy --project license2plate-b4c6e --source ."
   },
   "engines": {
     "node": ">=16.0.0"

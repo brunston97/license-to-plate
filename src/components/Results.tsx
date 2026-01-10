@@ -9,21 +9,38 @@ const BUCKET_URL = import.meta.env.VITE_BUCKET_URL
 export default function PlateCardTable(): ReactElement {
   const [topTenPlates, setTopTenPlates] = useState<IPlateCard[]>([])
   const [modalId, setModalId] = useState('')
-  const sortedPlateCards = [...topTenPlates].sort((a, b) => {
-    // Define your ranking logic here, e.g., by a 'score' property
-    const scoreA = a.voteCount || 0
-    const scoreB = b.voteCount || 0
-    return scoreB - scoreA // Sort in descending order of score
-  })
+
   async function getPlates() {
     const { data } = await axios.get('/vote/results')
     setTopTenPlates(
-      (data as IPlateCard[]).sort((a, b) => b.id.localeCompare(a.id))
+      (data as IPlateCard[]).sort((a, b) => {
+        // Define your ranking logic here, e.g., by a 'score' property
+        const scoreA = a.voteCount || 0
+        const scoreB = b.voteCount || 0
+        return scoreB - scoreA // Sort in descending order of score
+      })
     )
   }
   useEffect(() => {
     getPlates()
   }, [])
+
+  useEffect(() => {
+    window.onkeydown = (e) => {
+      if (e.key === 'ArrowLeft' && modalRef.current) {
+        const index = topTenPlates.findIndex(({ id }) => id === modalId)
+        if (index > 0) {
+          setModalId(topTenPlates[index - 1].id)
+        }
+      }
+      if (e.key === 'ArrowRight' && modalRef.current) {
+        const index = topTenPlates.findIndex(({ id }) => id === modalId)
+        if (index < topTenPlates.length - 1) {
+          setModalId(topTenPlates[index + 1].id)
+        }
+      }
+    }
+  }, [modalId, topTenPlates])
 
   const modalRef = useRef<HTMLDialogElement>(null)
 
@@ -38,7 +55,7 @@ export default function PlateCardTable(): ReactElement {
         </form>
       </dialog>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {sortedPlateCards.map((item) => (
+        {topTenPlates.map((item) => (
           <div
             key={item.id}
             className="flex flex-col justify-center rounded-xl bg-white p-2"

@@ -39,20 +39,11 @@ yarn-error.log*
 .firebase*
 
 .venv
-
-#/parsePlates/*/
-#parsePlates/openalpr_64/*
-#parsePlates/*
-#!parsePlates/**/*.{py,txt}
 parsePlates/**/*.jpg
 parsePlates/**/*.pt
 parsePlates/**/*.zip
 parsePlates/**/*.pyc
 !parsePlates/**/*.{py,txt}
 parsePlates/source/images/output/
-#parsePlates/source/images/*.jpg
-#parsePlates/source/images/*.png
-#*.jpg
-#*.png
 
 *.onnx
