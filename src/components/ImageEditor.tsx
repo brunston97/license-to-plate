@@ -4,11 +4,10 @@ import { Image } from '../assets/types'
 import axios from '../utils/axiosInstance'
 import { Button, Input } from '@nextui-org/react'
 import { useLocation } from 'react-router-dom'
+import { BUCKET_URL } from 'const/constants'
 
 // Mock data (you can replace with API fetch)
 // const mockImageTextMap: ImageTextMap = { ... }
-
-const BUCKET_URL = `http://localhost:${import.meta.env.VITE_PORT}/api/images/`
 
 Button
 
@@ -92,9 +91,6 @@ export const ImageEditor: React.FC = () => {
 
   // Render image with text (centered, clean)
   const renderImage = () => {
-    // let currentIndex = currentImage
-    //       images.findIndex((i) => i.id == currentImage.id),
-    // if (currentIndex < 0) currentIndex = 0
     if (!currentImage) return null
 
     // Handle text edit
@@ -103,17 +99,7 @@ export const ImageEditor: React.FC = () => {
     }
 
     return (
-      <div
-        style={{
-          display: 'flex',
-          gap: '20px',
-          padding: '20px',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          height: '94vh'
-        }}
-      >
+      <div className="flex flex-col items-center gap-5 p-5">
         <Button
           style={{
             position: 'absolute',
@@ -126,7 +112,7 @@ export const ImageEditor: React.FC = () => {
           close
         </Button>
         <img
-          src={BUCKET_URL + currentImage.id}
+          src={`${BUCKET_URL}/${currentImage.fileName}`}
           alt={currentImage.fileName}
           style={{
             //maxWidth: '500px',
@@ -200,11 +186,12 @@ export const ImageEditor: React.FC = () => {
                   if (currentImage.correctedText != text) {
                     handleSave()
                   }
-                  axios
-                    .get('/images/info/' + (currentImage.id - 1))
-                    .then(({ data }) => {
-                      handleImageSelect(data)
-                    })
+                  const data = images.find(
+                    ({ id }) => id === currentImage.id - 1
+                  )
+                  if (data) {
+                    handleImageSelect(data)
+                  }
                 }
               }}
             >
@@ -219,11 +206,12 @@ export const ImageEditor: React.FC = () => {
                   if (currentImage.correctedText != text) {
                     handleSave()
                   }
-                  axios
-                    .get('/images/info/' + (currentImage.id + 1))
-                    .then(({ data }) => {
-                      handleImageSelect(data)
-                    })
+                  const data = images.find(
+                    ({ id }) => id === currentImage.id + 1
+                  )
+                  if (data) {
+                    handleImageSelect(data)
+                  }
                 }
               }}
             >
@@ -297,8 +285,8 @@ export const ImageEditor: React.FC = () => {
                 }}
               >
                 <img
-                  src={BUCKET_URL + img.id}
-                  alt={img.fileName}
+                  src={`${BUCKET_URL}/${img.fileName}`}
+                  alt={img.correctedText}
                   style={{
                     width: '100%',
                     height: '100%',

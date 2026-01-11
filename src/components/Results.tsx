@@ -53,7 +53,7 @@ export default function PlateCardTable(): ReactElement {
           {currentPlate && (
             <Image
               alt={`${currentPlate.correctedText}`}
-              src={`${BUCKET_URL}/${currentPlate.fileName}?test=2`}
+              src={`${BUCKET_URL}/${currentPlate.fileName}`}
             />
           )}
         </div>
@@ -69,7 +69,7 @@ export default function PlateCardTable(): ReactElement {
           >
             <Image
               alt={`${item.correctedText}`}
-              src={`${BUCKET_URL}/${item.fileName}?test=2`}
+              src={`${BUCKET_URL}/${item.fileName}`}
               className="flex cursor-pointer justify-center"
               isZoomed
               onClick={() => {

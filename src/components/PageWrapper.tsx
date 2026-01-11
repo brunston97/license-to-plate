@@ -56,6 +56,17 @@ export default function PageWrapper() {
                 Label
               </Button>
             )}
+            {import.meta.env.DEV && (
+              <Button
+                onPress={() => {
+                  navigate('/results')
+                  setIsOpen(false)
+                }}
+                //className="text-left hover:text-yellow-400"
+              >
+                Results
+              </Button>
+            )}
           </nav>
         </div>
       </div>

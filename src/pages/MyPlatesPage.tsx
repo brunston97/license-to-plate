@@ -3,7 +3,7 @@ import { IPlateCard } from 'assets/types'
 import PlateCollection from '../components/PlateCollection'
 
 const MyPlatesPage = () => {
-  const [selectedPlates, setSelectedPlates] = useState<Set<string>>(new Set())
+  const [selectedPlates, setSelectedPlates] = useState<Set<number>>(new Set())
   const [cachedPlates, setCachedPlates] = useState<IPlateCard[]>(() => {
     const stored = localStorage.getItem('userPlates')
     return stored ? JSON.parse(stored) : []
@@ -27,7 +27,7 @@ const MyPlatesPage = () => {
 
   // defined in this component for future case where there will be two PlateCollections on this page 'Liked Plates' and 'All Plates'
   // when selected in one, I want it to be selected in the other.. so this parent component has to define what is and isn't selected
-  function isPlateSelected(plateId: string) {
+  function isPlateSelected(plateId: number) {
     return selectedPlates.has(plateId)
   }
 
