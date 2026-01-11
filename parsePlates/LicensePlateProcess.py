@@ -162,24 +162,10 @@ class LicensePlateProcess:
 
         print(f"Processing: {image_folder.name}")
 
-        # sharpen_kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-
-        # for filename in os.listdir(image_folder.absolute()):
-        #     if filename.lower().endswith((".jpg", ".jpeg", ".png")):
-        #         temp_img = cv2.imread(str(image_folder / filename))
-        #         # Apply the kernel to the image using filter2D
-        #         # The '-1' depth parameter means the output image will have the same depth as the input
-        #         temp_output_img = cv2.filter2D(temp_img, -1, sharpen_kernel)
-        #         cv2.imwrite(
-        #             str(sharpened_plates_path / ("sharp_" + filename)), temp_output_img
-        #         )
-        # image_folder = sharpened_plates_path
         # 1. Detect Box
         bounds = self.detect_plate_bbox(image_folder)
         self.bounds = bounds
-        # with open("source/scans.txt", "w") as f:
-        #     f.write(str(self.bounds))
-        # print(f"Plate Detected (Conf: {conf:.2f}) at: {bounds}")
+
 
         # 2. Crop Image
         for key in self.bounds:
@@ -199,21 +185,18 @@ class LicensePlateProcess:
             output_name = key
 
             if conf < 0.7:
-                # 3. Find Corners (Try Lines first, then Contours)
                 best_box = find_largest_textbox(img)
                 if best_box is None:
                     cv2.imwrite(str((missed_plates_path / key)), img)
-                    # os.rename(img_path, str((missed_plates_path / key)))
                     continue
 
                 x1, y1, x2, y2 = points_to_xyxy(
                     expand_bbox(best_box, img.shape, img.shape[1] * 0.2)
                 )
                 output_img = img[y1:y2, x1:x2]
-                # os.rename(img_path, str(missed_plates_path / key))
 
             img = output_img
-            imgScale = 768 / img.shape[1]  # * img.shape[1]
+            imgScale = 768 / img.shape[1]
             img_size = np.array(
                 (
                     imgScale * img.shape[0],
@@ -223,22 +206,5 @@ class LicensePlateProcess:
             )
             output_img = cv2.resize(output_img, img_size)
 
-            # sharpen_kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-
-            # Apply the kernel to the image using filter2D
-            # The '-1' depth parameter means the output image will have the same depth as the input
-            # output_img = cv2.filter2D(output_img, -1, sharpen_kernel)
-
             cv2.imwrite(detected_plates_path / output_name, output_img)
 
-            # _, binary_img = cv2.threshold(
-            #     cv2.cvtColor(output_img, cv2.COLOR_BGR2GRAY),
-            #     155,
-            #     255,
-            #     cv2.THRESH_BINARY | cv2.THRESH_OTSU,
-            # )
-
-            # kernel = np.ones((1, 1), np.uint8)
-            # edges_img = cv2.dilate(binary_img, kernel, iterations=3)
-            # # edges_img = cv2.Canny(self.binary_img, 50, 200)
-            # cv2.imwrite(detected_plates_path / ("bw_" + output_name), edges_img)
