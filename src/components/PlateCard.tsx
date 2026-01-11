@@ -1,7 +1,7 @@
 import { Card, CardBody, CardHeader, CardProps, Image } from '@nextui-org/react'
 import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
-import { BUCKET_URL } from 'const/constants'
+import { BUCKET_URL, MOBILE_WIDTH_CUTOFF } from 'const/constants'
 import { useState } from 'react'
 
 interface PlateCardProps extends CardProps {

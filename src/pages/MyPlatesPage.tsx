@@ -19,7 +19,9 @@ const MyPlatesPage = () => {
   })
 
   const allPlates = useMemo(() => {
-    return [...cachedPlates].sort((a, b) => a.title.localeCompare(b.title))
+    return [...cachedPlates].sort(
+      (a, b) => a.correctedText?.localeCompare(b.correctedText)
+    )
   }, [cachedPlates])
 
   const likedPlates = useMemo(
@@ -83,7 +85,7 @@ const MyPlatesPage = () => {
   }
 
   const handleSelectedPlatesReset = () => {
-    setSelectedPlates(new Set<string>())
+    setSelectedPlates(new Set<number>())
   }
 
   return (
