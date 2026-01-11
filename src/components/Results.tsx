@@ -2,45 +2,47 @@ import { Image } from '@nextui-org/react'
 
 import { IPlateCard } from 'assets/types'
 import axios from 'axios'
+import { BUCKET_URL } from 'const/constants'
 import { ReactElement, useEffect, useRef, useState } from 'react'
-
-const BUCKET_URL = import.meta.env.VITE_BUCKET_URL
 
 export default function PlateCardTable(): ReactElement {
   const [topTenPlates, setTopTenPlates] = useState<IPlateCard[]>([])
-  const [modalId, setModalId] = useState('')
+  const [currentPlate, setCurrentPlate] = useState<IPlateCard | null>(null)
+  const [index, setIndex] = useState(0)
 
-  async function getPlates() {
-    const { data } = await axios.get('/vote/results')
-    setTopTenPlates(
-      (data as IPlateCard[]).sort((a, b) => {
+  useEffect(() => {
+    async function getPlates() {
+      const { data } = await axios.get('/vote/results')
+      const plates = (data as IPlateCard[]).sort((a, b) => {
         // Define your ranking logic here, e.g., by a 'score' property
         const scoreA = a.voteCount || 0
         const scoreB = b.voteCount || 0
         return scoreB - scoreA // Sort in descending order of score
       })
-    )
-  }
-  useEffect(() => {
+      setTopTenPlates(plates)
+      setCurrentPlate(plates[0])
+    }
     getPlates()
   }, [])
 
   useEffect(() => {
     window.onkeydown = (e) => {
       if (e.key === 'ArrowLeft' && modalRef.current) {
-        const index = topTenPlates.findIndex(({ id }) => id === modalId)
-        if (index > 0) {
-          setModalId(topTenPlates[index - 1].id)
+        const newIndex = index - 1
+        if (newIndex > -1) {
+          setCurrentPlate(topTenPlates[newIndex])
+          setIndex(newIndex)
         }
       }
       if (e.key === 'ArrowRight' && modalRef.current) {
-        const index = topTenPlates.findIndex(({ id }) => id === modalId)
-        if (index < topTenPlates.length - 1) {
-          setModalId(topTenPlates[index + 1].id)
+        const newIndex = index + 1
+        if (newIndex < topTenPlates.length) {
+          setCurrentPlate(topTenPlates[newIndex])
+          setIndex(newIndex)
         }
       }
     }
-  }, [modalId, topTenPlates])
+  }, [index, topTenPlates])
 
   const modalRef = useRef<HTMLDialogElement>(null)
 
@@ -48,7 +50,12 @@ export default function PlateCardTable(): ReactElement {
     <div className="z-0 grow overflow-y-auto p-4">
       <dialog id="my_modal_2" className="modal" ref={modalRef}>
         <div className="modal-box">
-          <Image alt={`${modalId}`} src={`${BUCKET_URL}/plate${modalId}.jpg`} />
+          {currentPlate && (
+            <Image
+              alt={`${currentPlate.correctedText}`}
+              src={`${BUCKET_URL}/${currentPlate.fileName}`}
+            />
+          )}
         </div>
         <form method="dialog" className="modal-backdrop">
           <button>close</button>
@@ -61,12 +68,12 @@ export default function PlateCardTable(): ReactElement {
             className="flex flex-col justify-center rounded-xl bg-white p-2"
           >
             <Image
-              alt={`${item.title}`}
-              src={`${BUCKET_URL}/plate${item.id}.jpg`}
+              alt={`${item.correctedText}`}
+              src={`${BUCKET_URL}/${item.fileName}`}
               className="flex cursor-pointer justify-center"
               isZoomed
               onClick={() => {
-                setModalId(item.id)
+                setCurrentPlate(item)
                 modalRef.current?.showModal()
               }}
             />

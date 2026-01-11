@@ -22,14 +22,16 @@
     "test:ui": "vitest --ui",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "deploy": "npm run prod:server && npm run prod:client"
+    "deploy": "npm run prod:server && npm run prod:client",
+    "makePyEnv": "python3 -m venv .venv && source .venv/bin/activate && pip install -r parsePlates/requirements.txt"
   },
   "dependencies": {
     "@nextui-org/react": "^2.6.8",
     "axios": "^1.7.9",
     "framer-motion": "^11.15.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.7.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
@@ -38,6 +40,7 @@
     "@types/node": "^20.17.9",
     "@types/react": "^18.3.14",
     "@types/react-dom": "^18.3.2",
+    "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react-swc": "^3.7.2",
@@ -55,6 +58,7 @@
     "postcss": "^8.4.49",
     "prettier": "3.1.1",
     "react-icons": "^5.4.0",
+    "shx": "^0.4.0",
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",

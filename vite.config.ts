@@ -17,6 +17,7 @@ export default defineConfig(async ({ mode }) => {
       include: ['**/test.{ts,tsx}']
     },
     server: {
+      //only applies to DEV
       //port: parseInt(process.env.PORT || '808')
       proxy: {
         '/api': {
