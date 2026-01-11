@@ -3,7 +3,7 @@ import PlateCard from './PlateCard'
 
 interface PlateCollectionProps {
   plates: IPlateCard[]
-  isPlateSelected: (plateId: string) => boolean
+  isPlateSelected: (plateId: number) => boolean
   onCardClick: (plate: IPlateCard) => void
   onCardLike: (plate: IPlateCard) => void
 }
