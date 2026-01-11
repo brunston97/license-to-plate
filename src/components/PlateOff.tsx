@@ -4,7 +4,7 @@ import axios from '../utils/axiosInstance'
 import PlateCard from './PlateCard'
 import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
-import allPlateData from '../const/Plate_Zone_Plates.json'
+//import allPlateData from '../const/Plate_Zone_Plates.json'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 
 interface PlateOffProps {
@@ -42,11 +42,14 @@ const PlateOff = (props: PlateOffProps) => {
 
   async function getCards() {
     try {
-      const data: IPlateCard[] = allPlateData
-      setPlates(data)
-      const len = (data as IPlateCard[]).length
-      const tempArray = formPlatePairsArray(len)
+      const { data } = await axios.get('/plates')
+      setPlates(data as IPlateCard[])
+      //const len = data.length //(data as IPlateCard[]).length
+      const tempArray = formPlatePairsArray(data.length)
       setIndexPairs(tempArray)
+      //console.log(data)
+      //console.log(tempArray)
+      //setLoading(false)
     } catch (error) {
       console.log(error)
     } finally {

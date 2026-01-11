@@ -1,7 +1,7 @@
 import { Card, CardBody, CardHeader, CardProps, Image } from '@nextui-org/react'
 import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
-import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
+import { BUCKET_URL } from 'const/constants'
 import { useState } from 'react'
 
 interface PlateCardProps extends CardProps {
@@ -11,8 +11,6 @@ interface PlateCardProps extends CardProps {
   onLikeButtonClick: (plate: IPlateCard) => void
   windowWidth: number
 }
-
-const BUCKET_URL = import.meta.env.VITE_BUCKET_URL
 
 const PlateCard = (props: PlateCardProps) => {
   const { card, onPlateCardVote, isLiked, onLikeButtonClick, windowWidth } =
@@ -64,16 +62,12 @@ const PlateCard = (props: PlateCardProps) => {
         >
           <div
             id={`imgContainer-${card.id}`}
-            className={`flex max-h-full ${
-              windowWidth <= MOBILE_WIDTH_CUTOFF
-                ? 'max-w-[400px]'
-                : 'max-w-[600px] 2xl:max-w-[700px]'
-            } justify-center`}
+            className={` flex max-h-full max-w-md justify-center md:max-w-xl 2xl:max-w-2xl`}
           >
             <Image
               alt="Card background"
               className="z-0 max-h-full max-w-full rounded-xl object-contain"
-              src={`${BUCKET_URL}/plates_2026/plate${card.fileName}`}
+              src={`${BUCKET_URL}/${card.fileName}`}
               onLoad={handleImageLoaded}
               classNames={{
                 wrapper: 'flex h-full justify-center items-center',

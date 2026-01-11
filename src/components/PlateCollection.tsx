@@ -7,7 +7,7 @@ interface PlateCollectionProps {
   plates: IPlateCard[]
   windowWidth: number
   isFleet: boolean
-  isPlateSelected: (plateId: string) => boolean
+  isPlateSelected: (plateId: number) => boolean
   onCardClick: (plate: IPlateCard) => void
   onCardLike: (plate: IPlateCard) => void
 }

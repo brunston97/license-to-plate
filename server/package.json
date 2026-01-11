@@ -12,7 +12,7 @@
     "prod": "gcloud config set run/region us-central1 && tsc && gcloud run deploy --project license2plate-b4c6e --source ."
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": "22"
   },
   "author": "J@J.com",
   "license": "Apache-2.0",

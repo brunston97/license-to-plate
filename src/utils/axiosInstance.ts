@@ -1,6 +1,5 @@
 import axios from 'axios'
+import { API_URL } from 'const/constants'
 
-axios.defaults.baseURL = import.meta.env.DEV
-  ? `http://localhost:${import.meta.env.VITE_PORT}/api`
-  : `https://server-186646240494.us-central1.run.app/api`
+axios.defaults.baseURL = API_URL
 export default axios

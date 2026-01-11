@@ -12,7 +12,7 @@ const MyPlatesPage = () => {
   const { windowWidth } = useOutletContext<{ windowWidth: number }>()
 
   // user plate data
-  const [selectedPlates, setSelectedPlates] = useState<Set<string>>(new Set())
+  const [selectedPlates, setSelectedPlates] = useState<Set<number>>(new Set())
   const [cachedPlates, setCachedPlates] = useState<IPlateCard[]>(() => {
     const stored = localStorage.getItem('userPlates')
     return stored ? JSON.parse(stored) : []
@@ -47,7 +47,7 @@ const MyPlatesPage = () => {
   // defined in this component because there are two PlateCollections on this page 'Liked Plates' and 'All Plates'
   // when selected in one, I want it to be selected in the other.. so this parent component has to define what is and isn't selected
   const isPlateSelected = useCallback(
-    (plateId: string) => selectedPlates.has(plateId),
+    (plateId: number) => selectedPlates.has(plateId),
     [selectedPlates]
   )
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { FaVolumeUp, FaVolumeMute, FaInfoCircle } from 'react-icons/fa'
+import { Button } from '@nextui-org/react'
 import { useNavigate, Outlet } from 'react-router-dom'
 
 export default function PageWrapper() {
@@ -45,13 +46,17 @@ export default function PageWrapper() {
   }
 
   return (
-    <div className="relative h-screen text-white">
-      <button
-        className="absolute left-1 top-1 z-50 rounded p-2 text-2xl hover:bg-gray-700"
-        onClick={() => setIsOpen(!isOpen)}
+    <div className="relative min-h-screen bg-gray-900 text-white">
+      <Button
+        //className="absolute left-3 top-3 z-50 rounded bg-gray-800 p-2 hover:bg-gray-700"
+        className="absolute left-3 top-3 z-50"
+        onPress={() => setIsOpen(!isOpen)}
+        isIconOnly
+        variant="flat"
+        color="primary"
       >
         &#9776;
-      </button>
+      </Button>
 
       <div
         className={`fixed left-0 top-0 z-40 h-full w-64 bg-gray-800 transition-transform duration-300 ${
@@ -61,33 +66,46 @@ export default function PageWrapper() {
         <div className="p-6">
           <h2 className="mb-6 mt-8 text-2xl font-bold">Menu</h2>
           <nav className="flex flex-col gap-4">
-            <button
-              onClick={() => {
+            <Button
+              onPress={() => {
                 navigate('/')
                 setIsOpen(false)
               }}
-              className="text-left hover:text-yellow-400"
+              //className="text-left hover:text-yellow-400"
             >
               Plate Off
-            </button>
-            <button
-              onClick={() => {
+            </Button>
+            <Button
+              onPress={() => {
                 navigate('/myPlates')
                 setIsOpen(false)
               }}
-              className="text-left hover:text-yellow-400"
+              //className="text-left hover:text-yellow-400"
             >
               My Plates
-            </button>
-            <button
-              onClick={() => {
-                navigate('/label')
-                setIsOpen(false)
-              }}
-              className="text-left hover:text-yellow-400"
-            >
-              Label
-            </button>
+            </Button>
+            {import.meta.env.DEV && (
+              <Button
+                onPress={() => {
+                  navigate('/label')
+                  setIsOpen(false)
+                }}
+                //className="text-left hover:text-yellow-400"
+              >
+                Label
+              </Button>
+            )}
+            {import.meta.env.DEV && (
+              <Button
+                onPress={() => {
+                  navigate('/results')
+                  setIsOpen(false)
+                }}
+                //className="text-left hover:text-yellow-400"
+              >
+                Results
+              </Button>
+            )}
           </nav>
         </div>
       </div>
