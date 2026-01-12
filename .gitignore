@@ -38,6 +38,8 @@ yarn-error.log*
 
 .firebase*
 
+/**/license2plate_key.json
+
 .venv
 parsePlates/**/*.jpg
 parsePlates/**/*.pt

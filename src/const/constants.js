@@ -6,3 +6,4 @@ export const BUCKET_URL = import.meta.env.DEV
 export const API_URL = import.meta.env.DEV
   ? `http://localhost:${import.meta.env.VITE_PORT ?? 8080}/api`
   : `https://server-186646240494.us-central1.run.app/api`
+export const MAX_FLEET_SIZE = 4

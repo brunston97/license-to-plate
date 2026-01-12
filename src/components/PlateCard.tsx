@@ -1,7 +1,7 @@
 import { Card, CardBody, CardHeader, CardProps, Image } from '@nextui-org/react'
 import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
-import { BUCKET_URL } from 'const/constants'
+import { BUCKET_URL, MOBILE_WIDTH_CUTOFF } from 'const/constants'
 import { useState } from 'react'
 
 interface PlateCardProps extends CardProps {
@@ -13,7 +13,8 @@ interface PlateCardProps extends CardProps {
 }
 
 const PlateCard = (props: PlateCardProps) => {
-  const { card, onPlateCardVote, isLiked, onLikeButtonClick } = props
+  const { card, onPlateCardVote, isLiked, onLikeButtonClick, windowWidth } =
+    props
   const [imageLoaded, setImageLoaded] = useState(false)
 
   // fixes an issue where safari would render the first set of cards really small
@@ -43,10 +44,13 @@ const PlateCard = (props: PlateCardProps) => {
               {card.correctedText}
             </h3>
           </div>
-          <div id="likeButtonContainer" className="absolute right-4 top-1">
+          <div
+            id="likeButtonContainer"
+            className="absolute right-1 top-2 sm:top-1 md:right-2 xl:right-3"
+          >
             <IoHeart
               className="mr-1 mt-1 cursor-pointer"
-              size={32}
+              size={windowWidth <= MOBILE_WIDTH_CUTOFF ? 22 : 36}
               color={isLiked ? 'red' : 'gray'}
               onClick={() => onLikeButtonClick(card)}
             ></IoHeart>
