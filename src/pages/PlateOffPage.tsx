@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { GiCardExchange } from 'react-icons/gi'
 import PlateOff from 'components/PlateOff'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
-import PlateCardTable from 'components/Results'
 import { useOutletContext } from 'react-router-dom'
 
 function PlateOffPage() {
@@ -11,34 +10,19 @@ function PlateOffPage() {
     isMuted: boolean
   }>()
   const [isManualSideBySideView, setIsManualSideBySideView] = useState(false)
-  const [showResults, setShowResults] = useState(false)
-
-  useEffect(() => {
-    if (document.location.pathname == '/results') {
-      setShowResults(true)
-    }
-  }, [])
 
   const toggleView = () => {
     setIsManualSideBySideView((prevState) => !prevState)
   }
 
   return (
-    <div className="relative flex max-h-screen min-h-screen w-screen max-w-full flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-0 sm:justify-between">
-      <div className="flex flex-col items-center justify-start">
-        <div className="text-center">
-          <Header />
-        </div>
-      </div>
-      {showResults ? (
-        <PlateCardTable />
-      ) : (
-        <PlateOff
-          isMuted={isMuted}
-          windowWidth={windowWidth}
-          isManualSideBySideView={isManualSideBySideView}
-        />
-      )}
+    <div className="flex size-full flex-col items-center justify-center overflow-hidden">
+      <Header />
+      <PlateOff
+        isMuted={isMuted}
+        windowWidth={windowWidth}
+        isManualSideBySideView={isManualSideBySideView}
+      />
 
       {windowWidth <= MOBILE_WIDTH_CUTOFF && (
         <button
@@ -62,7 +46,7 @@ function PlateOffPage() {
 
 function Header() {
   return (
-    <header className="py-0 font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
+    <header className="py-0 text-center font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
       <h1>Plate Zone Plate-Off!</h1>
     </header>
   )

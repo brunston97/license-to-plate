@@ -106,7 +106,6 @@ openRouter.get('/plates', async (req, res) => {
 
 //#region localEndpoints
 /// local image management for tagging
-console.log(process.env)
 if (process.env.NODE_ENV === 'development') {
   // Middleware to serve static files from 'images' directory
   openRouter.use('/images', express.static(imagesDir, { maxAge: 3600000 }))

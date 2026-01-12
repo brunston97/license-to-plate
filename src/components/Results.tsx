@@ -5,7 +5,7 @@ import axios from 'axios'
 import { BUCKET_URL } from 'const/constants'
 import { ReactElement, useEffect, useRef, useState } from 'react'
 
-export default function PlateCardTable(): ReactElement {
+export default function Results(): ReactElement {
   const [topTenPlates, setTopTenPlates] = useState<IPlateCard[]>([])
   const [currentPlate, setCurrentPlate] = useState<IPlateCard | null>(null)
   const [index, setIndex] = useState(0)

@@ -130,19 +130,12 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   return (
-    <div className="flex h-full min-h-0 shrink flex-col sm:grow md:mt-6">
+    <div className="flex size-full min-h-0 grow justify-center py-5 md:pt-6 xl:max-w-2xl">
       {!isLoading ? (
         <>
           {indexPairs.length > index + 1 ? (
             <>
-              <div
-                className={
-                  props.windowWidth > MOBILE_WIDTH_CUTOFF ||
-                  props.isManualSideBySideView
-                    ? 'relative flex h-full min-h-0 justify-center py-4 *:shrink'
-                    : 'carousel mt-8 max-h-full w-full space-x-4 bg-transparent py-2 *:w-full *:grow'
-                }
-              >
+              <div className="flex size-full min-h-0 grow justify-around">
                 <PlateCard
                   card={plates[indexPairs[index][0]]}
                   onPlateCardVote={onCardClick}
