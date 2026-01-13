@@ -22,12 +22,12 @@ const PlateCard = (props: PlateCardProps) => {
   // }
 
   return (
-    <div className="aspect-[3/4] h-full max-h-full max-w-[50%] p-5">
+    <div className="max-h-full max-w-full md:max-w-[%]">
       <Card
         // className={`relative mx-3 h-auto max-h-full w-fit cursor-default py-0 md:mx-6 2xl:mx-10${
         //   imageLoaded ? 'opacity-100' : 'opacity-0'
         // }`}
-        className="!size-full"
+        className="size-full"
         isHoverable
         isPressable
         classNames={
@@ -60,26 +60,26 @@ const PlateCard = (props: PlateCardProps) => {
         </CardHeader>
         <CardBody
           //className="flex h-full cursor-pointer justify-center"
-          className="h-full max-h-full min-h-0 grow"
+          className="aspect-[3/4] h-full max-h-full min-h-0 grow "
           onClick={() => onPlateCardVote(card)}
         >
           <div
             id={`imgContainer-${card.id}`}
             //className={` flex aspect-[4/3] max-h-full max-w-md justify-center md:max-w-xl 2xl:max-w-2xl`}
-            className="flex h-full max-h-full w-fit justify-center"
+            className="h-full max-h-full"
           >
             <Image
               alt="Card background"
-              //className="h-full"
+              className=""
               //className="z-0 max-h-full max-w-full rounded-xl object-contain"
               src={`${BUCKET_URL}/${card.fileName}?hi=1`}
               onLoad={() => {}}
               classNames={{
-                wrapper: 'size-full max-h-full aspect-[3/]',
+                wrapper: 'w-full size-full max-h-full !max-w-full',
                 zoomedWrapper: 'max-h-full size-full',
-                img: 'object-cover max-h-full size-full'
+                img: 'top-1/ -translate-y-1/ size-full object-cover'
               }}
-              isZoomed
+              isZoomed={window.innerWidth > 768}
             />
           </div>
         </CardBody>

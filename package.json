@@ -26,6 +26,7 @@
     "makePyEnv": "python3 -m venv .venv && source .venv/bin/activate && pip install -r parsePlates/requirements.txt"
   },
   "dependencies": {
+    "@heroui/use-theme": "^2.1.10",
     "@nextui-org/react": "^2.6.8",
     "axios": "^1.7.9",
     "framer-motion": "^11.15.0",

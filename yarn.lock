@@ -221,6 +221,11 @@
   dependencies:
     tslib "2"
 
+"@heroui/use-theme@^2.1.10":
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/@heroui/use-theme/-/use-theme-2.1.10.tgz#1bbb763437dbcda69c222cdc8c6b710e03fe7727"
+  integrity sha512-JM9Y56bzHMU0rEz1K86Tnli2oRqQY3/NYNOHXbVXQtP+ZB2eabm9Cbl15bPZzSskpEsD5oKnbccFV4dCYhenmw==
+
 "@humanwhocodes/config-array@^0.13.0":
   version "0.13.0"
   resolved "https://registry.npmjs.org/@humanwhocodes/config-array/-/config-array-0.13.0.tgz"

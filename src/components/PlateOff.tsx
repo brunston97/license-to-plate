@@ -5,7 +5,6 @@ import PlateCard from './PlateCard'
 import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
 //import allPlateData from '../const/Plate_Zone_Plates.json'
-import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 
 interface PlateOffProps {
   isMuted: boolean
@@ -130,58 +129,40 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   return (
-    <div className="flex size-full min-h-0 grow justify-center py-5 md:pt-6 xl:max-w-2xl">
+    <div className="flex size-full min-h-0 grow flex-col justify-center py-5 md:pt-6 xl:max-w-2xl">
       {!isLoading ? (
         <>
           {indexPairs.length > index + 1 ? (
             <>
-              <div className="flex size-full min-h-0 grow justify-around">
-                <PlateCard
-                  card={plates[indexPairs[index][0]]}
-                  onPlateCardVote={onCardClick}
-                  isLiked={
-                    cachedPlateInfo.find(
-                      (plate) => plate.id === plates[indexPairs[index][0]].id
-                    )?.isLiked ?? false
-                  }
-                  onLikeButtonClick={onCardLike}
-                  windowWidth={props.windowWidth}
-                  id="item1"
-                />
-                <PlateCard
-                  card={plates[indexPairs[index][1]]}
-                  onPlateCardVote={onCardClick}
-                  isLiked={
-                    cachedPlateInfo.find(
-                      (plate) => plate.id === plates[indexPairs[index][1]].id
-                    )?.isLiked ?? false
-                  }
-                  onLikeButtonClick={onCardLike}
-                  windowWidth={props.windowWidth}
-                  id="item2"
-                />
-              </div>
-              <div
-                className="flex w-full justify-center gap-2 py-2"
-                style={{
-                  visibility:
-                    props.windowWidth > MOBILE_WIDTH_CUTOFF ||
-                    props.isManualSideBySideView
-                      ? 'hidden'
-                      : 'visible',
-                  display:
-                    props.windowWidth > MOBILE_WIDTH_CUTOFF ||
-                    props.isManualSideBySideView
-                      ? 'none'
-                      : 'flex'
-                }}
-              >
-                <a href="#item1" className="btn btn-xs">
-                  &larr;
-                </a>
-                <a href="#item2" className="btn btn-xs">
-                  &rarr;
-                </a>
+              <div className="carousel flex size-full min-h-0 grow justify-around">
+                <div className="carousel-item relative size-full justify-center p-5 md:w-1/2">
+                  <PlateCard
+                    card={plates[indexPairs[index][0]]}
+                    onPlateCardVote={onCardClick}
+                    isLiked={
+                      cachedPlateInfo.find(
+                        (plate) => plate.id === plates[indexPairs[index][0]].id
+                      )?.isLiked ?? false
+                    }
+                    onLikeButtonClick={onCardLike}
+                    windowWidth={props.windowWidth}
+                    id="item1"
+                  />
+                </div>
+                <div className="carousel-item relative size-full justify-center p-5 md:w-1/2">
+                  <PlateCard
+                    card={plates[indexPairs[index][1]]}
+                    onPlateCardVote={onCardClick}
+                    isLiked={
+                      cachedPlateInfo.find(
+                        (plate) => plate.id === plates[indexPairs[index][1]].id
+                      )?.isLiked ?? false
+                    }
+                    onLikeButtonClick={onCardLike}
+                    windowWidth={props.windowWidth}
+                    id="item2"
+                  />
+                </div>
               </div>
 
               {indexPairs.length > index + 2 && (

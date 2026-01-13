@@ -1,19 +1,20 @@
-import React, { useState } from 'react'
 import { GiCardExchange } from 'react-icons/gi'
 import PlateOff from 'components/PlateOff'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
-import { useOutletContext } from 'react-router-dom'
+import { useLocation, useOutletContext } from 'react-router-dom'
 
 function PlateOffPage() {
   const { windowWidth, isMuted } = useOutletContext<{
     windowWidth: number
     isMuted: boolean
   }>()
-  const [isManualSideBySideView, setIsManualSideBySideView] = useState(false)
+  //const [isManualSideBySideView, setIsManualSideBySideView] = useState(false)
 
-  const toggleView = () => {
-    setIsManualSideBySideView((prevState) => !prevState)
-  }
+  const location = useLocation()
+
+  // const toggleView = () => {
+  //   setIsManualSideBySideView((prevState) => !prevState)
+  // }
 
   return (
     <div className="flex size-full flex-col items-center justify-center overflow-hidden">
@@ -21,24 +22,42 @@ function PlateOffPage() {
       <PlateOff
         isMuted={isMuted}
         windowWidth={windowWidth}
-        isManualSideBySideView={isManualSideBySideView}
+        isManualSideBySideView={false}
       />
 
+      {/* <div
+        className="flex w-full justify-center gap-2 py-2 md:hidden"
+        // style={{
+        //   visibility:
+        //     window.innerWidth > MOBILE_WIDTH_CUTOFF ? 'hidden' : 'visible',
+        //   display: 'flex'
+        // }}
+      >
+        <a href="#item1" className="btn btn-xs">
+          &larr;
+        </a>
+        <a href="#item2" className="btn btn-xs">
+          &rarr;
+        </a>
+      </div> */}
+
       {windowWidth <= MOBILE_WIDTH_CUTOFF && (
-        <button
-          onClick={toggleView}
-          className="fixed bottom-4 right-4 rounded-full bg-transparent p-2 hover:bg-gray-200"
-          title={
-            isManualSideBySideView
-              ? 'Switch to Image View'
-              : 'Switch to Side-By-Side View'
-          }
-        >
-          <GiCardExchange
-            size={32}
-            color={isManualSideBySideView ? 'white' : 'gray'}
-          />
-        </button>
+        <a href={location.hash === '#item1' ? '#item2' : '#item1'}>
+          <button
+            //onClick={() => {navigator('')}}
+            className="fixed bottom-4 right-4 rounded-full bg-transparent p-2 hover:bg-gray-200"
+            // title={
+            //   isManualSideBySideView
+            //     ? 'Switch to Image View'
+            //     : 'Switch to Side-By-Side View'
+            //}
+          >
+            <GiCardExchange
+              size={32}
+              //color={isManualSideBySideView ? 'white' : 'gray'}
+            />
+          </button>
+        </a>
       )}
     </div>
   )

@@ -14,6 +14,7 @@ const __dirname = path.dirname(__filename)
 
 const app = express()
 const PORT = parseInt(process.env.VITE_PORT || '8080')
+const DEV_IMG_FOLDER = process.env.IMG_DIR || 'input'
 const openRouter = express.Router()
 
 app.use(express.json())
@@ -137,7 +138,7 @@ if (process.env.NODE_ENV === 'development') {
     try {
       //const fileInfo = await localDb.getImgById(id)
       if (fileName) {
-        const filePath = path.join(imagesDir, 'output/detectedPlates', fileName)
+        const filePath = path.join(imagesDir, DEV_IMG_FOLDER, fileName)
         // if (!existsSync(filePath)) {
         //   res.status(404).json({ error: `File does not exists` })
         // } else {

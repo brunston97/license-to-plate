@@ -4,9 +4,12 @@ import MyPlatesPage from './pages/MyPlatesPage'
 import PageWrapper from 'components/PageWrapper'
 import { ImageEditor } from 'components/ImageEditor'
 import Results from 'components/Results'
+import './App.css'
+//import { ThemeProvider } from '@nextui-org/theme'
 
 function App() {
   return (
+    // <ThemeProvider>
     <Router>
       <Routes>
         <Route element={<PageWrapper />}>
@@ -22,6 +25,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
+    // </ThemeProvider>
   )
 }
 
