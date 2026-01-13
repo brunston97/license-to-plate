@@ -27,7 +27,7 @@ const PlateCard = (props: PlateCardProps) => {
         // className={`relative mx-3 h-auto max-h-full w-fit cursor-default py-0 md:mx-6 2xl:mx-10${
         //   imageLoaded ? 'opacity-100' : 'opacity-0'
         // }`}
-        className="sm:h-full sm:w-full"
+        className="aspect-[3/4] max-h-full"
         isHoverable
         isPressable
         classNames={
@@ -60,7 +60,7 @@ const PlateCard = (props: PlateCardProps) => {
         </CardHeader>
         <CardBody
           //className="flex h-full cursor-pointer justify-center"
-          className="aspect-[3/4] max-h-full min-h-0 w-full grow sm:h-full "
+          className="block max-h-full min-h-0 w-full sm:h-full "
           onClick={() => onPlateCardVote(card)}
         >
           <div
