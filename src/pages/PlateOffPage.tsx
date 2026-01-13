@@ -17,8 +17,8 @@ function PlateOffPage() {
   // }
 
   return (
-    <div className="flex size-full flex-col items-center justify-center overflow-hidden">
-      <Header />
+    <div className="flex min-h-0 grow flex-col items-center justify-center">
+      {/* <Header /> */}
       <PlateOff
         isMuted={isMuted}
         windowWidth={windowWidth}
@@ -63,12 +63,12 @@ function PlateOffPage() {
   )
 }
 
-function Header() {
-  return (
-    <header className="py-0 text-center font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
-      <h1>Plate Zone Plate-Off!</h1>
-    </header>
-  )
-}
+// function Header() {
+//   return (
+//     <header className="py-0 text-center font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
+//       <h1>Plate Zone Plate-Off!</h1>
+//     </header>
+//   )
+// }
 
 export default PlateOffPage

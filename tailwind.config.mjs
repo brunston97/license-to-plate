@@ -1,10 +1,10 @@
-import { nextui } from '@nextui-org/react'
+import { heroui } from '@heroui/react'
 import daisyui from 'daisyui'
 
 /** @type {import('tailwindcss').Config} */
 export const content = [
   './src/**/*.{js,ts,jsx,tsx,mdx}',
-  './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}'
+  './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}'
 ]
 export const theme = {
   extend: {
@@ -18,4 +18,4 @@ export const theme = {
   }
 }
 export const darkMode = 'class'
-export const plugins = [nextui(), daisyui]
+export const plugins = [heroui(), daisyui]

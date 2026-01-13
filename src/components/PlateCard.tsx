@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardProps, Image } from '@nextui-org/react'
+import { Card, CardBody, CardHeader, CardProps, Image } from '@heroui/react'
 import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
 import { BUCKET_URL, MOBILE_WIDTH_CUTOFF } from 'const/constants'
@@ -22,12 +22,12 @@ const PlateCard = (props: PlateCardProps) => {
   // }
 
   return (
-    <div className="max-h-full max-w-full md:max-w-[%]">
+    <div className="max-h-full max-w-full light">
       <Card
         // className={`relative mx-3 h-auto max-h-full w-fit cursor-default py-0 md:mx-6 2xl:mx-10${
         //   imageLoaded ? 'opacity-100' : 'opacity-0'
         // }`}
-        className="size-full"
+        className="sm:h-full sm:w-full"
         isHoverable
         isPressable
         classNames={
@@ -42,7 +42,7 @@ const PlateCard = (props: PlateCardProps) => {
             id="nameContainer"
             className="relative mb-2 leading-none text-black"
           >
-            <h3 className="text-large font-bold uppercase leading-none">
+            <h3 className="font-bold uppercase leading-none text-large">
               {card.correctedText}
             </h3>
           </div>
@@ -60,7 +60,7 @@ const PlateCard = (props: PlateCardProps) => {
         </CardHeader>
         <CardBody
           //className="flex h-full cursor-pointer justify-center"
-          className="aspect-[3/4] h-full max-h-full min-h-0 grow "
+          className="aspect-[3/4] max-h-full min-h-0 w-full grow sm:h-full "
           onClick={() => onPlateCardVote(card)}
         >
           <div

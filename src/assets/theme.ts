@@ -1,4 +1,4 @@
-import { createTheme } from '@nextui-org/theme'
+import { createTheme } from "@heroui/theme"
 
 export const darkTheme = createTheme({
   theme: 'dark',

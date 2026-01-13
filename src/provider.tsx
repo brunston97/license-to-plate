@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react'
-import { createTheme, ThemeProvider } from '@nextui-org/theme'
+import { createTheme, ThemeProvider } from "@heroui/theme"
 import { darkTheme } from './lib/theme'
-import { ThemeProvider as NextUIProvider } from '@nextui-org/react'
+import { ThemeProvider as HeroUIProvider } from "@heroui/react"
 type Theme = 'light' | 'dark'
 
 interface ThemeContextType {

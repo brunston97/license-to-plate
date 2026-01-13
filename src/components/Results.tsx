@@ -1,4 +1,4 @@
-import { Image } from '@nextui-org/react'
+import { Image } from "@heroui/react"
 
 import { IPlateCard } from 'assets/types'
 import axios from 'axios'

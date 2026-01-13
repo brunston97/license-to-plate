@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import { useRef, useState } from 'react'
 import {
   Navbar,
   NavbarBrand,
@@ -9,9 +9,9 @@ import {
   NavbarMenuItem,
   Link,
   Button
-} from '@nextui-org/react'
+} from '@heroui/react'
 import { FaInfoCircle } from 'react-icons/fa'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 export const AcmeLogo = () => {
   return (
@@ -27,14 +27,13 @@ export const AcmeLogo = () => {
 }
 
 export default function App() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   const location = useLocation()
-  const navigate = useNavigate()
 
   const paths: { [key: string]: string } = {
-    '/': 'Plate Off',
+    // '/': 'Plate Off',
     '/myPlates': 'My Plates'
   }
   if (import.meta.env.DEV) {
@@ -42,14 +41,22 @@ export default function App() {
   }
 
   return (
-    <Navbar onMenuOpenChange={setIsMenuOpen} isMenuOpen={isMenuOpen}>
+    <Navbar maxWidth="full">
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           className="sm:hidden"
         />
         <NavbarBrand>
-          <p className="font-bold text-inherit">POPZ</p>
+          {/* <p className="mr-auto font-bold text-inherit">POPZ</p> */}
+          <Link
+            href="/"
+            // onPress={() => {
+            //   navigate('/')
+            // }}
+          >
+            <p className="font-bold">Plate Zone Plate-Off!</p>
+          </Link>
         </NavbarBrand>
       </NavbarContent>
 
@@ -59,8 +66,9 @@ export default function App() {
             <NavbarItem key={key} isActive={location.pathname == key}>
               <Link
                 //color="foreground"
+                href={key}
                 onPress={() => {
-                  navigate(key)
+                  setIsMenuOpen(false)
                 }}
               >
                 {paths[key]}
@@ -75,7 +83,7 @@ export default function App() {
             <FaInfoCircle
               color="white"
               onClick={() => dialogRef.current?.showModal()}
-              className="absolute right-3 top-4 z-50 size-5 rounded-full bg-transparent hover:bg-gray-200 sm:size-6"
+              //className="absolute right-3 top-4 z-50 size-5 rounded-full bg-transparent hover:bg-gray-200 sm:size-6"
             >
               <span className="text-xl font-bold">i</span>
             </FaInfoCircle>
@@ -120,8 +128,8 @@ export default function App() {
             <NavbarMenuItem key={key} isActive={location.pathname == key}>
               <Link
                 //color="foreground"
+                href={key}
                 onPress={() => {
-                  navigate(key)
                   setIsMenuOpen(false)
                 }}
               >
