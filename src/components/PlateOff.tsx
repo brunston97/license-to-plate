@@ -41,14 +41,21 @@ const PlateOff = (props: PlateOffProps) => {
 
   async function getCards() {
     try {
-      const { data } = await axios.get('/plates')
-      setPlates(data as IPlateCard[])
-      //const len = data.length //(data as IPlateCard[]).length
-      const tempArray = formPlatePairsArray(data.length)
+      const localPlates = localStorage.getItem('plates_2025')
+      let plates = localPlates ? (JSON.parse(localPlates) as IPlateCard[]) : []
+
+      if (Array.isArray(plates) && plates.length > 0) {
+        setPlates(plates)
+      } else {
+        const { data } = await axios.get('/plates')
+        plates = data as IPlateCard[]
+        localStorage.setItem('plates_2025', JSON.stringify(plates))
+      }
+
+      setPlates(plates)
+
+      const tempArray = formPlatePairsArray(plates.length)
       setIndexPairs(tempArray)
-      //console.log(data)
-      //console.log(tempArray)
-      //setLoading(false)
     } catch (error) {
       console.log(error)
     } finally {
