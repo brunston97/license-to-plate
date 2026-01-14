@@ -129,7 +129,7 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   return (
-    <div className="flex size-full min-h-0 grow flex-col justify-center py-5 sm:pt-6 xl:max-w-2xl">
+    <div className="flex size-full min-h-0 grow flex-col justify-center py-5 sm:pt-6 lg:max-w-5xl">
       {!isLoading ? (
         <>
           {indexPairs.length > index + 1 ? (

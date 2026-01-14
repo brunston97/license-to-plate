@@ -22,9 +22,9 @@ const PlateCard = (props: PlateCardProps) => {
   // }
 
   return (
-    <div className="flex max-h-full max-w-full flex-col justify-center light">
+    <div className="flex max-h-full w-auto max-w-full flex-col justify-center light">
       <Card
-        className="aspect-[3/4] max-h-full"
+        className="aspect-[3/4] h-auto max-h-full"
         isHoverable
         isPressable
         {...props}
