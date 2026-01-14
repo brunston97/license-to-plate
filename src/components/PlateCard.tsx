@@ -22,26 +22,15 @@ const PlateCard = (props: PlateCardProps) => {
   // }
 
   return (
-    <div className="max-h-full max-w-full light">
+    <div className="flex max-h-full max-w-full flex-col justify-center light">
       <Card
-        // className={`relative mx-3 h-auto max-h-full w-fit cursor-default py-0 md:mx-6 2xl:mx-10${
-        //   imageLoaded ? 'opacity-100' : 'opacity-0'
-        // }`}
         className="aspect-[3/4] max-h-full"
         isHoverable
         isPressable
-        classNames={
-          {
-            //body: 'max-h-full max-w-full'
-          }
-        }
         {...props}
       >
         <CardHeader className="mb-0 flex-col items-center pb-0">
-          <div
-            id="nameContainer"
-            className="relative mb-2 leading-none text-black"
-          >
+          <div id="nameContainer" className="mb-2 leading-none text-black">
             <h3 className="font-bold uppercase leading-none text-large">
               {card.correctedText}
             </h3>
@@ -58,26 +47,16 @@ const PlateCard = (props: PlateCardProps) => {
             ></IoHeart>
           </div>
         </CardHeader>
-        <CardBody
-          //className="flex h-full cursor-pointer justify-center"
-          className="block max-h-full min-h-0 w-full sm:h-full "
-          onClick={() => onPlateCardVote(card)}
-        >
-          <div
-            id={`imgContainer-${card.id}`}
-            //className={` flex aspect-[4/3] max-h-full max-w-md justify-center md:max-w-xl 2xl:max-w-2xl`}
-            className="h-full max-h-full"
-          >
+        <CardBody onClick={() => onPlateCardVote(card)}>
+          <div id={`imgContainer-${card.id}`} className="h-full max-h-full">
             <Image
               alt="Card background"
-              className=""
-              //className="z-0 max-h-full max-w-full rounded-xl object-contain"
               src={`${BUCKET_URL}/${card.fileName}?hi=1`}
               onLoad={() => {}}
               classNames={{
-                wrapper: 'w-full size-full max-h-full !max-w-full',
-                zoomedWrapper: 'max-h-full size-full',
-                img: 'top-1/ -translate-y-1/ size-full object-cover'
+                wrapper: 'size-full max-h-full !max-w-full',
+                zoomedWrapper: 'size-full',
+                img: 'size-full object-cover'
               }}
               isZoomed={window.innerWidth > 768}
             />

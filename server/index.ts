@@ -138,6 +138,7 @@ if (process.env.NODE_ENV === 'development') {
     try {
       //const fileInfo = await localDb.getImgById(id)
       if (fileName) {
+        //fileName = 'plate678.jpg'
         const filePath = path.join(imagesDir, DEV_IMG_FOLDER, fileName)
         // if (!existsSync(filePath)) {
         //   res.status(404).json({ error: `File does not exists` })

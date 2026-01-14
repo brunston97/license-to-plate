@@ -129,40 +129,34 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   return (
-    <div className="flex size-full min-h-0 grow flex-col justify-center py-5 md:pt-6 xl:max-w-2xl">
+    <div className="flex size-full min-h-0 grow flex-col justify-center py-5 sm:pt-6 xl:max-w-2xl">
       {!isLoading ? (
         <>
           {indexPairs.length > index + 1 ? (
             <>
-              <div className="carousel flex size-full min-h-0 grow justify-around">
-                <div className="carousel-item relative size-full justify-center p-5 md:w-1/2">
-                  <PlateCard
-                    card={plates[indexPairs[index][0]]}
-                    onPlateCardVote={onCardClick}
-                    isLiked={
-                      cachedPlateInfo.find(
-                        (plate) => plate.id === plates[indexPairs[index][0]].id
-                      )?.isLiked ?? false
-                    }
-                    onLikeButtonClick={onCardLike}
-                    windowWidth={props.windowWidth}
-                    id="item1"
-                  />
-                </div>
-                <div className="carousel-item relative size-full justify-center p-5 md:w-1/2">
-                  <PlateCard
-                    card={plates[indexPairs[index][1]]}
-                    onPlateCardVote={onCardClick}
-                    isLiked={
-                      cachedPlateInfo.find(
-                        (plate) => plate.id === plates[indexPairs[index][1]].id
-                      )?.isLiked ?? false
-                    }
-                    onLikeButtonClick={onCardLike}
-                    windowWidth={props.windowWidth}
-                    id="item2"
-                  />
-                </div>
+              <div className="carousel flex size-full min-h-0 grow sm:justify-center">
+                {[0, 1].map((key) => {
+                  return (
+                    <div
+                      key={key}
+                      className="carousel-item relative size-full justify-center p-5 sm:max-w-[50%]"
+                    >
+                      <PlateCard
+                        card={plates[indexPairs[index][key]]}
+                        onPlateCardVote={onCardClick}
+                        isLiked={
+                          cachedPlateInfo.find(
+                            (plate) =>
+                              plate.id === plates[indexPairs[index][key]].id
+                          )?.isLiked ?? false
+                        }
+                        onLikeButtonClick={onCardLike}
+                        windowWidth={props.windowWidth}
+                        id={'item' + (key + 1)}
+                      />
+                    </div>
+                  )
+                })}
               </div>
 
               {indexPairs.length > index + 2 && (

@@ -42,7 +42,7 @@ function PlateOffPage() {
       </div> */}
 
       {windowWidth <= MOBILE_WIDTH_CUTOFF && (
-        <a href={location.hash === '#item1' ? '#item2' : '#item1'}>
+        <a href={location.hash !== '#item2' ? '#item2' : '#item1'}>
           <button
             //onClick={() => {navigator('')}}
             className="fixed bottom-4 right-4 rounded-full bg-transparent p-2 hover:bg-gray-200"

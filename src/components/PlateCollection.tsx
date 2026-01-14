@@ -62,7 +62,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
           className={`${
             isFleet
               ? 'grid grid-cols-2 gap-4 lg:grid-cols-4'
-              : 'grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 md:gap-4 xl:grid-cols-6'
+              : 'grid grid-cols-2 gap-6 overflow-scroll sm:grid-cols-3 md:grid-cols-4 md:gap-4 2xl:grid-cols-6'
           }`}
         >
           {currentPlates.map((lp) => {
@@ -70,7 +70,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
             return (
               <div key={lp.id}>
                 <PlateCard
-                  className={`max-w-[150px] sm:max-w-[240px] ${
+                  className={`max-w-[150px sm:max-w-[240px ${
                     isSelected
                       ? 'border-4 border-green-500'
                       : 'border-transparent'

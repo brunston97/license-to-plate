@@ -89,7 +89,7 @@ const MyPlatesPage = () => {
   }
 
   return (
-    <div className="min-h-screen w-screen max-w-full bg-gradient-to-b from-bg-primary-1 to-bg-primary-2">
+    <div className=" min-h-screen w-screen max-w-full overflow-scroll bg-gradient-to-b from-bg-primary-1 to-bg-primary-2">
       <Header />
       <div className="mt-5">
         <div className="mb-8">
