@@ -89,7 +89,7 @@ const MyPlatesPage = () => {
   }
 
   return (
-    <div className=" min-h-screen w-screen max-w-full overflow-scroll bg-gradient-to-b from-bg-primary-1 to-bg-primary-2">
+    <div className=" size-full">
       <Header />
       <div className="mt-5">
         <div className="mb-8">
@@ -157,7 +157,7 @@ const MyPlatesPage = () => {
             }
           }}
         >
-          <div className="max-h-[75vh] overflow-y-auto rounded-lg bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 p-6 shadow-lg">
+          <div className="rounded-lg p-6 shadow-lg">
             <div className="mb-4 flex flex-col items-center">
               <input
                 type="text"

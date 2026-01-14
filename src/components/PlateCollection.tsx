@@ -17,7 +17,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
     plates,
     windowWidth,
     isFleet,
-    isPlateSelected,
+    //isPlateSelected,
     onCardClick,
     onCardLike
   } = props
@@ -44,7 +44,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
   }
 
   return (
-    <div>
+    <>
       <div className="mx-4 flex items-center justify-center">
         {!isMobileSized && !isFleet && (
           <>
@@ -59,22 +59,22 @@ const PlateCollection = (props: PlateCollectionProps) => {
         )}
 
         <div
-          className={`${
+          className={` overflow-auto ${
             isFleet
               ? 'grid grid-cols-2 gap-4 lg:grid-cols-4'
-              : 'grid grid-cols-2 gap-6 overflow-scroll sm:grid-cols-3 md:grid-cols-4 md:gap-4 2xl:grid-cols-6'
+              : 'grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 md:gap-4 2xl:grid-cols-6'
           }`}
         >
           {currentPlates.map((lp) => {
-            const isSelected = isPlateSelected(lp.id)
+            //const isSelected = isPlateSelected(lp.id)
             return (
-              <div key={lp.id}>
+              <div key={lp.id} className="aspect-[3/4]">
                 <PlateCard
-                  className={`max-w-[150px sm:max-w-[240px ${
-                    isSelected
-                      ? 'border-4 border-green-500'
-                      : 'border-transparent'
-                  }`}
+                  // className={`max-w-[150px sm:max-w-[240px ${
+                  //   isSelected
+                  //     ? 'border-4 border-green-500'
+                  //     : 'border-transparent'
+                  // }`}
                   card={lp}
                   onPlateCardVote={onCardClick}
                   isLiked={lp.isLiked ?? false}
@@ -130,7 +130,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
           </div>
         </>
       )}
-    </div>
+    </>
   )
 }
 
