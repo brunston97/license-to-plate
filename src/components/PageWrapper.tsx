@@ -49,7 +49,7 @@ export default function PageWrapper() {
 
       <button
         onClick={toggleMute}
-        className="fixed bottom-4 left-4 z-50 rounded-full bg-transparent p-2 hover:bg-gray-200"
+        className="fixed bottom-2 left-2 z-50 rounded-full bg-transparent p-2 hover:bg-gray-200"
         title={isMuted ? 'Unmute' : 'Mute'}
       >
         {isMuted ? (

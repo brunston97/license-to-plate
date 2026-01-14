@@ -2,6 +2,7 @@ import { GiCardExchange } from 'react-icons/gi'
 import PlateOff from 'components/PlateOff'
 import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 import { useLocation, useOutletContext } from 'react-router-dom'
+import { Button } from '@heroui/react'
 
 function PlateOffPage() {
   const { windowWidth, isMuted } = useOutletContext<{
@@ -43,9 +44,13 @@ function PlateOffPage() {
 
       {windowWidth <= MOBILE_WIDTH_CUTOFF && (
         <a href={location.hash !== '#item2' ? '#item2' : '#item1'}>
-          <button
+          <Button
+            isIconOnly
+            variant="light"
+            color="default"
+            radius="full"
             //onClick={() => {navigator('')}}
-            className="fixed bottom-4 right-4 rounded-full bg-transparent p-2 hover:bg-gray-200"
+            className="fixed bottom-2 right-2" // rounded-full bg-transparent p-2 hover:bg-gray-200"
             // title={
             //   isManualSideBySideView
             //     ? 'Switch to Image View'
@@ -56,7 +61,7 @@ function PlateOffPage() {
               size={32}
               //color={isManualSideBySideView ? 'white' : 'gray'}
             />
-          </button>
+          </Button>
         </a>
       )}
     </div>

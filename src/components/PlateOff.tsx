@@ -139,7 +139,7 @@ const PlateOff = (props: PlateOffProps) => {
                   return (
                     <div
                       key={key}
-                      className="carousel-item relative size-full justify-center p-5 sm:max-w-[50%]"
+                      className="carousel-item relative size-full max-w-[95%] justify-center p-2 sm:max-w-[45%]"
                     >
                       <PlateCard
                         card={plates[indexPairs[index][key]]}

@@ -42,13 +42,19 @@ export default function App() {
 
   return (
     <>
-      <Navbar maxWidth="full" isMenuOpen={isMenuOpen}>
-        <NavbarContent>
+      <Navbar
+        maxWidth="full"
+        isMenuOpen={isMenuOpen}
+        isBlurred
+        //className="bg-[#4B445E]"
+      >
+        <NavbarContent className="sm:hidden">
           <NavbarMenuToggle
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-            className="sm:hidden"
             onChange={() => setIsMenuOpen((isOpen) => !isOpen)}
           />
+        </NavbarContent>
+        <NavbarContent>
           <NavbarBrand>
             {/* <p className="mr-auto font-bold text-inherit">POPZ</p> */}
             <Link
@@ -56,8 +62,9 @@ export default function App() {
               onPressEnd={() => {
                 setIsMenuOpen(false)
               }}
+              color="foreground"
             >
-              <p className="font-bold">Plate Zone Plate-Off!</p>
+              <p className="font-bold text-inherit ">Plate Zone Plate-Off!</p>
             </Link>
           </NavbarBrand>
         </NavbarContent>
@@ -66,10 +73,7 @@ export default function App() {
           {Object.keys(paths).map((key) => {
             return (
               <NavbarItem key={key} isActive={location.pathname == key}>
-                <Link
-                  //color="foreground"
-                  href={key}
-                >
+                <Link color="foreground" href={key}>
                   {paths[key]}
                 </Link>
               </NavbarItem>
@@ -80,8 +84,8 @@ export default function App() {
           <NavbarItem>
             <Button
               isIconOnly
-              color="primary"
-              variant="flat"
+              color="default"
+              variant="bordered"
               onPress={() => dialogRef.current?.showModal()}
             >
               <FaInfoCircle
@@ -98,7 +102,7 @@ export default function App() {
             return (
               <NavbarMenuItem key={key} isActive={location.pathname == key}>
                 <Link
-                  //color="foreground"
+                  color="foreground"
                   href={key}
                   onPressEnd={() => {
                     setIsMenuOpen(false)
