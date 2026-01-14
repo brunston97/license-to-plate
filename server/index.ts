@@ -7,7 +7,7 @@ import { IPlateCard, Image } from './types'
 import path, { join } from 'path'
 import { readdirSync } from 'fs'
 import { fileURLToPath } from 'url'
-import { SQLiteImageManager } from './plateManager'
+import { SQLiteImageManager } from './plateManager.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
