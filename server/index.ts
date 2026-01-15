@@ -135,6 +135,7 @@ if (process.env.NODE_ENV === 'development') {
   // Custom route to serve local files
   openRouter.get('/images/:fileName', async (req, res) => {
     const { fileName } = req.params
+    //const fileName = 'plate678.jpg'
     try {
       //const fileInfo = await localDb.getImgById(id)
       if (fileName) {
@@ -143,7 +144,9 @@ if (process.env.NODE_ENV === 'development') {
         // if (!existsSync(filePath)) {
         //   res.status(404).json({ error: `File does not exists` })
         // } else {
+        //setTimeout(() => {
         res.sendFile(filePath)
+        //}, 100000)
         //}
       } else {
         res.status(404).json({ error: `Invalid Image name provided` })

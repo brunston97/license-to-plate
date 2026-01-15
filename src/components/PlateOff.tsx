@@ -141,12 +141,12 @@ const PlateOff = (props: PlateOffProps) => {
         <>
           {indexPairs.length > index + 1 ? (
             <>
-              <div className="carousel flex size-full min-h-0 grow sm:justify-center">
+              <div className="carousel flex min-h-0 w-full sm:justify-center">
                 {[0, 1].map((key) => {
                   return (
                     <div
                       key={key}
-                      className="carousel-item relative size-full max-w-[95%] justify-center p-2 sm:max-w-[45%]"
+                      className="carousel-item relative  size-full max-w-[95%] items-start justify-center p-2 sm:max-w-[45%]"
                     >
                       <PlateCard
                         card={plates[indexPairs[index][key]]}

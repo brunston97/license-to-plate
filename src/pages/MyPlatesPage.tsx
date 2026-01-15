@@ -8,7 +8,7 @@ import { Tab, Tabs } from '@heroui/react'
 const MyPlatesPage = () => {
   // general page settings
   const [isCardSelectionEnabled] = useState(true)
-  const [isAllPlatesEnabled] = useState(true)
+  //const [isAllPlatesEnabled] = useState(true)
 
   const { windowWidth } = useOutletContext<{ windowWidth: number }>()
 
@@ -92,12 +92,12 @@ const MyPlatesPage = () => {
   return (
     <div className="flex min-h-0 grow flex-col items-center">
       {/* <Header /> */}
-      <Tabs aria-label="Options" className="mt-2 grow">
+      <Tabs aria-label="Options" className="mt-2 shrink">
         <Tab
           key="all"
           title="All Plates"
           titleValue="All Plates"
-          className="min-h-0 grow !p-2"
+          className="min-h-0 w-full grow !p-2"
         >
           <PlateCollection
             plates={allPlates}
@@ -108,7 +108,12 @@ const MyPlatesPage = () => {
             onCardLike={onCardLike}
           />
         </Tab>
-        <Tab key="liked" title="Liked Plates" titleValue="Liked Plates">
+        <Tab
+          key="liked"
+          title="Liked Plates"
+          titleValue="Liked Plates"
+          className="min-h-0 grow !p-2"
+        >
           <PlateCollection
             plates={likedPlates}
             windowWidth={windowWidth}
@@ -219,12 +224,12 @@ const MyPlatesPage = () => {
   )
 }
 
-function Header() {
-  return (
-    <header className="mb-8 text-center font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
-      <h1>My Plates</h1>
-    </header>
-  )
-}
+// function Header() {
+//   return (
+//     <header className="mb-8 text-center font-barlow text-3xl font-bold uppercase text-white md:text-6xl">
+//       <h1>My Plates</h1>
+//     </header>
+//   )
+// }
 
 export default MyPlatesPage

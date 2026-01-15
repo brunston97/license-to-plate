@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { IPlateCard } from 'assets/types'
 import PlateCard from './PlateCard'
-import { MAX_FLEET_SIZE, MOBILE_WIDTH_CUTOFF } from 'const/constants'
+import { MAX_FLEET_SIZE } from 'const/constants'
 import { Button, ScrollShadow } from '@heroui/react'
 
 interface PlateCollectionProps {
@@ -25,7 +25,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
 
   const [currentPage, setCurrentPage] = useState(1)
 
-  const isMobileSized = windowWidth <= MOBILE_WIDTH_CUTOFF
+  //const isMobileSized = windowWidth <= MOBILE_WIDTH_CUTOFF
   const platesPerPage = isFleet ? MAX_FLEET_SIZE : 12
 
   // useMemo?
@@ -68,20 +68,19 @@ const PlateCollection = (props: PlateCollectionProps) => {
           {currentPlates.map((lp) => {
             //const isSelected = isPlateSelected(lp.id)
             return (
-              <div key={lp.id} className="aspect-[3/4]">
-                <PlateCard
-                  // className={`max-w-[150px sm:max-w-[240px ${
-                  //   isSelected
-                  //     ? 'border-4 border-green-500'
-                  //     : 'border-transparent'
-                  // }`}
-                  card={lp}
-                  onPlateCardVote={onCardClick}
-                  isLiked={lp.isLiked ?? false}
-                  onLikeButtonClick={onCardLike}
-                  windowWidth={windowWidth}
-                />
-              </div>
+              <PlateCard
+                // className={`max-w-[150px sm:max-w-[240px ${
+                //   isSelected
+                //     ? 'border-4 border-green-500'
+                //     : 'border-transparent'
+                // }`}
+                key={lp.id}
+                card={lp}
+                onPlateCardVote={onCardClick}
+                isLiked={lp.isLiked ?? false}
+                onLikeButtonClick={onCardLike}
+                windowWidth={windowWidth}
+              />
             )
           })}
         </div>
