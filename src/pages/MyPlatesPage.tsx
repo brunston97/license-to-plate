@@ -3,6 +3,7 @@ import { IPlateCard } from 'assets/types'
 import PlateCollection from '../components/PlateCollection'
 import { useOutletContext } from 'react-router-dom'
 import { MAX_FLEET_SIZE } from 'const/constants'
+import { Tab, Tabs } from '@heroui/react'
 
 const MyPlatesPage = () => {
   // general page settings
@@ -89,9 +90,36 @@ const MyPlatesPage = () => {
   }
 
   return (
-    <div className=" size-full">
-      <Header />
-      <div className="mt-5">
+    <div className="flex min-h-0 grow flex-col items-center">
+      {/* <Header /> */}
+      <Tabs aria-label="Options" className="mt-2 grow">
+        <Tab
+          key="all"
+          title="All Plates"
+          titleValue="All Plates"
+          className="min-h-0 grow !p-2"
+        >
+          <PlateCollection
+            plates={allPlates}
+            windowWidth={windowWidth}
+            isFleet={false}
+            isPlateSelected={isPlateSelected}
+            onCardClick={onCardClick}
+            onCardLike={onCardLike}
+          />
+        </Tab>
+        <Tab key="liked" title="Liked Plates" titleValue="Liked Plates">
+          <PlateCollection
+            plates={likedPlates}
+            windowWidth={windowWidth}
+            isFleet={false}
+            isPlateSelected={isPlateSelected}
+            onCardClick={onCardClick}
+            onCardLike={onCardLike}
+          />
+        </Tab>
+      </Tabs>
+      {/* <div className="mt-5">
         <div className="mb-8">
           <h2 className="mb-3 text-center font-barlow text-xl font-bold uppercase text-white sm:text-2xl md:text-3xl">
             Liked Plates
@@ -122,7 +150,7 @@ const MyPlatesPage = () => {
             </div>
           </>
         )}
-      </div>
+      </div> */}
 
       {isCardSelectionEnabled && selectedPlates.size > 0 && (
         <>
