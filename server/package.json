@@ -3,13 +3,13 @@
   "description": "L2P serverless function",
   "version": "1.0.0",
   "private": true,
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "node dist/index.js",
     "tsc": "tsc",
     "dev": "tsx watch ./index.ts",
-    "prod": "gcloud config set run/region us-central1 && tsc && gcloud run deploy --project license2plate-b4c6e --source ."
+    "prod": "gcloud config set run/region us-central1 && tsc && gcloud run deploy server --project license2plate-b4c6e --source ."
   },
   "engines": {
     "node": "22"

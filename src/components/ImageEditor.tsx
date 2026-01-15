@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Image } from '../assets/types'
 import axios from '../utils/axiosInstance'
-import { Button, Input } from '@nextui-org/react'
+import { Button, Input } from "@heroui/react"
 import { useLocation } from 'react-router-dom'
 import { BUCKET_URL } from 'const/constants'
 

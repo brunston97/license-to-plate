@@ -1,8 +1,7 @@
-import { Card, CardBody, CardHeader, CardProps, Image } from '@nextui-org/react'
+import { Card, CardBody, CardHeader, CardProps, Image } from '@heroui/react'
 import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
-import { BUCKET_URL } from 'const/constants'
-import { useState } from 'react'
+import { BUCKET_URL, MOBILE_WIDTH_CUTOFF } from 'const/constants'
 
 interface PlateCardProps extends CardProps {
   card: IPlateCard
@@ -13,63 +12,53 @@ interface PlateCardProps extends CardProps {
 }
 
 const PlateCard = (props: PlateCardProps) => {
-  const { card, onPlateCardVote, isLiked, onLikeButtonClick } = props
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const { card, onPlateCardVote, isLiked, onLikeButtonClick, windowWidth } =
+    props
+  //const [imageLoaded, setImageLoaded] = useState(false)
 
   // fixes an issue where safari would render the first set of cards really small
-  function handleImageLoaded() {
-    setImageLoaded(true)
-  }
+  // function handleImageLoaded() {
+  //   setImageLoaded(true)
+  // }
 
   return (
-    <div className="carousel-item flex max-h-full min-h-0 max-w-full justify-center">
+    <div className="flex max-h-full w-full max-w-full flex-col items-center justify-center light">
       <Card
-        className={`relative mx-3 h-full max-h-full cursor-default py-0 md:mx-6 2xl:mx-10 ${
-          imageLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        className="aspect-[3/4] max-h-full w-full"
         isHoverable
         isPressable
-        classNames={{
-          body: 'max-h-full max-w-full'
-        }}
         {...props}
       >
         <CardHeader className="mb-0 flex-col items-center pb-0">
-          <div
-            id="nameContainer"
-            className="relative mb-2 leading-none text-black"
-          >
-            <h3 className="text-large font-bold uppercase leading-none">
+          <div id="nameContainer" className="mb-2 leading-none text-black">
+            <h3 className="font-bold uppercase leading-none text-large">
               {card.correctedText}
             </h3>
           </div>
-          <div id="likeButtonContainer" className="absolute right-4 top-1">
+          <div
+            id="likeButtonContainer"
+            className="absolute right-1 top-2 sm:top-1 md:right-2 xl:right-3"
+          >
             <IoHeart
               className="mr-1 mt-1 cursor-pointer"
-              size={32}
+              size={windowWidth <= MOBILE_WIDTH_CUTOFF ? 22 : 36}
               color={isLiked ? 'red' : 'gray'}
               onClick={() => onLikeButtonClick(card)}
             ></IoHeart>
           </div>
         </CardHeader>
-        <CardBody
-          className="flex aspect-[3/4] h-fit cursor-pointer justify-center"
-          onClick={() => onPlateCardVote(card)}
-        >
-          <div
-            id={`imgContainer-${card.id}`}
-            className={` flex max-h-full max-w-md justify-center md:max-w-xl 2xl:max-w-2xl`}
-          >
+        <CardBody onClick={() => onPlateCardVote(card)}>
+          <div id={`imgContainer-${card.id}`} className="h-full max-h-full">
             <Image
               alt="Card background"
-              className="z-0 max-h-full max-w-full rounded-xl object-contain"
-              src={`${BUCKET_URL}/${card.fileName}`}
-              onLoad={handleImageLoaded}
+              src={`${BUCKET_URL}/${card.fileName}?hi=1`}
+              onLoad={() => {}}
               classNames={{
-                wrapper: 'flex h-full justify-center items-center',
-                zoomedWrapper: 'h-full'
+                wrapper: 'size-full max-h-full !max-w-full',
+                zoomedWrapper: 'size-full',
+                img: 'size-full object-cover'
               }}
-              isZoomed
+              isZoomed={window.innerWidth > 768}
             />
           </div>
         </CardBody>
