@@ -13,19 +13,6 @@ import {
 import { FaInfoCircle } from 'react-icons/fa'
 import { useLocation } from 'react-router-dom'
 
-export const AcmeLogo = () => {
-  return (
-    <svg fill="none" height="36" viewBox="0 0 32 32" width="36">
-      <path
-        clipRule="evenodd"
-        d="M17.6482 10.1305L15.8785 7.02583L7.02979 22.5499H10.5278L17.6482 10.1305ZM19.8798 14.0457L18.11 17.1983L19.394 19.4511H16.8453L15.1056 22.5499H24.7272L19.8798 14.0457Z"
-        fill="currentColor"
-        fillRule="evenodd"
-      />
-    </svg>
-  )
-}
-
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -42,21 +29,16 @@ export default function App() {
 
   return (
     <>
-      <Navbar
-        maxWidth="full"
-        isMenuOpen={isMenuOpen}
-        isBlurred
-        //className="bg-[#4B445E]"
-      >
-        <NavbarContent className="sm:hidden">
+      <Navbar maxWidth="full" isMenuOpen={isMenuOpen} isBlurred>
+        <NavbarContent>
           <NavbarMenuToggle
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             onChange={() => setIsMenuOpen((isOpen) => !isOpen)}
+            className="sm:hidden"
           />
         </NavbarContent>
-        <NavbarContent>
+        <NavbarContent justify="center">
           <NavbarBrand>
-            {/* <p className="mr-auto font-bold text-inherit">POPZ</p> */}
             <Link
               href="/"
               onPressEnd={() => {
@@ -68,19 +50,20 @@ export default function App() {
             </Link>
           </NavbarBrand>
         </NavbarContent>
-
-        <NavbarContent className="hidden gap-4 sm:flex" justify="center">
+        <NavbarContent justify="end">
           {Object.keys(paths).map((key) => {
             return (
-              <NavbarItem key={key} isActive={location.pathname == key}>
+              <NavbarItem
+                key={key}
+                isActive={location.pathname == key}
+                className="hidden gap-4 sm:flex"
+              >
                 <Link color="foreground" href={key}>
                   {paths[key]}
                 </Link>
               </NavbarItem>
             )
           })}
-        </NavbarContent>
-        <NavbarContent justify="end">
           <NavbarItem>
             <Button
               isIconOnly
