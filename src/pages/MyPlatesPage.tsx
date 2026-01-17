@@ -7,7 +7,7 @@ import { Tab, Tabs } from '@heroui/react'
 
 const MyPlatesPage = () => {
   // general page settings
-  const [isCardSelectionEnabled] = useState(true)
+  const [isCardSelectionEnabled] = useState(false)
   //const [isAllPlatesEnabled] = useState(true)
 
   const { windowWidth } = useOutletContext<{ windowWidth: number }>()
@@ -94,34 +94,51 @@ const MyPlatesPage = () => {
       {/* <Header /> */}
       <Tabs aria-label="Options" className="mt-2 shrink">
         <Tab
-          key="all"
-          title="All Plates"
-          titleValue="All Plates"
-          className="min-h-0 w-full grow !p-2"
-        >
-          <PlateCollection
-            plates={allPlates}
-            windowWidth={windowWidth}
-            isFleet={false}
-            isPlateSelected={isPlateSelected}
-            onCardClick={onCardClick}
-            onCardLike={onCardLike}
-          />
-        </Tab>
-        <Tab
           key="liked"
           title="Liked Plates"
           titleValue="Liked Plates"
           className="min-h-0 grow !p-2"
         >
-          <PlateCollection
-            plates={likedPlates}
-            windowWidth={windowWidth}
-            isFleet={false}
-            isPlateSelected={isPlateSelected}
-            onCardClick={onCardClick}
-            onCardLike={onCardLike}
-          />
+          {likedPlates.length > 0 ? (
+            <PlateCollection
+              plates={likedPlates}
+              windowWidth={windowWidth}
+              isFleet={false}
+              isPlateSelected={isPlateSelected}
+              onCardClick={onCardClick}
+              onCardLike={onCardLike}
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-center text-lg text-white">
+                Start liking plates to build your collection!
+              </p>
+            </div>
+          )}
+        </Tab>
+        <Tab
+          key="all"
+          title="All Plates"
+          titleValue="All Plates"
+          className="min-h-0 w-full grow !p-2"
+        >
+          {allPlates.length > 0 ? (
+            <PlateCollection
+              plates={allPlates}
+              windowWidth={windowWidth}
+              isFleet={false}
+              isPlateSelected={isPlateSelected}
+              onCardClick={onCardClick}
+              onCardLike={onCardLike}
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <p className="text-center text-lg text-white">
+                When you vote on a pair of plates, both plates will show up here
+                for future reference. Can you collect them all??
+              </p>
+            </div>
+          )}
         </Tab>
       </Tabs>
       {/* <div className="mt-5">
