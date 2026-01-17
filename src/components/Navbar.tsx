@@ -108,15 +108,17 @@ export default function App() {
             <h3 className="mb-4 w-full text-center text-base font-bold text-black dark:text-white md:w-4/5 md:text-xl">
               Welcome to the 2025 Jackbox Plate Zone Plate-Off!
             </h3>
-            <h3 className="w-full text-center text-base text-black dark:text-white md:w-4/5 md:text-xl">
+            <h3 className="w-full text-center text-base text-black dark:text-white md:w-4/5 md:text-lg">
               All you need to do is vote on your favorite license plate from
-              each random pair that you&apos;re shown - we&apos;ll tally the
-              votes for each plate, and announce the winners on March 2
-              <sup>nd</sup>!
+              each random pair that you&apos;re shown! We&apos;ll tally the
+              votes for each plate, and announce the winners on a TBD future
+              date
               <br />
+              ----
               <br />
-              If you see a funny combination of plates, don&apos;t forget to
-              take a screenshot and post it in the Plate Zone!
+              New to the plate zone this year is the ability to like plates!
+              Click the heart icon to save a plate to your &quot;My Plates&quot;
+              page, where you can look back on your favorite finds!
             </h3>
           </div>
           <div className="modal-action flex justify-center">
