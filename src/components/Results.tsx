@@ -1,9 +1,10 @@
-import { Image } from "@heroui/react"
+import { Image } from '@heroui/react'
 
 import { IPlateCard } from 'assets/types'
 import axios from 'axios'
 import { BUCKET_URL } from 'const/constants'
 import { ReactElement, useEffect, useRef, useState } from 'react'
+import PlateCard from './PlateCard'
 
 export default function Results(): ReactElement {
   const [topTenPlates, setTopTenPlates] = useState<IPlateCard[]>([])
@@ -63,21 +64,13 @@ export default function Results(): ReactElement {
       </dialog>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {topTenPlates.map((item) => (
-          <div
+          <PlateCard
             key={item.id}
-            className="flex flex-col justify-center rounded-xl bg-white p-2"
-          >
-            <Image
-              alt={`${item.correctedText}`}
-              src={`${BUCKET_URL}/${item.fileName}`}
-              className="flex cursor-pointer justify-center"
-              isZoomed
-              onClick={() => {
-                setCurrentPlate(item)
-                modalRef.current?.showModal()
-              }}
-            />
-          </div>
+            card={item}
+            onPlateCardVote={() => {}}
+            isLiked={item.isLiked ?? false}
+            onLikeButtonClick={() => {}}
+          ></PlateCard>
         ))}
       </div>
     </div>

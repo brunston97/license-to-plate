@@ -57,30 +57,22 @@ const PlateCollection = (props: PlateCollectionProps) => {
             </button>
           </>
         )} */}
-      <ScrollShadow hideScrollBar className="min-h-0 grow pb-10" size={20}>
-        <div
-          className={`size-full py-5 ${
-            isFleet
-              ? 'grid grid-cols-2 gap-4 lg:grid-cols-4'
-              : 'grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 md:gap-4 2xl:grid-cols-6'
-          }`}
-        >
+      <ScrollShadow hideScrollBar className="min-h-0 grow" size={10}>
+        <div className={`grid size-full grid-cols-2 gap-2 sm:grid-cols-4`}>
           {currentPlates.map((lp) => {
             //const isSelected = isPlateSelected(lp.id)
+
             return (
-              <PlateCard
-                // className={`max-w-[150px sm:max-w-[240px ${
-                //   isSelected
-                //     ? 'border-4 border-green-500'
-                //     : 'border-transparent'
-                // }`}
-                key={lp.id}
-                card={lp}
-                onPlateCardVote={onCardClick}
-                isLiked={lp.isLiked ?? false}
-                onLikeButtonClick={onCardLike}
-                windowWidth={windowWidth}
-              />
+              <div key={lp.id} className="w-full">
+                <PlateCard
+                  key={lp.id}
+                  card={lp}
+                  onPlateCardVote={onCardClick}
+                  isLiked={lp.isLiked ?? false}
+                  onLikeButtonClick={onCardLike}
+                  windowWidth={windowWidth}
+                />
+              </div>
             )
           })}
         </div>

@@ -1,19 +1,19 @@
-import { Card, CardBody, CardHeader, CardProps, Image } from '@heroui/react'
+import { Card, CardBody, CardHeader, CardProps } from '@heroui/react'
 import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
 import { BUCKET_URL, MOBILE_WIDTH_CUTOFF } from 'const/constants'
+import ImageContainer from './ImageContainer'
 
 interface PlateCardProps extends CardProps {
   card: IPlateCard
   onPlateCardVote: (plate: IPlateCard) => void
   isLiked: boolean
   onLikeButtonClick: (plate: IPlateCard) => void
-  windowWidth: number
+  windowWidth?: number
 }
 
 const PlateCard = (props: PlateCardProps) => {
-  const { card, onPlateCardVote, isLiked, onLikeButtonClick, windowWidth } =
-    props
+  const { card, onPlateCardVote, isLiked, onLikeButtonClick } = props
   //const [imageLoaded, setImageLoaded] = useState(false)
 
   // fixes an issue where safari would render the first set of cards really small
@@ -22,9 +22,9 @@ const PlateCard = (props: PlateCardProps) => {
   // }
 
   return (
-    <div className="flex max-h-full w-full max-w-full flex-col items-center justify-center light">
+    <div className="aspect-[3/4] size-auto  max-h-full min-h-0 max-w-full flex-col items-center justify-center light">
       <Card
-        className="aspect-[3/4] max-h-full w-full"
+        className="size-full max-h-full max-w-full"
         isHoverable
         isPressable
         {...props}
@@ -41,15 +41,23 @@ const PlateCard = (props: PlateCardProps) => {
           >
             <IoHeart
               className="mr-1 mt-1 cursor-pointer"
-              size={windowWidth <= MOBILE_WIDTH_CUTOFF ? 22 : 36}
+              size={window.innerWidth <= MOBILE_WIDTH_CUTOFF ? 22 : 36}
               color={isLiked ? 'red' : 'gray'}
               onClick={() => onLikeButtonClick(card)}
             ></IoHeart>
           </div>
         </CardHeader>
-        <CardBody onClick={() => onPlateCardVote(card)}>
-          <div id={`imgContainer-${card.id}`} className="h-full max-h-full">
-            <Image
+        <CardBody
+          className="block h-full max-h-full min-h-0 overflow-hidden"
+          onClick={() => onPlateCardVote(card)}
+        >
+          {/* <div id={`imgContainer-${card.id}`} className="min-h-0 shrink grow-0"> */}
+          <ImageContainer
+            src={`${BUCKET_URL}/${card.fileName}?hi=1`}
+            alt={card.correctedText}
+            isZoomed={window.innerWidth > MOBILE_WIDTH_CUTOFF}
+          ></ImageContainer>
+          {/* <Image
               alt="Card background"
               src={`${BUCKET_URL}/${card.fileName}?hi=1`}
               onLoad={() => {}}
@@ -59,8 +67,8 @@ const PlateCard = (props: PlateCardProps) => {
                 img: 'size-full object-cover'
               }}
               isZoomed={window.innerWidth > 768}
-            />
-          </div>
+            /> */}
+          {/* </div> */}
         </CardBody>
       </Card>
     </div>

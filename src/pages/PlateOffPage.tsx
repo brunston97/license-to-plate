@@ -18,7 +18,7 @@ function PlateOffPage() {
   // }
 
   return (
-    <div className="flex min-h-0 grow flex-col items-center justify-center">
+    <div className="flex max-h-full min-h-0 grow flex-col items-center justify-center">
       {/* <Header /> */}
       <PlateOff
         isMuted={isMuted}
