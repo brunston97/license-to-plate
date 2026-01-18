@@ -36,11 +36,6 @@ export default function PageWrapper() {
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.muted = isMuted
-      window.gtag &&
-        window.gtag('event', 'select_content', {
-          content_type: 'mute_toggle',
-          content_id: isMuted
-        })
     }
   }, [isMuted])
 
@@ -54,7 +49,14 @@ export default function PageWrapper() {
       <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop />
 
       <Button
-        onPress={toggleMute}
+        onPress={() => {
+          window.gtag &&
+            window.gtag('event', 'select_content', {
+              content_type: 'mute_toggle',
+              content_id: isMuted
+            })
+          toggleMute()
+        }}
         isIconOnly
         variant="light"
         color="default"
