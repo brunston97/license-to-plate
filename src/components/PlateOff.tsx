@@ -158,7 +158,7 @@ const PlateOff = (props: PlateOffProps) => {
                           )?.isLiked ?? false
                         }
                         onLikeButtonClick={onCardLike}
-                        windowWidth={props.windowWidth}
+                        centerText={true}
                         id={'item' + (key + 1)}
                       />
                     </div>
@@ -179,7 +179,7 @@ const PlateOff = (props: PlateOffProps) => {
                       )?.isLiked ?? false
                     }
                     onLikeButtonClick={onCardLike}
-                    windowWidth={props.windowWidth}
+                    centerText={true}
                   />
                   <PlateCard
                     card={plates[indexPairs[index + 1][1]]}
@@ -191,7 +191,7 @@ const PlateOff = (props: PlateOffProps) => {
                       )?.isLiked ?? false
                     }
                     onLikeButtonClick={onCardLike}
-                    windowWidth={props.windowWidth}
+                    centerText={true}
                   />
                 </div>
               )}
