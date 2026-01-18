@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardProps } from '@heroui/react'
+import { Button, Card, CardBody, CardHeader, CardProps } from '@heroui/react'
 import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
 import { BUCKET_URL, MOBILE_WIDTH_CUTOFF } from 'const/constants'
@@ -30,7 +30,7 @@ const PlateCard = (props: PlateCardProps) => {
         isPressable
         onPress={() => onPlateCardClick(card)}
       >
-        <CardHeader className="mb-0 flex justify-between pb-0">
+        <CardHeader className="mb-0 justify-between pb-0">
           {(window.innerWidth > MOBILE_WIDTH_CUTOFF || props.centerText) && (
             <div className="aspect-square h-full"></div>
           )}
@@ -39,18 +39,20 @@ const PlateCard = (props: PlateCardProps) => {
               {card.correctedText}
             </h3>
           </div>
-          <div
-            className="aspect-square h-full"
-            onClick={(e) => {
+          <Button
+            className="z-20 aspect-square h-full p-1"
+            isIconOnly
+            variant="light"
+            onPress={() => {
               onLikeButtonClick(card)
-              e.stopPropagation()
             }}
+            as={'div'}
           >
             <IoHeart
-              className="z-20 size-full"
+              className="size-full"
               color={isLiked ? 'red' : 'gray'}
             ></IoHeart>
-          </div>
+          </Button>
         </CardHeader>
         <CardBody className="block h-full max-h-full min-h-0 cursor-pointer overflow-hidden">
           <ImageContainer

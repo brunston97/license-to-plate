@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa'
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
+import { Button } from '@heroui/react'
 
 export default function PageWrapper() {
   const [isMuted, setIsMuted] = useState(true)
@@ -35,6 +36,11 @@ export default function PageWrapper() {
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.muted = isMuted
+      window.gtag &&
+        window.gtag('event', 'select_content', {
+          content_type: 'mute_toggle',
+          content_id: isMuted
+        })
     }
   }, [isMuted])
 
@@ -47,17 +53,21 @@ export default function PageWrapper() {
       <Navbar />
       <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop />
 
-      <button
-        onClick={toggleMute}
-        className="fixed bottom-2 left-2 z-50 rounded-full bg-transparent p-2 hover:bg-gray-200"
+      <Button
+        onPress={toggleMute}
+        isIconOnly
+        variant="light"
+        color="default"
+        radius="full"
         title={isMuted ? 'Unmute' : 'Mute'}
+        className="fixed bottom-2 left-2"
       >
         {isMuted ? (
           <FaVolumeMute size={32} color="gray" />
         ) : (
           <FaVolumeUp size={32} color="white" />
         )}
-      </button>
+      </Button>
 
       <Outlet context={{ windowWidth, isMuted }} />
     </div>
