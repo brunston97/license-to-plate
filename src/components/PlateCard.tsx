@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardProps } from '@heroui/react'
+import { Button, Card, CardBody, CardHeader, CardProps } from '@heroui/react'
 import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
 import { BUCKET_URL, MOBILE_WIDTH_CUTOFF } from 'const/constants'
@@ -29,46 +29,35 @@ const PlateCard = (props: PlateCardProps) => {
         isPressable
         {...props}
       >
-        <CardHeader className="mb-0 flex-col items-center pb-0">
-          <div id="nameContainer" className="mb-2 leading-none text-black">
-            <h3 className="font-bold uppercase leading-none text-large">
+        <CardHeader className="mb-0 flex justify-between pb-0">
+          <div className="aspect-square h-full"></div>
+          <div id="nameContainer" className="leading-none text-black">
+            <h3 className="text-center font-bold uppercase leading-none text-large">
               {card.correctedText}
             </h3>
           </div>
-          <div
+          <Button
             id="likeButtonContainer"
-            className="absolute right-1 top-2 sm:top-1 md:right-2 xl:right-3"
+            size={window.innerWidth < MOBILE_WIDTH_CUTOFF ? 'sm' : 'sm'} //{window.innerWidth <= MOBILE_WIDTH_CUTOFF ? 22 : 36}
+            onPress={() => onLikeButtonClick(card)}
+            variant="light"
+            isIconOnly
           >
             <IoHeart
-              className="mr-1 mt-1 cursor-pointer"
-              size={window.innerWidth <= MOBILE_WIDTH_CUTOFF ? 22 : 36}
+              className="size-2/3"
               color={isLiked ? 'red' : 'gray'}
-              onClick={() => onLikeButtonClick(card)}
             ></IoHeart>
-          </div>
+          </Button>
         </CardHeader>
         <CardBody
           className="block h-full max-h-full min-h-0 overflow-hidden"
           onClick={() => onPlateCardVote(card)}
         >
-          {/* <div id={`imgContainer-${card.id}`} className="min-h-0 shrink grow-0"> */}
           <ImageContainer
             src={`${BUCKET_URL}/${card.fileName}?hi=1`}
             alt={card.correctedText}
             isZoomed={window.innerWidth > MOBILE_WIDTH_CUTOFF}
           ></ImageContainer>
-          {/* <Image
-              alt="Card background"
-              src={`${BUCKET_URL}/${card.fileName}?hi=1`}
-              onLoad={() => {}}
-              classNames={{
-                wrapper: 'size-full max-h-full !max-w-full',
-                zoomedWrapper: 'size-full',
-                img: 'size-full object-cover'
-              }}
-              isZoomed={window.innerWidth > 768}
-            /> */}
-          {/* </div> */}
         </CardBody>
       </Card>
     </div>
