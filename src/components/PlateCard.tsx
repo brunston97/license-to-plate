@@ -6,14 +6,14 @@ import ImageContainer from './ImageContainer'
 
 interface PlateCardProps extends CardProps {
   card: IPlateCard
-  onPlateCardVote: (plate: IPlateCard) => void
+  onPlateCardClick: (plate: IPlateCard) => void
   isLiked: boolean
   onLikeButtonClick: (plate: IPlateCard) => void
   centerText?: boolean
 }
 
 const PlateCard = (props: PlateCardProps) => {
-  const { card, onPlateCardVote, isLiked, onLikeButtonClick } = props
+  const { card, onPlateCardClick, isLiked, onLikeButtonClick } = props
   //const [imageLoaded, setImageLoaded] = useState(false)
 
   // fixes an issue where safari would render the first set of cards really small
@@ -28,7 +28,7 @@ const PlateCard = (props: PlateCardProps) => {
         isHoverable
         {...props}
         isPressable
-        onPress={() => onPlateCardVote(card)}
+        onPress={() => onPlateCardClick(card)}
       >
         <CardHeader className="mb-0 flex justify-between pb-0">
           {(window.innerWidth > MOBILE_WIDTH_CUTOFF || props.centerText) && (

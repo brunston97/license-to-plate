@@ -16,7 +16,6 @@ interface PlateCollectionProps {
 const PlateCollection = (props: PlateCollectionProps) => {
   const {
     plates,
-    windowWidth,
     isFleet,
     //isPlateSelected,
     onCardClick,
@@ -67,10 +66,10 @@ const PlateCollection = (props: PlateCollectionProps) => {
                 <PlateCard
                   key={lp.id}
                   card={lp}
-                  onPlateCardVote={onCardClick}
+                  onPlateCardClick={onCardClick}
                   isLiked={lp.isLiked ?? false}
                   onLikeButtonClick={onCardLike}
-                  windowWidth={windowWidth}
+                  centerText={false}
                 />
               </div>
             )

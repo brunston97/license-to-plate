@@ -80,6 +80,12 @@ const PlateOff = (props: PlateOffProps) => {
     try {
       axios.post(`/vote/${card.id}`)
       setIndex((i) => i + 1)
+
+      window.gtag &&
+        window.gtag('event', 'select_content', {
+          content_type: 'plate_vote',
+          content_id: card.id
+        })
     } catch (error) {
       console.log(error)
     }
@@ -150,7 +156,7 @@ const PlateOff = (props: PlateOffProps) => {
                     >
                       <PlateCard
                         card={plates[indexPairs[index][key]]}
-                        onPlateCardVote={onCardClick}
+                        onPlateCardClick={onCardClick}
                         isLiked={
                           cachedPlateInfo.find(
                             (plate) =>
@@ -171,7 +177,7 @@ const PlateOff = (props: PlateOffProps) => {
                 <div className="hidden">
                   <PlateCard
                     card={plates[indexPairs[index + 1][0]]}
-                    onPlateCardVote={onCardClick}
+                    onPlateCardClick={onCardClick}
                     isLiked={
                       cachedPlateInfo.find(
                         (plate) =>
@@ -183,7 +189,7 @@ const PlateOff = (props: PlateOffProps) => {
                   />
                   <PlateCard
                     card={plates[indexPairs[index + 1][1]]}
-                    onPlateCardVote={onCardClick}
+                    onPlateCardClick={onCardClick}
                     isLiked={
                       cachedPlateInfo.find(
                         (plate) =>
