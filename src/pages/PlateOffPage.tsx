@@ -10,7 +10,7 @@ function PlateOffPage() {
     windowWidth: number
     isMuted: boolean
   }>()
-  const [isSideBySideView, setIsSideBySideView] = useState(true)
+  const [isSideBySideView, setIsSideBySideView] = useState(false)
 
   return (
     <div className="flex max-h-full min-h-0 grow flex-col items-center justify-center">
