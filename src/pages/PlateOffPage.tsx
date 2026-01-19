@@ -32,7 +32,10 @@ function PlateOffPage() {
           }}
           className="fixed bottom-2 right-2"
         >
-          <GiCardExchange size={32} />
+          <GiCardExchange
+            size={32}
+            color={isSideBySideView ? 'white' : 'gray'}
+          />
         </Button>
       )}
     </div>
