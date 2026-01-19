@@ -34,6 +34,14 @@ function App() {
               <Route path="/results" element={<Results></Results>} />
             </>
           )}
+          <Route
+            path="*"
+            element={
+              <h1 className=" my-auto w-full text-center text-4xl font-black text-black">
+                HHMMMM...
+              </h1>
+            }
+          ></Route>
         </Route>
       </Routes>
     </HeroUIProvider>

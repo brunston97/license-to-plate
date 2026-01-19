@@ -41,7 +41,6 @@ export default function ModalGallery({
 
   const handleOpen = (index: number) => {
     goTo(index)
-    console.log(index)
     modalRef.current?.showModal()
   }
 
@@ -84,7 +83,7 @@ export default function ModalGallery({
                     key={card.id}
                     card={card}
                     isLiked={showLikes && card.isLiked}
-                    centerText={centerText}
+                    centerText={true}
                     onLikeButtonClick={onLikeButtonClick}
                   />
                 </div>

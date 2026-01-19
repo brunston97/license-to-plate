@@ -1,12 +1,10 @@
 import { IPlateCard } from 'assets/types'
 import axios from 'axios'
-import { ReactElement, useEffect, useRef, useState } from 'react'
-import PlateCard from './PlateCard'
+import { ReactElement, useEffect, useState } from 'react'
+import PlateCardGallery from './PlateCardGallery'
 
 export default function Results(): ReactElement {
   const [topTenPlates, setTopTenPlates] = useState<IPlateCard[]>([])
-  //const [currentPlate, setCurrentPlate] = useState<IPlateCard | null>(null)
-  //const [index, setIndex] = useState(0)
 
   useEffect(() => {
     async function getPlates() {
@@ -22,62 +20,14 @@ export default function Results(): ReactElement {
     getPlates()
   }, [])
 
-  const modalRef = useRef<HTMLDialogElement>(null)
-  const carouselRef = useRef<HTMLDivElement>(null)
-
-  function goTo(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) {
-    event.preventDefault()
-    const btn = event.currentTarget
-    const carousel = carouselRef.current
-    if (carousel) {
-      const href = btn.getAttribute('href')!
-      const target = carousel.querySelector<HTMLDivElement>(href)!
-      const left = target.offsetLeft
-      carousel.scrollTo({
-        left: left - carousel.clientWidth / 2,
-        behavior: 'instant'
-      })
-      modalRef.current && modalRef.current.showModal()
-    }
-  }
-
   return (
     <div className="z-0 grow overflow-y-auto p-4">
-      <dialog id="my_modal_2" className="modal" ref={modalRef}>
-        <div className="modal-box w-full max-w-full rounded-none bg-transparent p-0 shadow-none sm:h-5/6 sm:max-h-[40rem]  sm:w-auto">
-          <div
-            ref={carouselRef}
-            className="carousel carousel-center max-h-full max-w-[100vw] space-x-4 p-4 sm:size-full"
-          >
-            {topTenPlates.map((plate, index) => {
-              return (
-                <div
-                  id={`plate${index}`}
-                  className="carousel-item aspect-[3/4] size-auto max-h-full w-full max-w-full sm:w-auto"
-                  key={plate.id}
-                >
-                  <PlateCard card={plate} isLiked={plate.isLiked} centerText />
-                </div>
-              )
-            })}
-          </div>{' '}
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 2xl:grid-cols-8">
-        {topTenPlates.map((item, index) => (
-          <a key={item.id} href={`#plate${index}`} onClick={goTo}>
-            <PlateCard
-              key={item.id}
-              card={item}
-              isLiked={item.isLiked ?? false}
-              isZoomed
-            ></PlateCard>
-          </a>
-        ))}
-      </div>
+      <PlateCardGallery
+        plates={topTenPlates}
+        showLikes
+        centerText={false}
+        isZoomed
+      ></PlateCardGallery>
     </div>
   )
 }
