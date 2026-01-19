@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { IPlateCard } from 'assets/types'
-import PlateCard from './PlateCard'
 import { MAX_FLEET_SIZE } from 'const/constants'
 import { Button, ScrollShadow } from '@heroui/react'
+import PlateCardGallery from './PlateCardGallery'
 
 interface PlateCollectionProps {
   plates: IPlateCard[]
@@ -18,7 +18,6 @@ const PlateCollection = (props: PlateCollectionProps) => {
     plates,
     isFleet,
     //isPlateSelected,
-    onCardClick,
     onCardLike
   } = props
 
@@ -57,7 +56,14 @@ const PlateCollection = (props: PlateCollectionProps) => {
           </>
         )} */}
       <ScrollShadow hideScrollBar className="min-h-0 grow" size={10}>
-        <div
+        <PlateCardGallery
+          plates={currentPlates}
+          showLikes
+          onLikeButtonClick={onCardLike}
+          centerText={false}
+          isZoomed={false}
+        ></PlateCardGallery>
+        {/* <div
           className={`grid w-full grid-cols-2 gap-2 sm:grid-cols-4 2xl:grid-cols-8`}
         >
           {currentPlates.map((lp) => {
@@ -77,7 +83,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
               </div>
             )
           })}
-        </div>
+        </div> */}
       </ScrollShadow>
 
       {/* {!isMobileSized && !isFleet && (

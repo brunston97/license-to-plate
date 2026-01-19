@@ -1,24 +1,27 @@
+import { IPlateCard } from 'assets/types'
 import { ReactElement, useRef } from 'react'
+import PlateCard from './PlateCard'
 
-interface GalleryItem {
-  id: string
+export interface GalleryItem {
+  id: number
   // Add other properties specific to your items
 }
 
 interface ModalGalleryProps {
-  items: GalleryItem[]
-  renderItem: (item: GalleryItem) => ReactElement
-  isOpen: boolean
-  onClose: () => void
-  initialIndex?: number
+  plates: IPlateCard[]
+  onPlateCardClick?: (plate: IPlateCard) => void
+  showLikes: boolean
+  onLikeButtonClick?: (plate: IPlateCard) => void
+  centerText?: boolean
+  isZoomed?: boolean
 }
 
 export default function ModalGallery({
-  items,
-  renderItem,
-  isOpen,
-  onClose
-  //initialIndex = 0
+  plates,
+  showLikes,
+  onLikeButtonClick,
+  centerText,
+  isZoomed
 }: ModalGalleryProps): ReactElement {
   const carouselRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDialogElement>(null)
@@ -38,12 +41,8 @@ export default function ModalGallery({
 
   const handleOpen = (index: number) => {
     goTo(index)
+    console.log(index)
     modalRef.current?.showModal()
-  }
-
-  // Handle modal close
-  const handleClose = () => {
-    onClose()
   }
 
   // Handle click on gallery item to open modal
@@ -54,32 +53,40 @@ export default function ModalGallery({
   return (
     <div>
       {/* Gallery items that open the modal */}
-      <div>
-        {items.map((item, index) => (
-          <div
-            key={item.id}
-            onClick={() => handleItemClick(index)}
-            className="grid grid-cols-2 gap-4 sm:grid-cols-4 2xl:grid-cols-8"
-          >
-            {renderItem(item)}
-          </div>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 2xl:grid-cols-8">
+        {plates.map((card, index) => (
+          <PlateCard
+            key={card.id}
+            card={card}
+            isLiked={showLikes && card.isLiked}
+            onPlateCardClick={() => handleItemClick(index)}
+            isZoomed={isZoomed}
+            centerText={centerText}
+            onLikeButtonClick={onLikeButtonClick}
+          />
         ))}
       </div>
 
       {/* Modal gallery */}
-      {isOpen && (
-        <dialog ref={modalRef} className="modal" onClose={handleClose}>
+      {
+        <dialog ref={modalRef} className="modal">
           <div className="modal-box w-full max-w-full rounded-none bg-transparent p-0 shadow-none sm:h-5/6 sm:max-h-[40rem] sm:w-auto">
             <div
               ref={carouselRef}
               className="carousel carousel-center max-h-full max-w-[100vw] space-x-4 p-4 sm:size-full"
             >
-              {items.map((item) => (
+              {plates.map((card) => (
                 <div
-                  key={item.id}
+                  key={card.id}
                   className="carousel-item aspect-[3/4] size-auto max-h-full w-full max-w-full sm:w-auto"
                 >
-                  {renderItem(item)}
+                  <PlateCard
+                    key={card.id}
+                    card={card}
+                    isLiked={showLikes && card.isLiked}
+                    centerText={centerText}
+                    onLikeButtonClick={onLikeButtonClick}
+                  />
                 </div>
               ))}
             </div>
@@ -88,7 +95,7 @@ export default function ModalGallery({
             <button>close</button>
           </form>
         </dialog>
-      )}
+      }
     </div>
   )
 }
