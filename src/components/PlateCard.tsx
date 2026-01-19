@@ -6,14 +6,15 @@ import ImageContainer from './ImageContainer'
 
 interface PlateCardProps extends CardProps {
   card: IPlateCard
-  onPlateCardClick: (plate: IPlateCard) => void
+  onPlateCardClick?: (plate: IPlateCard) => void
   isLiked: boolean
-  onLikeButtonClick: (plate: IPlateCard) => void
+  onLikeButtonClick?: (plate: IPlateCard) => void
   centerText?: boolean
 }
 
 const PlateCard = (props: PlateCardProps) => {
-  const { card, onPlateCardClick, isLiked, onLikeButtonClick } = props
+  const { card, onPlateCardClick, isLiked, onLikeButtonClick, centerText } =
+    props
   //const [imageLoaded, setImageLoaded] = useState(false)
 
   // fixes an issue where safari would render the first set of cards really small
@@ -27,32 +28,36 @@ const PlateCard = (props: PlateCardProps) => {
         className="aspect-[3/4] h-auto max-h-full w-full max-w-full"
         isHoverable
         {...props}
-        isPressable
-        onPress={() => onPlateCardClick(card)}
+        isPressable={onPlateCardClick != undefined}
+        onPress={() => onPlateCardClick && onPlateCardClick(card)}
       >
         <CardHeader className="mb-0 justify-between pb-0">
-          {(window.innerWidth > MOBILE_WIDTH_CUTOFF || props.centerText) && (
-            <div className="aspect-square h-full"></div>
-          )}
+          {(window.innerWidth > MOBILE_WIDTH_CUTOFF ||
+            !onLikeButtonClick ||
+            centerText) && <div className="aspect-square h-full"></div>}
           <div id="nameContainer" className="leading-none text-black">
             <h3 className="text-center font-bold uppercase leading-none text-large">
               {card.correctedText}
             </h3>
           </div>
-          <Button
-            className="z-20 aspect-square h-full p-1"
-            isIconOnly
-            variant="light"
-            onPress={() => {
-              onLikeButtonClick(card)
-            }}
-            as={'div'}
-          >
-            <IoHeart
-              className="size-full"
-              color={isLiked ? 'red' : 'gray'}
-            ></IoHeart>
-          </Button>
+          <div className="aspect-square h-full">
+            {onLikeButtonClick && (
+              <Button
+                className="z-20 aspect-square h-full p-1"
+                isIconOnly
+                variant="light"
+                onPress={() => {
+                  onLikeButtonClick && onLikeButtonClick(card)
+                }}
+                as={'div'}
+              >
+                <IoHeart
+                  className="size-full"
+                  color={isLiked ? 'red' : 'gray'}
+                ></IoHeart>
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardBody className="h-auto max-h-full min-h-0 w-full cursor-pointer items-stretch overflow-hidden">
           <ImageContainer

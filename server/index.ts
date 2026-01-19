@@ -132,15 +132,24 @@ if (process.env.NODE_ENV === 'development') {
     }
   })
 
+  //let offset = 0
+
   // Custom route to serve local files
   openRouter.get('/images/:fileName', async (req, res) => {
     const { fileName } = req.params
     //const fileName = 'plate253.jpg'
+    //const testFile = 'plate251.jpg'
     try {
       //const fileInfo = await localDb.getImgById(id)
       if (fileName) {
         //fileName = 'plate678.jpg'
-        const filePath = path.join(imagesDir, DEV_IMG_FOLDER, fileName)
+        const filePath = path.join(
+          imagesDir,
+          DEV_IMG_FOLDER,
+          fileName
+          //offset % 2 ? fileName : testFile
+        )
+        //offset++
         // if (!existsSync(filePath)) {
         //   res.status(404).json({ error: `File does not exists` })
         // } else {
