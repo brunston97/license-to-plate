@@ -97,7 +97,7 @@ const MyPlatesPage = () => {
           key="liked"
           title="Liked Plates"
           titleValue="Liked Plates"
-          className="min-h-0 grow !p-2"
+          className="min-h-0 w-full grow !p-2"
         >
           {likedPlates.length > 0 ? (
             <PlateCollection
