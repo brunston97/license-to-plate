@@ -18,6 +18,7 @@ const PlateOff = (props: PlateOffProps) => {
   const [plates, setPlates] = useState<IPlateCard[]>([])
   const [isLoading, setLoading] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const likeButtonAudioRef = useRef<HTMLAudioElement | null>(null)
 
   const [cachedPlateInfo, setCachedPlateInfo] = useState<IPlateCard[]>(() => {
     const stored = localStorage.getItem('userPlates')
@@ -28,10 +29,13 @@ const PlateOff = (props: PlateOffProps) => {
     getCards()
 
     audioRef.current = new Audio('pop.mp3')
+    likeButtonAudioRef.current = new Audio('chime.mp3')
 
     return () => {
       audioRef.current?.pause()
       audioRef.current = null
+      likeButtonAudioRef.current?.pause()
+      likeButtonAudioRef.current = null
     }
   }, [])
 
@@ -64,7 +68,7 @@ const PlateOff = (props: PlateOffProps) => {
   }
 
   async function onCardClick(card: IPlateCard) {
-    handleCardClickAudio()
+    handleClickAudio(true)
 
     const plateIndexes = indexPairs[index]
     const platesToAdd = plateIndexes
@@ -94,6 +98,12 @@ const PlateOff = (props: PlateOffProps) => {
   function onCardLike(clickedPlate: IPlateCard) {
     setCachedPlateInfo((prev) => {
       const cachedPlate = prev.find((p) => p.id === clickedPlate.id)
+      const isCurrentlyLiked = cachedPlate ? cachedPlate.isLiked : false
+
+      if (!isCurrentlyLiked) {
+        handleClickAudio(false)
+      }
+
       if (cachedPlate) {
         return prev.map((p) =>
           p.id === clickedPlate.id ? { ...p, isLiked: !p.isLiked } : p
@@ -109,13 +119,14 @@ const PlateOff = (props: PlateOffProps) => {
     })
   }
 
-  function handleCardClickAudio() {
-    if (!props.isMuted && audioRef.current) {
-      if (!audioRef.current.paused) {
-        audioRef.current.pause()
-        audioRef.current.currentTime = 0
+  function handleClickAudio(isVote: boolean) {
+    const thisRef = isVote ? audioRef : likeButtonAudioRef
+    if (!props.isMuted && thisRef.current) {
+      if (!thisRef.current.paused) {
+        thisRef.current.pause()
+        thisRef.current.currentTime = 0
       }
-      audioRef.current
+      thisRef.current
         .play()
         .catch((err) => console.error('Error playing sound:', err))
     }
