@@ -22,9 +22,9 @@ const PlateCard = (props: PlateCardProps) => {
   // }
 
   return (
-    <div className="relative aspect-[3/4]  size-auto max-h-full min-h-0 max-w-full flex-col items-center justify-center light">
+    <div className="relative flex h-auto max-h-full min-h-0 w-full max-w-full flex-col items-center justify-center light">
       <Card
-        className="size-full max-h-full max-w-full"
+        className="aspect-[3/4] h-auto max-h-full w-full max-w-full"
         isHoverable
         {...props}
         isPressable
@@ -54,7 +54,7 @@ const PlateCard = (props: PlateCardProps) => {
             ></IoHeart>
           </Button>
         </CardHeader>
-        <CardBody className="block h-full max-h-full min-h-0 cursor-pointer overflow-hidden">
+        <CardBody className="h-auto max-h-full min-h-0 w-full cursor-pointer items-stretch overflow-hidden">
           <ImageContainer
             src={`${BUCKET_URL}/${card.fileName}?hi=1`}
             alt={card.correctedText}

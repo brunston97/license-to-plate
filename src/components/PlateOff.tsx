@@ -146,8 +146,8 @@ const PlateOff = (props: PlateOffProps) => {
     }
   }
 
-  const sideBySideClass = ' *:max-w-[95%] *:max-h-full'
-  const stackClass = ' flex-col *:max-h-[50%] *:w-full'
+  const sideBySideClass = ' pb-11 *:w-full *:max-w-[95%] *:max-h-full'
+  const stackClass = ' grow flex-col items-center *:max-h-[50%] *:h-full'
   const carouselItemClass =
     props.isSideBySideView && window.innerWidth < MOBILE_WIDTH_CUTOFF
       ? sideBySideClass
@@ -161,7 +161,7 @@ const PlateOff = (props: PlateOffProps) => {
             <>
               <div
                 className={
-                  'carousel flex pb-11 min-h-0 w-full items-center sm:flex-row sm:justify-center' +
+                  'carousel flex min-h-0 w-full items-center sm:flex-row sm:justify-center' +
                   carouselItemClass
                 }
               >
@@ -170,7 +170,7 @@ const PlateOff = (props: PlateOffProps) => {
                     <div
                       key={key}
                       className={
-                        'carousel-item relative h-full items-start justify-center p-2 sm:size-full sm:max-h-none sm:max-w-[45%]'
+                        'carousel-item relative h-auto  justify-center p-2 sm:size-full sm:max-h-none sm:max-w-[45%]'
                       }
                     >
                       <PlateCard

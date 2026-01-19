@@ -21,7 +21,7 @@ const ImageContainer = ({
       alt={alt}
       src={src}
       classNames={{
-        wrapper: 'h-full max-h-full !max-w-full overflow-hidden',
+        wrapper: 'size-full max-h-full !max-w-full overflow-hidden',
         zoomedWrapper: 'size-full',
         img: 'size-full object-cover object-center'
       }}
