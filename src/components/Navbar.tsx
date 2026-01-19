@@ -68,7 +68,7 @@ export default function App() {
             <Button
               isIconOnly
               color="default"
-              variant="bordered"
+              variant="light"
               onPress={() => dialogRef.current?.showModal()}
             >
               <FaInfoCircle

@@ -16,7 +16,6 @@ interface PlateCollectionProps {
 const PlateCollection = (props: PlateCollectionProps) => {
   const {
     plates,
-    windowWidth,
     isFleet,
     //isPlateSelected,
     onCardClick,
@@ -58,19 +57,19 @@ const PlateCollection = (props: PlateCollectionProps) => {
           </>
         )} */}
       <ScrollShadow hideScrollBar className="min-h-0 grow" size={10}>
-        <div className={`grid size-full grid-cols-2 gap-2 sm:grid-cols-4`}>
+        <div className={`grid w-full grid-cols-2 gap-2 sm:grid-cols-4`}>
           {currentPlates.map((lp) => {
             //const isSelected = isPlateSelected(lp.id)
 
             return (
-              <div key={lp.id} className="w-full">
+              <div key={lp.id} className="h-fit w-full">
                 <PlateCard
                   key={lp.id}
                   card={lp}
-                  onPlateCardVote={onCardClick}
+                  onPlateCardClick={onCardClick}
                   isLiked={lp.isLiked ?? false}
                   onLikeButtonClick={onCardLike}
-                  windowWidth={windowWidth}
+                  centerText={false}
                 />
               </div>
             )

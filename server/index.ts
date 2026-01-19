@@ -135,7 +135,7 @@ if (process.env.NODE_ENV === 'development') {
   // Custom route to serve local files
   openRouter.get('/images/:fileName', async (req, res) => {
     const { fileName } = req.params
-    //const fileName = 'plate678.jpg'
+    //const fileName = 'plate253.jpg'
     try {
       //const fileInfo = await localDb.getImgById(id)
       if (fileName) {

@@ -20,5 +20,8 @@
   "editor.detectIndentation": false,
   "[query-editor]": {
     "editor.defaultFormatter": "yy0931.vscode-sqlite3-editor"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

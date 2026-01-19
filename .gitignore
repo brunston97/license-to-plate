@@ -49,3 +49,4 @@ parsePlates/**/*.pyc
 parsePlates/source/images/output/
 
 *.onnx
+.firebase/*.cache

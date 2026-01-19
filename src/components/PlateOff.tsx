@@ -4,12 +4,12 @@ import axios from '../utils/axiosInstance'
 import PlateCard from './PlateCard'
 import Spinner from './Spinner'
 import { IPlateCard } from 'assets/types'
+import { MOBILE_WIDTH_CUTOFF } from 'const/constants'
 //import allPlateData from '../const/Plate_Zone_Plates.json'
 
 interface PlateOffProps {
   isMuted: boolean
-  windowWidth: number
-  isManualSideBySideView: boolean
+  isSideBySideView: boolean
 }
 
 const PlateOff = (props: PlateOffProps) => {
@@ -80,6 +80,12 @@ const PlateOff = (props: PlateOffProps) => {
     try {
       axios.post(`/vote/${card.id}`)
       setIndex((i) => i + 1)
+
+      window.gtag &&
+        window.gtag('event', 'select_content', {
+          content_type: 'plate_vote',
+          content_id: card.id
+        })
     } catch (error) {
       console.log(error)
     }
@@ -93,6 +99,11 @@ const PlateOff = (props: PlateOffProps) => {
           p.id === clickedPlate.id ? { ...p, isLiked: !p.isLiked } : p
         )
       } else {
+        window.gtag &&
+          window.gtag('event', 'select_content', {
+            content_type: 'plate_like',
+            content_id: clickedPlate.id
+          })
         return [...prev, { ...clickedPlate, isLiked: true }]
       }
     })
@@ -135,22 +146,39 @@ const PlateOff = (props: PlateOffProps) => {
     }
   }
 
+  const sideBySideClass = ' pb-11 *:w-full *:max-w-[95%] *:max-h-full'
+  const stackClass = ' grow flex-col items-center *:max-h-[50%] *:h-full'
+  const carouselItemClass =
+    props.isSideBySideView && window.innerWidth < MOBILE_WIDTH_CUTOFF
+      ? sideBySideClass
+      : stackClass
   return (
-    <div className="flex size-full min-h-0 grow flex-col justify-center py-5 sm:pt-6 lg:max-w-5xl">
+    <div
+      className={
+        'flex size-full min-h-0 grow flex-col justify-center lg:max-w-5xl'
+      }
+    >
       {!isLoading ? (
         <>
           {indexPairs.length > index + 1 ? (
             <>
-              <div className="carousel flex min-h-0 w-full sm:justify-center">
+              <div
+                className={
+                  'carousel flex min-h-0 w-full items-center sm:flex-row sm:justify-center' +
+                  carouselItemClass
+                }
+              >
                 {[0, 1].map((key) => {
                   return (
                     <div
                       key={key}
-                      className="carousel-item relative  size-full max-w-[95%] items-start justify-center p-2 sm:max-w-[45%]"
+                      className={
+                        'carousel-item relative h-auto  justify-center p-2 sm:size-full sm:max-h-none sm:max-w-[45%]'
+                      }
                     >
                       <PlateCard
                         card={plates[indexPairs[index][key]]}
-                        onPlateCardVote={onCardClick}
+                        onPlateCardClick={onCardClick}
                         isLiked={
                           cachedPlateInfo.find(
                             (plate) =>
@@ -158,7 +186,7 @@ const PlateOff = (props: PlateOffProps) => {
                           )?.isLiked ?? false
                         }
                         onLikeButtonClick={onCardLike}
-                        windowWidth={props.windowWidth}
+                        centerText={true}
                         id={'item' + (key + 1)}
                       />
                     </div>
@@ -171,7 +199,7 @@ const PlateOff = (props: PlateOffProps) => {
                 <div className="hidden">
                   <PlateCard
                     card={plates[indexPairs[index + 1][0]]}
-                    onPlateCardVote={onCardClick}
+                    onPlateCardClick={onCardClick}
                     isLiked={
                       cachedPlateInfo.find(
                         (plate) =>
@@ -179,11 +207,11 @@ const PlateOff = (props: PlateOffProps) => {
                       )?.isLiked ?? false
                     }
                     onLikeButtonClick={onCardLike}
-                    windowWidth={props.windowWidth}
+                    centerText={true}
                   />
                   <PlateCard
                     card={plates[indexPairs[index + 1][1]]}
-                    onPlateCardVote={onCardClick}
+                    onPlateCardClick={onCardClick}
                     isLiked={
                       cachedPlateInfo.find(
                         (plate) =>
@@ -191,7 +219,7 @@ const PlateOff = (props: PlateOffProps) => {
                       )?.isLiked ?? false
                     }
                     onLikeButtonClick={onCardLike}
-                    windowWidth={props.windowWidth}
+                    centerText={true}
                   />
                 </div>
               )}

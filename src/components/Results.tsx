@@ -67,7 +67,7 @@ export default function Results(): ReactElement {
           <PlateCard
             key={item.id}
             card={item}
-            onPlateCardVote={() => {}}
+            onPlateCardClick={() => {}}
             isLiked={item.isLiked ?? false}
             onLikeButtonClick={() => {}}
           ></PlateCard>
