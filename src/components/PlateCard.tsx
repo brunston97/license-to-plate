@@ -10,11 +10,18 @@ interface PlateCardProps extends CardProps {
   isLiked: boolean
   onLikeButtonClick?: (plate: IPlateCard) => void
   centerText?: boolean
+  isZoomed?: boolean
 }
 
 const PlateCard = (props: PlateCardProps) => {
-  const { card, onPlateCardClick, isLiked, onLikeButtonClick, centerText } =
-    props
+  const {
+    card,
+    onPlateCardClick,
+    isLiked,
+    onLikeButtonClick,
+    centerText,
+    isZoomed
+  } = props
   //const [imageLoaded, setImageLoaded] = useState(false)
 
   // fixes an issue where safari would render the first set of cards really small
@@ -63,7 +70,7 @@ const PlateCard = (props: PlateCardProps) => {
           <ImageContainer
             src={`${BUCKET_URL}/${card.fileName}?hi=1`}
             alt={card.correctedText}
-            isZoomed={window.innerWidth > MOBILE_WIDTH_CUTOFF}
+            isZoomed={window.innerWidth > MOBILE_WIDTH_CUTOFF && isZoomed}
           ></ImageContainer>
         </CardBody>
       </Card>

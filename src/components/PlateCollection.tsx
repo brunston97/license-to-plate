@@ -57,7 +57,9 @@ const PlateCollection = (props: PlateCollectionProps) => {
           </>
         )} */}
       <ScrollShadow hideScrollBar className="min-h-0 grow" size={10}>
-        <div className={`grid w-full grid-cols-2 gap-2 sm:grid-cols-4`}>
+        <div
+          className={`grid w-full grid-cols-2 gap-2 sm:grid-cols-4 2xl:grid-cols-8`}
+        >
           {currentPlates.map((lp) => {
             //const isSelected = isPlateSelected(lp.id)
 
@@ -70,6 +72,7 @@ const PlateCollection = (props: PlateCollectionProps) => {
                   isLiked={lp.isLiked ?? false}
                   onLikeButtonClick={onCardLike}
                   centerText={false}
+                  isZoomed
                 />
               </div>
             )

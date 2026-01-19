@@ -198,7 +198,8 @@ const PlateOff = (props: PlateOffProps) => {
                         }
                         onLikeButtonClick={onCardLike}
                         id={'item' + (key + 1)}
-                        centerText={true}
+                        centerText
+                        isZoomed
                       />
                     </div>
                   )
