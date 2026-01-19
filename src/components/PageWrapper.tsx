@@ -62,7 +62,7 @@ export default function PageWrapper() {
         color="default"
         radius="full"
         title={isMuted ? 'Unmute' : 'Mute'}
-        className="fixed bottom-2 left-2"
+        className="fixed bottom-2 left-2 z-30"
       >
         {isMuted ? (
           <FaVolumeMute size={32} color="gray" />

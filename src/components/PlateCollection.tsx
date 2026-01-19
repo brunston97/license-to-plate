@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { IPlateCard } from 'assets/types'
-import PlateCard from './PlateCard'
 import { MAX_FLEET_SIZE } from 'const/constants'
 import { Button, ScrollShadow } from '@heroui/react'
+import PlateCardGallery from './PlateCardGallery'
 
 interface PlateCollectionProps {
   plates: IPlateCard[]
@@ -18,7 +18,6 @@ const PlateCollection = (props: PlateCollectionProps) => {
     plates,
     isFleet,
     //isPlateSelected,
-    onCardClick,
     onCardLike
   } = props
 
@@ -45,36 +44,14 @@ const PlateCollection = (props: PlateCollectionProps) => {
 
   return (
     <div className="flex size-full flex-col">
-      {/* {!isMobileSized && !isFleet && (
-          <>
-            <button
-              className="mr-8 rounded bg-gray-300 p-2 text-gray-700 hover:bg-gray-400 disabled:opacity-50 md:px-4"
-              onClick={handlePreviousPage}
-              disabled={currentPage === 1}
-            >
-              &larr;
-            </button>
-          </>
-        )} */}
-      <ScrollShadow hideScrollBar className="min-h-0 grow" size={10}>
-        <div className={`grid w-full grid-cols-2 gap-2 sm:grid-cols-4`}>
-          {currentPlates.map((lp) => {
-            //const isSelected = isPlateSelected(lp.id)
-
-            return (
-              <div key={lp.id} className="h-fit w-full">
-                <PlateCard
-                  key={lp.id}
-                  card={lp}
-                  onPlateCardClick={onCardClick}
-                  isLiked={lp.isLiked ?? false}
-                  onLikeButtonClick={onCardLike}
-                  centerText={false}
-                />
-              </div>
-            )
-          })}
-        </div>
+      <ScrollShadow hideScrollBar className="min-h-0 w-full grow" size={10}>
+        <PlateCardGallery
+          plates={currentPlates}
+          showLikes
+          onLikeButtonClick={onCardLike}
+          centerText={false}
+          isZoomed
+        ></PlateCardGallery>
       </ScrollShadow>
 
       {/* {!isMobileSized && !isFleet && (

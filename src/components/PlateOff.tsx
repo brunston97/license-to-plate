@@ -175,7 +175,7 @@ const PlateOff = (props: PlateOffProps) => {
             <>
               <div
                 className={
-                  'carousel flex min-h-0 w-full items-center sm:flex-row sm:justify-center' +
+                  'carousel min-h-0 w-full items-center sm:flex-row sm:justify-center' +
                   carouselItemClass
                 }
               >
@@ -184,7 +184,7 @@ const PlateOff = (props: PlateOffProps) => {
                     <div
                       key={key}
                       className={
-                        'carousel-item relative h-auto  justify-center p-2 sm:size-full sm:max-h-none sm:max-w-[45%]'
+                        'carousel-item relative aspect-[3/4] h-auto  justify-center p-2 sm:size-full sm:max-h-none sm:max-w-[45%]'
                       }
                     >
                       <PlateCard
@@ -197,8 +197,9 @@ const PlateOff = (props: PlateOffProps) => {
                           )?.isLiked ?? false
                         }
                         onLikeButtonClick={onCardLike}
-                        centerText={true}
                         id={'item' + (key + 1)}
+                        centerText
+                        isZoomed
                       />
                     </div>
                   )
@@ -218,7 +219,6 @@ const PlateOff = (props: PlateOffProps) => {
                       )?.isLiked ?? false
                     }
                     onLikeButtonClick={onCardLike}
-                    centerText={true}
                   />
                   <PlateCard
                     card={plates[indexPairs[index + 1][1]]}
@@ -230,7 +230,6 @@ const PlateOff = (props: PlateOffProps) => {
                       )?.isLiked ?? false
                     }
                     onLikeButtonClick={onCardLike}
-                    centerText={true}
                   />
                 </div>
               )}
