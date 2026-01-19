@@ -44,7 +44,7 @@ export default function PageWrapper() {
   }
 
   return (
-    <div className="relative flex h-lvh w-full flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 text-white">
+    <div className="relative flex h-dvh w-full flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 text-white">
       <Navbar />
       <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop />
 

@@ -29,7 +29,12 @@ export default function App() {
 
   return (
     <>
-      <Navbar maxWidth="full" isMenuOpen={isMenuOpen} isBlurred>
+      <Navbar
+        maxWidth="full"
+        isMenuOpen={isMenuOpen}
+        isBlurred
+        position="static"
+      >
         <NavbarContent>
           <NavbarMenuToggle
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
