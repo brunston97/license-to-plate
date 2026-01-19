@@ -152,9 +152,12 @@ const PlateOff = (props: PlateOffProps) => {
     props.isSideBySideView && window.innerWidth < MOBILE_WIDTH_CUTOFF
       ? sideBySideClass
       : stackClass
-
   return (
-    <div className="flex size-full min-h-0 grow flex-col justify-center sm:pt-6 lg:max-w-5xl">
+    <div
+      className={
+        'flex size-full min-h-0 grow flex-col justify-center lg:max-w-5xl'
+      }
+    >
       {!isLoading ? (
         <>
           {indexPairs.length > index + 1 ? (
