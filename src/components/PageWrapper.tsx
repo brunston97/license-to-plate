@@ -1,47 +1,24 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa'
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
 import { Button } from '@heroui/react'
+import { usePlateState } from 'hooks/usePlateState'
 
 export default function PageWrapper() {
-  const [isMuted, setIsMuted] = useState(true)
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
-
-  const audioRef = useRef<HTMLAudioElement>(null)
-  //const dialogRef = useRef<HTMLDialogElement>(null)
+  const { audioRef, isMuted, toggleMute } = usePlateState()
 
   useEffect(() => {
     function handleResize() {
       setWindowWidth(window.innerWidth)
     }
 
-    // for only starting audio once user interacts with page
-    // to avoid browser autoplay restriction issues
-    function handleUserInteraction() {
-      if (audioRef.current) {
-        audioRef.current.play()
-      }
-      document.removeEventListener('click', handleUserInteraction)
-    }
-
     window.addEventListener('resize', handleResize)
-    document.addEventListener('click', handleUserInteraction)
     return () => {
       window.removeEventListener('resize', handleResize)
-      document.removeEventListener('click', handleUserInteraction)
     }
   }, [])
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.muted = isMuted
-    }
-  }, [isMuted])
-
-  const toggleMute = () => {
-    setIsMuted((prevState) => !prevState)
-  }
 
   return (
     <div className="relative flex h-dvh w-full flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 text-white">
@@ -71,7 +48,7 @@ export default function PageWrapper() {
         )}
       </Button>
       {/* <div className="flex min-h-0 grow flex-col"> */}
-      <Outlet context={{ windowWidth, isMuted }} />
+      <Outlet context={{ windowWidth }} />
       {/* </div> */}
     </div>
   )

@@ -2,26 +2,21 @@ import { IPlateCard } from 'assets/types'
 import { ReactElement, useRef } from 'react'
 import PlateCard from './PlateCard'
 
-export interface GalleryItem {
-  id: number
-  // Add other properties specific to your items
-}
-
 interface ModalGalleryProps {
   plates: IPlateCard[]
   onPlateCardClick?: (plate: IPlateCard) => void
-  showLikes: boolean
-  onLikeButtonClick?: (plate: IPlateCard) => void
+  showCardLikes: boolean
   centerText?: boolean
   isZoomed?: boolean
+  onCardLike?: (card: IPlateCard) => void
 }
 
 export default function ModalGallery({
   plates,
-  showLikes,
-  onLikeButtonClick,
+  showCardLikes,
   centerText,
-  isZoomed
+  isZoomed,
+  onCardLike
 }: ModalGalleryProps): ReactElement {
   const carouselRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDialogElement>(null)
@@ -57,11 +52,11 @@ export default function ModalGallery({
           <PlateCard
             key={card.id}
             card={card}
-            isLiked={showLikes && card.isLiked}
             onPlateCardClick={() => handleItemClick(index)}
             isZoomed={isZoomed}
             centerText={centerText}
-            onLikeButtonClick={onLikeButtonClick}
+            onCardLike={onCardLike}
+            showLikeButton={showCardLikes}
           />
         ))}
       </div>
@@ -82,9 +77,9 @@ export default function ModalGallery({
                   <PlateCard
                     key={card.id}
                     card={card}
-                    isLiked={showLikes && card.isLiked}
+                    //isLiked={showCardLikes && card.isLiked}
                     centerText={true}
-                    onLikeButtonClick={onLikeButtonClick}
+                    showLikeButton={showCardLikes}
                   />
                 </div>
               ))}

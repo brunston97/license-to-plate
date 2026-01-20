@@ -20,3 +20,34 @@ export function shuffleArray<T>(array: T[]): T[] {
 
   return shuffledArray
 }
+
+export function formPlatePairsArray(len: number): number[][] {
+  const plateIds = Array.from({ length: len }, (_, i) => i)
+  shuffle(plateIds)
+
+  const pairedPlates: number[][] = []
+  for (let i = 0; i < plateIds.length; i += 2) {
+    pairedPlates.push([plateIds[i], plateIds[i + 1]])
+  }
+
+  return pairedPlates
+}
+
+// array shuffle function
+export function shuffle(array: Array<unknown>) {
+  let currentIndex = array.length
+
+  while (currentIndex != 0) {
+    const randomIndex = Math.floor(Math.random() * currentIndex)
+    currentIndex--
+    ;[array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex]
+    ]
+  }
+}
+
+export function preloadImage(url: string) {
+  const img = new Image()
+  img.src = url
+}

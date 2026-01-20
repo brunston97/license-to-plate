@@ -6,20 +6,13 @@ import PlateCardGallery from './PlateCardGallery'
 
 interface PlateCollectionProps {
   plates: IPlateCard[]
-  windowWidth: number
   isFleet: boolean
-  isPlateSelected: (plateId: number) => boolean
-  onCardClick: (plate: IPlateCard) => void
-  onCardLike: (plate: IPlateCard) => void
+  showCardLikes: boolean
+  onCardLike?: (card: IPlateCard) => void
 }
 
 const PlateCollection = (props: PlateCollectionProps) => {
-  const {
-    plates,
-    isFleet,
-    //isPlateSelected,
-    onCardLike
-  } = props
+  const { plates, isFleet, showCardLikes, onCardLike } = props
 
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -47,10 +40,10 @@ const PlateCollection = (props: PlateCollectionProps) => {
       <ScrollShadow hideScrollBar className="min-h-0 w-full grow" size={10}>
         <PlateCardGallery
           plates={currentPlates}
-          showLikes
-          onLikeButtonClick={onCardLike}
+          showCardLikes={showCardLikes}
           centerText={false}
           isZoomed
+          onCardLike={onCardLike}
         ></PlateCardGallery>
       </ScrollShadow>
 

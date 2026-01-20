@@ -2,9 +2,11 @@ import { IPlateCard } from 'assets/types'
 import axios from 'axios'
 import { ReactElement, useEffect, useState } from 'react'
 import PlateCardGallery from './PlateCardGallery'
+import { usePlateState } from 'hooks/usePlateState'
 
 export default function Results(): ReactElement {
   const [topTenPlates, setTopTenPlates] = useState<IPlateCard[]>([])
+  const { onCardLike } = usePlateState()
 
   useEffect(() => {
     async function getPlates() {
@@ -24,9 +26,10 @@ export default function Results(): ReactElement {
     <div className="z-0 grow overflow-y-auto p-4">
       <PlateCardGallery
         plates={topTenPlates}
-        showLikes
+        showCardLikes
         centerText={false}
         isZoomed
+        onCardLike={onCardLike}
       ></PlateCardGallery>
     </div>
   )
