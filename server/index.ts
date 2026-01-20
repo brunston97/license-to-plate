@@ -49,6 +49,10 @@ openRouter.post('/vote/:id', async (req, res) => {
   const { id } = req.params as voteBody
   //console.log(`${id} has been voted`)
   const docRef = db.collection(COLLECTION_NAME).doc(id)
+  if (process.env.NODE_ENV === 'development') {
+    res.send(id)
+    return
+  }
   try {
     await docRef.collection('votes').add({ time: Date.now() })
     await docRef.update({

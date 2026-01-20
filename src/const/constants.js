@@ -7,3 +7,8 @@ export const API_URL = import.meta.env.DEV
   ? `http://localhost:${import.meta.env.VITE_PORT ?? 8080}/api`
   : `https://server-186646240494.us-central1.run.app/api`
 export const MAX_FLEET_SIZE = 4
+export const VERSION = import.meta.env.VITE_APP_VERSION ?? ''
+
+export const LIKED_PLATES = `likedPlates_${VERSION}`
+export const SEEN_PLATES = `seenPlates_${VERSION}`
+export const STORED_PLATES = `plates_2025_${VERSION}`

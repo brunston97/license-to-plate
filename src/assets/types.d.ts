@@ -2,6 +2,7 @@
 export interface IPlateCard extends Image {
   voteCount: number
   isLiked: boolean
+  isSeen?: boolean // New field to track if user has seen it
 }
 
 // backend related
