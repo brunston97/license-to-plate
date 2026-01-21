@@ -3,13 +3,12 @@ import { IoHeart } from 'react-icons/io5'
 import { IPlateCard } from 'assets/types'
 import { BUCKET_URL, MOBILE_WIDTH_CUTOFF } from 'const/constants'
 import ImageContainer from './ImageContainer'
-import { usePlateState } from 'hooks/usePlateState'
 import { useState } from 'react'
 
 export interface PlateCardProps extends CardProps {
   card: IPlateCard
   onPlateCardClick?: (plate: IPlateCard) => void
-  //isLiked: boolean
+  isLiked: boolean
   showLikeButton?: boolean
   centerText?: boolean
   isZoomed?: boolean
@@ -20,39 +19,12 @@ const PlateCard = (props: PlateCardProps) => {
   const {
     card,
     onPlateCardClick,
-    //isLiked,
     showLikeButton,
     centerText,
     isZoomed,
     onCardLike
   } = props
-  const { likedPlateIds } = usePlateState()
-  const [isLiked, setIsLiked] = useState(likedPlateIds.has(card.id))
-
-  // fixes an issue where safari would render the first set of cards really small
-  // function handleImageLoaded() {
-  //   setImageLoaded(true)
-  // }
-
-  // function onCardLike(clickedPlate: IPlateCard) {
-  //   setLikedPlateIds((ids) => {
-  //     console.log('liked', ids)
-  //     if (ids.has(clickedPlate.id)) {
-  //       ids.delete(clickedPlate.id)
-  //       return new Set(ids)
-  //     }
-  //     handleClickAudio(false)
-  //     window.gtag &&
-  //       window.gtag('event', 'select_content', {
-  //         content_type: 'plate_like',
-  //         content_id: clickedPlate.id
-  //       })
-  //     //console.log('liked', ids)
-  //     return new Set(ids.add(clickedPlate.id))
-  //   })
-  // }
-
-  console.log('card render')
+  const [isLiked, setIsLiked] = useState(props.isLiked)
 
   return (
     <div className="relative flex h-auto max-h-full min-h-0 w-full max-w-full flex-col items-center justify-center light">

@@ -1,5 +1,5 @@
 import { IPlateCard } from 'assets/types'
-import { LIKED_PLATES, VIEWED_PLATES as VIEWED_PLATES } from 'const/constants'
+import { LIKED_PLATES, VIEWED_PLATES } from 'const/constants'
 
 export function classNames(...classes: unknown[]): string {
   return classes.filter(Boolean).join(' ')

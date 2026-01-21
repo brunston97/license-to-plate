@@ -15,6 +15,9 @@ import {
 } from 'utils'
 import { useOutletContext } from 'react-router-dom'
 
+console.log(VIEWED_PLATES)
+const likedPlates = getLikedPlatesFromLocalStorage()
+const viewedPlates = getViewedPlateFromLocalStorage()
 // Hook to manage plate state: liked, seen, and full plates
 export function usePlateState() {
   const [plates, setPlates] = useState<IPlateCard[]>([])
@@ -22,12 +25,9 @@ export function usePlateState() {
   const [indexPairs, setIndexPairs] = useState<number[][]>([[]])
   const [index, setIndex] = useState(0)
   //const [isMuted, setIsMuted] = useState(true)
-  const [likedPlateIds, setLikedPlateIds] = useState<Set<number>>(
-    getLikedPlatesFromLocalStorage()
-  )
-  const [viewedPlateIds, setViewedPlateIds] = useState<Set<number>>(
-    getViewedPlateFromLocalStorage()
-  )
+  const [likedPlateIds, setLikedPlateIds] = useState<Set<number>>(likedPlates)
+  const [viewedPlateIds, setViewedPlateIds] =
+    useState<Set<number>>(viewedPlates)
 
   const { isMuted } = useOutletContext<{
     windowWidth: number
@@ -119,15 +119,6 @@ export function usePlateState() {
 
   // on initial plate load, and every plateOff render, add to seen plates
   useEffect(() => {
-    //preload images
-    if (index + 1 < indexPairs.length) {
-      indexPairs[index + 1].forEach((idx) => {
-        const card = plates[idx]
-        const src = `${BUCKET_URL}/${card.fileName}`
-        preloadImage(src)
-      })
-    }
-
     //postAdd plates
     if (index > 0) {
       //after vote index change
@@ -145,6 +136,14 @@ export function usePlateState() {
         )
         return newSet
       })
+      //preload images
+      if (index + 1 < indexPairs.length) {
+        indexPairs[index + 1].forEach((idx) => {
+          const card = plates[idx]
+          const src = `${BUCKET_URL}/${card.fileName}`
+          preloadImage(src)
+        })
+      }
     }
   }, [index, indexPairs, plates])
 

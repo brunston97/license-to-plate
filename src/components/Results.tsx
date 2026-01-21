@@ -9,7 +9,7 @@ export default function Results(): ReactElement {
   const [topTenPlates, setTopTenPlates] = useState<IPlateCard[]>([])
   const [modalIndex, setModalIndex] = useState<number | null>(null)
 
-  const { onCardLike } = usePlateState()
+  const { onCardLike, likedPlateIds } = usePlateState()
 
   useEffect(() => {
     async function getPlates() {
@@ -41,6 +41,7 @@ export default function Results(): ReactElement {
               }}
               onCardLike={onCardLike}
               showLikeButton
+              isLiked={likedPlateIds.has(card.id)}
             ></PlateCard>
           )
         })}

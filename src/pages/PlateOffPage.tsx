@@ -7,7 +7,8 @@ import PlateCard from 'components/PlateCard'
 
 function PlateOffPage() {
   const [isSideBySideView, setIsSideBySideView] = useState(false)
-  const { plates, currentPlatePair, onCardLike, onPlateVote } = usePlateState()
+  const { plates, currentPlatePair, onCardLike, onPlateVote, likedPlateIds } =
+    usePlateState()
 
   const sideBySideClass = ' pb-11 *:w-full *:max-w-[95%] *:max-h-full'
   const stackClass = ' grow flex-col items-center *:max-h-[50%] *:h-full'
@@ -15,7 +16,6 @@ function PlateOffPage() {
     isSideBySideView && window.innerWidth < MOBILE_WIDTH_CUTOFF
       ? sideBySideClass
       : stackClass
-
   return (
     <div className="flex max-h-full min-h-0 grow flex-col items-center justify-center">
       <div
@@ -45,6 +45,7 @@ function PlateOffPage() {
                         onPlateCardClick={onPlateVote}
                         showLikeButton={true}
                         id={'item' + plate.id}
+                        isLiked={likedPlateIds.has(plate.id)}
                         centerText
                         isZoomed
                         onCardLike={onCardLike}

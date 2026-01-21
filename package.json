@@ -11,11 +11,11 @@
   },
   "scripts": {
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
-    "dev:client": "vite --open",
+    "dev:client": "VITE_APP_VERSION=$npm_package_version vite --open",
     "dev:server": "cd server && npm run dev",
     "prod:server": "cd server && npm run prod",
     "prod:client": "npm run build && firebase deploy --project license2plate-b4c6e --only hosting",
-    "build": "tsc && vite build",
+    "build": "VITE_APP_VERSION=$npm_package_version tsc && vite build",
     "buildAndDeploy": "npm run build && firebase deploy --project license2plate-b4c6e --only hosting",
     "serve": "vite preview",
     "test": "vitest",

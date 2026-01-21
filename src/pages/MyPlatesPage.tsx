@@ -43,6 +43,7 @@ const MyPlatesPage = () => {
                     onPlateCardClick={() => {
                       setModalIndex(index)
                     }}
+                    isLiked={likedPlateIds.has(card.id)}
                     showLikeButton
                     onCardLike={onCardLike}
                     isZoomed
@@ -77,6 +78,7 @@ const MyPlatesPage = () => {
                     onPlateCardClick={() => {
                       setModalIndex(index)
                     }}
+                    isLiked={likedPlateIds.has(card.id)}
                     showLikeButton
                     onCardLike={onCardLike}
                     isZoomed
