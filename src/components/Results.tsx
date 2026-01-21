@@ -1,11 +1,14 @@
 import { IPlateCard } from 'assets/types'
 import axios from 'axios'
 import { ReactElement, useEffect, useState } from 'react'
-import PlateCardGallery from './PlateCardGallery'
 import { usePlateState } from 'hooks/usePlateState'
+import { PlateCollection } from './PlateCollection'
+import PlateCard from './PlateCard'
 
 export default function Results(): ReactElement {
   const [topTenPlates, setTopTenPlates] = useState<IPlateCard[]>([])
+  const [modalIndex, setModalIndex] = useState<number | null>(null)
+
   const { onCardLike } = usePlateState()
 
   useEffect(() => {
@@ -24,13 +27,24 @@ export default function Results(): ReactElement {
 
   return (
     <div className="z-0 grow overflow-y-auto p-4">
-      <PlateCardGallery
-        plates={topTenPlates}
-        showCardLikes
-        centerText={false}
-        isZoomed
-        onCardLike={onCardLike}
-      ></PlateCardGallery>
+      <PlateCollection
+        modalIndex={modalIndex}
+        onModalClose={() => setModalIndex(null)}
+      >
+        {topTenPlates.map((card, index) => {
+          return (
+            <PlateCard
+              key={card.id}
+              card={card}
+              onPlateCardClick={() => {
+                setModalIndex(index)
+              }}
+              onCardLike={onCardLike}
+              showLikeButton
+            ></PlateCard>
+          )
+        })}
+      </PlateCollection>
     </div>
   )
 }

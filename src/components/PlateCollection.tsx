@@ -1,70 +1,67 @@
-import { useState } from 'react'
-import { IPlateCard } from 'assets/types'
-import { MAX_FLEET_SIZE } from 'const/constants'
+// PlateCollection.tsx  (refactored)
+import { Children, isValidElement, ReactElement, useState } from 'react'
 import { Button, ScrollShadow } from '@heroui/react'
-import PlateCardGallery from './PlateCardGallery'
+import { MAX_FLEET_SIZE } from 'const/constants'
+import { PlateCardProps } from './PlateCard'
+import ModalGallery from './ModalGallery'
 
 interface PlateCollectionProps {
-  plates: IPlateCard[]
-  isFleet: boolean
-  showCardLikes: boolean
-  onCardLike?: (card: IPlateCard) => void
+  /** Anything you want to render inside the collection */
+  children?: ReactElement<PlateCardProps>[]
+  /** Optional helpers – keep the old props for backward compatibility */
+  isFleet?: boolean
+  modalIndex: number | null
+  onModalClose?: () => void
 }
 
-const PlateCollection = (props: PlateCollectionProps) => {
-  const { plates, isFleet, showCardLikes, onCardLike } = props
-
+export const PlateCollection = ({
+  children,
+  isFleet = false,
+  modalIndex,
+  onModalClose
+}: PlateCollectionProps) => {
   const [currentPage, setCurrentPage] = useState(1)
+  //const [modalIndex, setModalIndex] = useState<number | null>(null)
 
-  //const isMobileSized = windowWidth <= MOBILE_WIDTH_CUTOFF
-  const platesPerPage = isFleet ? MAX_FLEET_SIZE : 12
+  // If children is an array of plate cards, we can calculate paging
+  const platesArray = Children.toArray(children).filter(
+    (c) => isValidElement(c) && c.props?.card
+  ) as ReactElement<PlateCardProps>[]
 
-  // useMemo?
-  const startIndex = (currentPage - 1) * platesPerPage
-  const endIndex = startIndex + platesPerPage
-  const currentPlates = plates.slice(startIndex, endIndex)
+  const platesPerPage = isFleet ? MAX_FLEET_SIZE : 16
+  const startIdx = (currentPage - 1) * platesPerPage
+  const endIdx = startIdx + platesPerPage
+  const currentPlates = platesArray.slice(startIdx, endIdx)
 
-  const handleNextPage = () => {
-    if (endIndex < plates.length) {
-      setCurrentPage((prev) => prev + 1)
-    }
-  }
-  const handlePreviousPage = () => {
-    if (startIndex > 0) {
-      setCurrentPage((prev) => prev - 1)
-    }
-  }
+  const handleNext = () =>
+    currentPage < Math.ceil(platesArray.length / platesPerPage) &&
+    setCurrentPage((p) => p + 1)
+  const handlePrev = () => currentPage > 1 && setCurrentPage((p) => p - 1)
 
   return (
     <div className="flex size-full flex-col">
       <ScrollShadow hideScrollBar className="min-h-0 w-full grow" size={10}>
-        <PlateCardGallery
-          plates={currentPlates}
-          showCardLikes={showCardLikes}
-          centerText={false}
-          isZoomed
-          onCardLike={onCardLike}
-        ></PlateCardGallery>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 2xl:grid-cols-8">
+          {currentPlates}
+        </div>
       </ScrollShadow>
+      <ModalGallery
+        onClose={onModalClose}
+        openIndex={modalIndex === null ? null : modalIndex % platesPerPage}
+      >
+        {currentPlates}
+      </ModalGallery>
 
       {!isFleet && (
         <div className="mt-3 flex items-center justify-center gap-4">
-          <Button
-            className="mr-2 rounded bg-gray-300 p-2 text-xs text-gray-700 hover:bg-gray-400 disabled:opacity-50 md:px-4"
-            onPress={handlePreviousPage}
-            disabled={currentPage === 1}
-          >
+          <Button onPress={handlePrev} disabled={currentPage === 1}>
             &larr;
           </Button>
-
           <span className="font-barlow text-xl text-white">
-            Page {currentPage} of {Math.ceil(plates.length / platesPerPage)}
+            Page {currentPage} of{' '}
+            {Math.ceil(platesArray.length / platesPerPage)}
           </span>
-          <Button
-            className="ml-2 rounded bg-gray-300 p-2 text-xs text-gray-700 hover:bg-gray-400 disabled:opacity-50 md:px-4"
-            onPress={handleNextPage}
-            disabled={endIndex >= plates.length}
-          >
+          <Button onPress={handleNext} disabled={endIdx >= platesArray.length}>
             &rarr;
           </Button>
         </div>
@@ -72,5 +69,3 @@ const PlateCollection = (props: PlateCollectionProps) => {
     </div>
   )
 }
-
-export default PlateCollection

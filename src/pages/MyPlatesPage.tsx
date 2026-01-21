@@ -1,11 +1,13 @@
-import { useMemo } from 'react'
-import PlateCollection from '../components/PlateCollection'
+import { useMemo, useState } from 'react'
 import { Tab, Tabs } from '@heroui/react'
 import { usePlateState } from 'hooks/usePlateState'
+import PlateCard from 'components/PlateCard'
+import { PlateCollection } from 'components/PlateCollection'
 
 const MyPlatesPage = () => {
   // general page settings
   const { plates, likedPlateIds, onCardLike } = usePlateState()
+  const [modalIndex, setModalIndex] = useState<number | null>(null)
 
   const allPlates = useMemo(() => {
     return [...plates].sort(
@@ -29,11 +31,25 @@ const MyPlatesPage = () => {
         >
           {likedPlates.length > 0 ? (
             <PlateCollection
-              plates={likedPlates}
+              modalIndex={modalIndex}
               isFleet={false}
-              showCardLikes
-              onCardLike={onCardLike}
-            />
+              onModalClose={() => setModalIndex(null)}
+            >
+              {likedPlates.map((card, index) => {
+                return (
+                  <PlateCard
+                    key={card.id}
+                    card={card}
+                    onPlateCardClick={() => {
+                      setModalIndex(index)
+                    }}
+                    showLikeButton
+                    onCardLike={onCardLike}
+                    isZoomed
+                  ></PlateCard>
+                )
+              })}
+            </PlateCollection>
           ) : (
             <div className="flex h-full items-center justify-center">
               <p className="text-center text-lg text-white">
@@ -50,11 +66,24 @@ const MyPlatesPage = () => {
         >
           {allPlates.length > 0 ? (
             <PlateCollection
-              plates={allPlates}
-              isFleet={false}
-              showCardLikes
-              onCardLike={onCardLike}
-            />
+              modalIndex={modalIndex}
+              onModalClose={() => setModalIndex(null)}
+            >
+              {allPlates.map((card, index) => {
+                return (
+                  <PlateCard
+                    key={card.id}
+                    card={card}
+                    onPlateCardClick={() => {
+                      setModalIndex(index)
+                    }}
+                    showLikeButton
+                    onCardLike={onCardLike}
+                    isZoomed
+                  ></PlateCard>
+                )
+              })}
+            </PlateCollection>
           ) : (
             <div className="flex h-full items-center justify-center">
               <p className="text-center text-lg text-white">

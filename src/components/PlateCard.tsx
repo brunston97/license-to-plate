@@ -6,7 +6,7 @@ import ImageContainer from './ImageContainer'
 import { usePlateState } from 'hooks/usePlateState'
 import { useState } from 'react'
 
-interface PlateCardProps extends CardProps {
+export interface PlateCardProps extends CardProps {
   card: IPlateCard
   onPlateCardClick?: (plate: IPlateCard) => void
   //isLiked: boolean

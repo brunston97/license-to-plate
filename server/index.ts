@@ -158,6 +158,7 @@ if (process.env.NODE_ENV === 'development') {
         //   res.status(404).json({ error: `File does not exists` })
         // } else {
         //setTimeout(() => {
+        res.set('Cache-Control', 'public, max-age=600, s-maxage=600')
         res.sendFile(filePath)
         //}, 100000)
         //}
