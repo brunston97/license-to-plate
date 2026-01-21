@@ -1,29 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa'
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
 import { Button } from '@heroui/react'
-import { usePlateState } from 'hooks/usePlateState'
 
 export default function PageWrapper() {
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
-  const { audioRef, isMuted, toggleMute } = usePlateState()
+  const [isMuted, setIsMuted] = useState<boolean>(true)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  useEffect(() => {
-    function handleResize() {
-      setWindowWidth(window.innerWidth)
+  const toggleMute = () => {
+    if (audioRef.current) {
+      if (audioRef.current.played) {
+        audioRef.current.play()
+      }
+      audioRef.current.muted = !audioRef.current.muted // Toggle the actual audio element property
+      setIsMuted(audioRef.current.muted) // Update React state to reflect the change
     }
-
-    window.addEventListener('resize', handleResize)
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
+  }
 
   return (
     <div className="relative flex h-dvh w-full flex-col bg-gradient-to-b from-bg-primary-1 to-bg-primary-2 text-white">
       <Navbar />
-      <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop />
+      <audio ref={audioRef} src="digit-funk.mp3" autoPlay loop muted />
 
       <Button
         onPress={() => {
@@ -48,7 +46,7 @@ export default function PageWrapper() {
         )}
       </Button>
       {/* <div className="flex min-h-0 grow flex-col"> */}
-      <Outlet context={{ windowWidth }} />
+      <Outlet context={{ isMuted }} />
       {/* </div> */}
     </div>
   )

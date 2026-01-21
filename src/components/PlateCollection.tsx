@@ -47,18 +47,6 @@ const PlateCollection = (props: PlateCollectionProps) => {
         ></PlateCardGallery>
       </ScrollShadow>
 
-      {/* {!isMobileSized && !isFleet && (
-        <>
-          <button
-            className="ml-8 rounded bg-gray-300 p-2 text-gray-700 hover:bg-gray-400 disabled:opacity-50 md:px-4"
-            onClick={handleNextPage}
-            disabled={endIndex >= plates.length}
-          >
-            &rarr;
-          </button>
-        </>
-      )} */}
-
       {!isFleet && (
         <div className="mt-3 flex items-center justify-center gap-4">
           <Button

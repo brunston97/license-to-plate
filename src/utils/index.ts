@@ -1,3 +1,6 @@
+import { IPlateCard } from 'assets/types'
+import { LIKED_PLATES, VIEWED_PLATES as VIEWED_PLATES } from 'const/constants'
+
 export function classNames(...classes: unknown[]): string {
   return classes.filter(Boolean).join(' ')
 }
@@ -50,4 +53,36 @@ export function shuffle(array: Array<unknown>) {
 export function preloadImage(url: string) {
   const img = new Image()
   img.src = url
+}
+
+export function getLikedPlatesFromLocalStorage(): Set<number> {
+  const stored = localStorage.getItem(LIKED_PLATES)
+  if (stored) {
+    return new Set(JSON.parse(stored) as number[])
+  }
+
+  // Fallback: extract from stored plates (full objects)
+  const storedPlatesRaw: IPlateCard[] = localStorage.getItem('userPlates')
+    ? JSON.parse(localStorage.getItem('userPlates')!)
+    : []
+  const ids = storedPlatesRaw
+    .filter((plate) => plate?.isLiked !== undefined && plate?.isLiked)
+    .map((plate) => (plate as IPlateCard).id)
+  return new Set(ids.filter((id) => typeof id === 'number'))
+}
+
+export function getViewedPlateFromLocalStorage(): Set<number> {
+  const stored = localStorage.getItem(VIEWED_PLATES)
+  if (stored) {
+    return new Set(JSON.parse(stored) as number[])
+  }
+
+  // Fallback: extract from stored plates
+  const storedPlatesRaw: IPlateCard[] = localStorage.getItem('userPlates')
+    ? JSON.parse(localStorage.getItem('userPlates')!)
+    : []
+  const ids = storedPlatesRaw
+    .map((plate) => (plate as IPlateCard).id)
+    .filter((id) => typeof id === 'number')
+  return new Set(ids)
 }

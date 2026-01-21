@@ -1,123 +1,70 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { IPlateCard } from 'assets/types'
-import { LIKED_PLATES, SEEN_PLATES, STORED_PLATES } from 'const/constants'
+import {
+  BUCKET_URL,
+  LIKED_PLATES,
+  VIEWED_PLATES,
+  STORED_PLATES
+} from 'const/constants'
 import axios from 'utils/axiosInstance'
+import {
+  formPlatePairsArray,
+  getLikedPlatesFromLocalStorage,
+  getViewedPlateFromLocalStorage,
+  preloadImage
+} from 'utils'
+import { useOutletContext } from 'react-router-dom'
 
 // Hook to manage plate state: liked, seen, and full plates
 export function usePlateState() {
   const [plates, setPlates] = useState<IPlateCard[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  //const [isLoading, setIsLoading] = useState(true)
+  const [indexPairs, setIndexPairs] = useState<number[][]>([[]])
+  const [index, setIndex] = useState(0)
+  //const [isMuted, setIsMuted] = useState(true)
+  const [likedPlateIds, setLikedPlateIds] = useState<Set<number>>(
+    getLikedPlatesFromLocalStorage()
+  )
+  const [viewedPlateIds, setViewedPlateIds] = useState<Set<number>>(
+    getViewedPlateFromLocalStorage()
+  )
 
-  const [likedPlateIds, setLikedPlateIds] = useState<Set<number>>(() => {
-    const stored = localStorage.getItem(LIKED_PLATES)
-    if (stored) {
-      return new Set(JSON.parse(stored) as number[])
-    }
+  const { isMuted } = useOutletContext<{
+    windowWidth: number
+    isMuted: boolean
+  }>()
 
-    // Fallback: extract from stored plates (full objects)
-    const storedPlatesRaw: IPlateCard[] = localStorage.getItem('userPlates')
-      ? JSON.parse(localStorage.getItem('userPlates')!)
-      : []
-    const ids = storedPlatesRaw
-      .filter((plate) => plate?.isLiked !== undefined && plate?.isLiked)
-      .map((plate) => (plate as IPlateCard).id)
-    return new Set(ids.filter((id) => typeof id === 'number'))
-  })
-
-  const [seenPlateIds, setSeenPlateIds] = useState<Set<number>>(() => {
-    const stored = localStorage.getItem(SEEN_PLATES)
-    if (stored) {
-      return new Set(JSON.parse(stored) as number[])
-    }
-
-    // Fallback: extract from stored plates
-    const storedPlatesRaw: IPlateCard[] = localStorage.getItem('userPlates')
-      ? JSON.parse(localStorage.getItem('userPlates')!)
-      : []
-    const ids = storedPlatesRaw
-      .map((plate) => (plate as IPlateCard).id)
-      .filter((id) => typeof id === 'number')
-    return new Set(ids)
-  })
-
+  //SOUND SECTION*******************************************
   // Audio refs (if needed elsewhere)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const likeButtonAudioRef = useRef<HTMLAudioElement | null>(null)
 
-  // Fetch plates from API or load from localStorage
   useEffect(() => {
-    const fetchPlates = async () => {
-      const localPlates = localStorage.getItem(STORED_PLATES)
-      let platesData = localPlates
-        ? (JSON.parse(localPlates) as IPlateCard[])
-        : []
-
-      if (platesData.length === 0) {
-        try {
-          const { data } = await axios.get('/plates')
-          platesData = data as IPlateCard[]
-          localStorage.setItem(STORED_PLATES, JSON.stringify(platesData))
-        } catch (error) {
-          console.error('Error fetching plates:', error)
-        }
-      }
-
-      setPlates(platesData)
-      setIsLoading(false)
+    audioRef.current = new Audio('pop.mp3')
+    likeButtonAudioRef.current = new Audio('chime.mp3')
+    return () => {
+      audioRef.current?.pause()
+      audioRef.current = null
+      likeButtonAudioRef.current?.pause()
+      likeButtonAudioRef.current = null
     }
-
-    fetchPlates()
   }, [])
 
-  // Handle like toggle
-  const onCardLike = (clickedPlate: IPlateCard) => {
-    setLikedPlateIds((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(clickedPlate.id)) {
-        newSet.delete(clickedPlate.id)
-      } else {
-        newSet.add(clickedPlate.id)
-        // Play chime sound
-        if (likeButtonAudioRef.current) {
-          likeButtonAudioRef.current.play().catch(() => null) // silent on mobile
-        }
-        // Track event
-        window.gtag?.('event', 'select_content', {
-          content_type: 'plate_like',
-          content_id: clickedPlate.id
-        })
+  function playSound(isVote: boolean) {
+    const ref = isVote ? audioRef.current : likeButtonAudioRef.current
+    if (!isMuted && ref) {
+      if (!ref.paused) {
+        ref.pause()
+        ref.currentTime = 0
       }
-      localStorage.setItem(
-        LIKED_PLATES,
-        JSON.stringify(newSet.values().toArray())
-      )
-      return newSet
-    })
+      ref.play().catch(() => null)
+    }
   }
 
-  // Handle mark as seen
-  const onCardSeen = useCallback(function (clickedPlate: IPlateCard) {
-    setSeenPlateIds((prev) => {
-      const newSet = new Set(prev).add(clickedPlate.id)
-
-      localStorage.setItem(
-        LIKED_PLATES,
-        JSON.stringify(newSet.values().toArray())
-      )
-      return newSet
-      // if (!newSet.has(clickedPlate.id)) {
-      //   newSet.add(clickedPlate.id)
-      // }
-      //return newSet
-    })
-  }, [])
-
-  // Toggle mute (used for audio)
-  const [isMuted, setIsMuted] = useState(true)
-
-  const toggleMute = () => {
-    setIsMuted((prev) => !prev)
-  }
+  // // Toggle mute (used for audio)
+  // const toggleMute = () => {
+  //   setIsMuted((prev) => !prev)
+  // }
 
   // Audio handling (for interactive playback)
   useEffect(() => {
@@ -142,39 +89,145 @@ export function usePlateState() {
     }
   }, [])
 
-  // Cleanup audio on unmount
+  //GETPLATES AND MAKE PLATE PAIRS
+
+  // Fetch plates from API or load from localStorage
   useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
+    const fetchPlates = async () => {
+      const localPlates = localStorage.getItem(STORED_PLATES)
+      let platesData = localPlates
+        ? (JSON.parse(localPlates) as IPlateCard[])
+        : []
+
+      if (platesData.length === 0) {
+        try {
+          const { data } = await axios.get('/plates')
+          platesData = data as IPlateCard[]
+          localStorage.setItem(STORED_PLATES, JSON.stringify(platesData))
+        } catch (error) {
+          console.error('Error fetching plates:', error)
+        }
       }
-      if (likeButtonAudioRef.current) {
-        likeButtonAudioRef.current.pause()
-        likeButtonAudioRef.current = null
-      }
+      //sort here to prefer unseen
+      setIndexPairs(formPlatePairsArray(platesData.length))
+      setPlates(platesData)
+      //setIsLoading(false)
     }
+
+    fetchPlates()
   }, [])
 
-  // const likedPlates = useMemo(() => {
+  // on initial plate load, and every plateOff render, add to seen plates
+  useEffect(() => {
+    //preload images
+    if (index + 1 < indexPairs.length) {
+      indexPairs[index + 1].forEach((idx) => {
+        const card = plates[idx]
+        const src = `${BUCKET_URL}/${card.fileName}`
+        preloadImage(src)
+      })
+    }
 
-  // }, [plates, likedPlateIds])
+    //postAdd plates
+    if (index > 0) {
+      //after vote index change
+      setViewedPlateIds((prev) => {
+        const newSet = new Set(prev)
+        indexPairs[index - 1].forEach((idx) => {
+          const card = plates[idx]
+          newSet.add(card.id)
+        })
+
+        //store the changes
+        localStorage.setItem(
+          VIEWED_PLATES,
+          JSON.stringify(newSet.values().toArray())
+        )
+        return newSet
+      })
+    }
+  }, [index, indexPairs, plates])
+
+  // const fetchPlateOffPair = useCallback(
+  //   function () {
+  //     return indexPairs[index].map((idx) => {
+  //       const card = plates[idx]
+  //       const src = `${BUCKET_URL}/${card.fileName}`
+
+  //       //preload if possible
+  //       if (index + 1 < indexPairs.length) {
+  //         preloadImage(src)
+  //       }
+  //       return card
+  //     })
+  //   },
+  //   [indexPairs, plates, index]
+  // )
+
+  //USER INTERACTION FUNCTIONS*****************************************
+  // Handle like toggle
+  const onCardLike = (clickedPlate: IPlateCard) => {
+    setLikedPlateIds((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(clickedPlate.id)) {
+        newSet.delete(clickedPlate.id)
+      } else {
+        newSet.add(clickedPlate.id)
+        // Play chime sound
+        playSound(false)
+        // Track event
+        window.gtag?.('event', 'select_content', {
+          content_type: 'plate_like',
+          content_id: clickedPlate.id
+        })
+      }
+      localStorage.setItem(
+        LIKED_PLATES,
+        JSON.stringify(newSet.values().toArray())
+      )
+      return newSet
+    })
+  }
+
+  // Handle mark as seen
+  //const onCardView = useCallback(function (clickedPlate: IPlateCard) {}, [])
+
+  async function onPlateVote(card: IPlateCard) {
+    playSound(true)
+    try {
+      axios.post(`/vote/${card.id}`)
+      setIndex((i) => i + 1)
+
+      window.gtag &&
+        window.gtag('event', 'select_content', {
+          content_type: 'plate_vote',
+          content_id: card.id
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const currentPlatePair = useMemo(() => {
+    if (index < indexPairs.length) {
+      return [plates[indexPairs[index][0]], plates[indexPairs[index][1]]]
+    } else {
+      return []
+    }
+  }, [plates, indexPairs, index])
 
   return {
     plates,
-    isLoading,
     likedPlateIds,
-    seenPlateIds,
+    viewedPlateIds,
     onCardLike,
-    onCardSeen,
+    onPlateVote,
     isMuted,
-    toggleMute,
-    audioRef,
-    likeButtonAudioRef,
+    currentPlatePair,
     // Optional: add getters for filtered plates
     getLikedPlates: () => plates.filter((p) => likedPlateIds.has(p.id)),
-    getSeenPlates: () => plates.filter((p) => seenPlateIds.has(p.id)),
-    getUnseenPlates: () => plates.filter((p) => !seenPlateIds.has(p.id)),
+    getSeenPlates: () => plates.filter((p) => viewedPlateIds.has(p.id)),
+    getUnseenPlates: () => plates.filter((p) => !viewedPlateIds.has(p.id)),
     getUnlikedPlates: () => plates.filter((p) => !likedPlateIds.has(p.id))
   }
 }
