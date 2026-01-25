@@ -14,7 +14,7 @@
     "dev:client": "VITE_APP_VERSION=$npm_package_version vite --open",
     "dev:server": "cd server && npm run dev",
     "prod:server": "cd server && npm run prod",
-    "prod:client": "npm run build && firebase deploy --project license2plate-b4c6e --only hosting",
+    "prod:client": "VITE_APP_VERSION=$npm_package_version npm run build && firebase deploy --project license2plate-b4c6e --only hosting",
     "build": "VITE_APP_VERSION=$npm_package_version tsc && vite build",
     "buildAndDeploy": "npm run build && firebase deploy --project license2plate-b4c6e --only hosting",
     "serve": "vite preview",
